@@ -22,6 +22,7 @@ import { MediaModule } from './media/media.module';
 
 import * as process from 'node:process';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
+import { FavoriteModule } from './favorite/favorite.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
     AdminModule,
     UploadsModule,
     MailModule,
+    FavoriteModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -55,6 +57,7 @@ import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
     VehiclesModule,
     GeolocationModule,
     MediaModule,
+    FavoriteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

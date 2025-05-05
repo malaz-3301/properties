@@ -14,6 +14,7 @@ import { Property } from '../../properties/entities/property.entity';
 import { Vehicle } from '../../vehicles/entities/vehicle.entity';
 import { Estate } from '../../estate/entities/estate.entity';
 import { Location } from '../../geolocation/entities/location.embedded';
+import { Favorite } from 'src/favorite/entites/favorite.entity';
 
 @Entity('users')
 export class User {
@@ -65,4 +66,7 @@ export class User {
 
   @Column({ type: 'varchar', nullable: true, default: null })
   profileImage: string | null;
+
+  @OneToMany(()=>Favorite, (favorite)=>favorite.user)
+  favorites : Favorite[]
 }

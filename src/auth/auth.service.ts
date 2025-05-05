@@ -24,8 +24,11 @@ export class AuthService {
    * @param loginUserDto
    */
   async login(loginUserDto: LoginUserDto) {
-    const { phone, password } = loginUserDto;
-    const user = await this.usersRepository.findOneBy({ phone });
+    const { phone, username, password } = loginUserDto;
+    const user = phone //if بطريقة عمك ملاز
+      ? await this.usersRepository.findOneBy({ phone: phone })
+      : await this.usersRepository.findOneBy({ username: username });
+
     if (!user) {
       throw new NotFoundException('User Not Found');
     }

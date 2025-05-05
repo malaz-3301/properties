@@ -12,7 +12,7 @@ import {
 import { CURRENT_TIMESTAMP } from '../../utils/constants';
 import { PropertyStatus } from '../../utils/enums';
 import { PropertyType } from '../../utils/enums';
-import { Location } from './location.embedded';
+import { Location } from '../../geolocation/entities/location.embedded';
 
 //Mapped Superclass
 //Abstract

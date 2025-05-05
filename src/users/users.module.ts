@@ -15,6 +15,7 @@ import e, { Express } from 'express';
 import { MailModule } from '../mail/mail.module';
 import { HttpModule } from '@nestjs/axios';
 import { UsersOtpProvider } from './users-otp.provider';
+import { GeolocationModule } from '../geolocation/geolocation.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UsersOtpProvider } from './users-otp.provider';
     AuthModule,
     MailModule,
     HttpModule,
+    GeolocationModule,
     MulterModule.register({
       storage: diskStorage({
         destination: './images/users',

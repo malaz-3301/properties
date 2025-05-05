@@ -5,7 +5,10 @@ import {
   IsString,
   Length,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { PointsDto } from '../../geolocation/dto/points.dto';
 
 export class RegisterUserDto {
   @IsNotEmpty()
@@ -22,6 +25,11 @@ export class RegisterUserDto {
   @IsString()
   @Length(6, 20)
   password: string;
+
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => PointsDto)
+  pointsDto: PointsDto;
 
   @IsOptional()
   @IsNumber()

@@ -22,6 +22,7 @@ import { MailService } from '../mail/mail.service';
 
 import { UsersOtpProvider } from './users-otp.provider';
 import { firstValueFrom } from 'rxjs';
+import { GeolocationService } from '../geolocation/geolocation.service';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +32,7 @@ export class UsersService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly usersOtpProvider: UsersOtpProvider,
+    private readonly geolocationService: GeolocationService,
   ) {}
 
   /**
@@ -38,16 +40,25 @@ export class UsersService {
    * @param registerUserDto
    */
   async register(registerUserDto: RegisterUserDto) {
-    const { phone, password } = registerUserDto;
+    const { phone, password, pointsDto } = registerUserDto;
     if (await this.usersRepository.findOneBy({ phone: phone })) {
       throw new ConflictException('User already exists');
     }
     registerUserDto.password = await this.usersOtpProvider.hashCode(password);
     //OTP
     const code = Math.floor(10000 + Math.random() * 90000).toString();
-    registerUserDto['otpCode'] = await this.usersOtpProvider.hashCode(code);
+    const otpCode = await this.usersOtpProvider.hashCode(code);
     //
-    const user = await this.usersRepository.save(registerUserDto);
+    const location = await this.geolocationService.reverse_geocoding(
+      pointsDto.lat,
+      pointsDto.lon,
+    );
+    const user = this.usersRepository.create({
+      ...registerUserDto,
+      location,
+      otpCode,
+    });
+    await this.usersRepository.save(user);
 
     /*    try {
           await this.mailService.sendSignUpEmail(user);
@@ -56,6 +67,7 @@ export class UsersService {
           return { accessToken };
         }*/
     await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
+    await this.usersRepository.save(user);
     return {
       message: 'Verify your account',
       userId: user.id,
@@ -101,7 +113,7 @@ export class UsersService {
    */
   async delete(id: number, password: string) {
     const user = await this.usersOtpProvider.findById(id);
-    
+
     const isPass = await bcrypt.compare(password, user.password);
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');

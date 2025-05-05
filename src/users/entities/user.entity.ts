@@ -13,6 +13,7 @@ import { UserType } from '../../utils/enums';
 import { Property } from '../../properties/entities/property.entity';
 import { Vehicle } from '../../vehicles/entities/vehicle.entity';
 import { Estate } from '../../estate/entities/estate.entity';
+import { Location } from '../../geolocation/entities/location.embedded';
 
 @Entity('users')
 export class User {
@@ -28,6 +29,9 @@ export class User {
   @Column({ type: 'varchar' })
   @Exclude()
   password: string;
+
+  @Column(() => Location) //embedded
+  location: Location;
 
   @Column({ type: 'integer', default: 18 })
   age: number;

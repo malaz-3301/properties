@@ -22,6 +22,6 @@ export class GeolocationController {
     @Query('lat', ParseFloatPipe) lat: number,
     @Query('lon', ParseFloatPipe) lon: number,
   ) {
-    return this.geolocationService.reverse(lat, lon);
+    return this.geolocationService.reverse_geocoding(lat, lon);
   }
 }

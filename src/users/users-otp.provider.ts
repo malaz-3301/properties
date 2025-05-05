@@ -41,7 +41,7 @@ export class UsersOtpProvider {
       throw new UnauthorizedException('Code is incorrect');
     }
     user.isAccountVerified = true;
-    user.otpTries = 0; //هل هناك داعي
+    user.otpTries = 0;
     await this.usersRepository.save(user);
     //token
     const accessToken = await this.jwtService.signAsync({
@@ -83,7 +83,6 @@ export class UsersOtpProvider {
     if (LastReqInSec < 120) {
       throw new UnauthorizedException('Wait 2 min for a new code');
     }
-
     //مر خمس دقائق خود كود
     //OTP
     const code = Math.floor(10000 + Math.random() * 90000).toString();

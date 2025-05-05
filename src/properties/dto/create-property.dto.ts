@@ -1,5 +1,5 @@
 import { PropertyStatus, PropertyType } from '../../utils/enums';
-import { Location } from '../entities/location.embedded';
+
 import {
   IsBoolean,
   IsNotEmpty,
@@ -7,7 +7,10 @@ import {
   IsString,
   Length,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { PointsDto } from '../../geolocation/dto/points.dto';
 
 //غير لازم
 export class CreatePropertyDto {
@@ -30,7 +33,9 @@ export class CreatePropertyDto {
   price: number;
 
   @IsNotEmpty()
-  location: Location;
+  @ValidateNested()
+  @Type(() => PointsDto)
+  pointsDto: PointsDto;
 
   @IsNotEmpty()
   @IsBoolean()

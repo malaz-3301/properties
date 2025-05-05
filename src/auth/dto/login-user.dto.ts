@@ -1,10 +1,17 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString, Length, ValidateIf } from 'class-validator';
 
 export class LoginUserDto {
+  @ValidateIf((dto) => dto.username === null)
   @IsNotEmpty()
   @IsString()
   @Length(9, 12)
-  phone: string;
+  phone?: string;
+
+  @ValidateIf((dto) => dto.phone === null)
+  @IsNotEmpty()
+  @IsString()
+  @Length(3, 18)
+  username?: string;
 
   @IsNotEmpty()
   @IsString()

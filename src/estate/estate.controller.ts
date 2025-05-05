@@ -27,7 +27,7 @@ import { UserType } from '../utils/enums';
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
-@Controller('estate')
+@Controller('estates')
 export class EstateController {
   constructor(private readonly estatesService: EstateService) {}
 

@@ -13,7 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UploadsModule } from './uploads/uploads.module';
-import { EstateModule } from './estate/estate.module';
+import { EstateModule } from './estate/estates.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailModule } from './mail/mail.module';

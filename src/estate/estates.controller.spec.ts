@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EstateController } from './estate.controller';
-import { EstateService } from './estate.service';
+import { EstateController } from './estates.controller';
+import { EstateService } from './estates.service';
 
 describe('EstateController', () => {
   let controller: EstateController;

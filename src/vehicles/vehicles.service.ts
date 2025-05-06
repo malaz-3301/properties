@@ -22,6 +22,7 @@ import { Vehicle } from './entities/vehicle.entity';
 import { VehImgProvider } from './veh-img.provider';
 import { UsersOtpProvider } from '../users/users-otp.provider';
 import { FilterVehicleDto } from './dto/filter-vehicle.dto'; //important
+import { Favorite } from 'src/favorite/entites/favorite.entity';
 
 @Injectable()
 export class VehiclesService {
@@ -188,4 +189,10 @@ export class VehiclesService {
       return LessThanOrEqual(parseInt(maxRange));
     }
   }
+
+  async getFavoriteVehicles (ids : number[]) {
+    return Promise.all(ids.map(async (id) => {
+      return this.findById(id);
+    }));
+    }
 }

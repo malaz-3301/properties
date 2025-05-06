@@ -15,7 +15,7 @@ import {
   UploadedFiles,
   Res,
 } from '@nestjs/common';
-import { EstateService } from './estate.service';
+import { EstateService } from './estates.service';
 import { CreateEstateDto } from './dto/create-estate.dto';
 import { UpdateEstateDto } from './dto/update-estate.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';

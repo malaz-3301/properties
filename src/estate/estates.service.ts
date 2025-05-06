@@ -19,6 +19,7 @@ import { UsersService } from '../users/users.service';
 import { UsersOtpProvider } from '../users/users-otp.provider';
 import { PropertyStatus } from '../utils/enums';
 import * as bcrypt from 'bcryptjs';
+import { Favorite } from 'src/favorite/entites/favorite.entity';
 
 @Injectable()
 export class EstateService {
@@ -131,6 +132,12 @@ export class EstateService {
     if (!estate) {
       throw new NotFoundException('estate Not Found ');
     }
+
     return estate;
+  }
+  async getFavoriteEstates(ids: number[]) {
+    return Promise.all(ids.map(async (id) => {
+      return this.findById(id);
+    }));
   }
 }

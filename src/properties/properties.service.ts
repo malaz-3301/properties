@@ -57,6 +57,10 @@ export class PropertiesService {
     return this.propertiesGetProvider.getByUserId(userId);
   }
 
+  async getTypeById(id: number) {
+    return this.propertiesGetProvider.getTypeById(id);
+  }
+
   async deleteMyProperty(id: number, userId: number, password: string) {
     return this.propertiesDelProvider.deleteMyProperty(id, userId, password);
   }

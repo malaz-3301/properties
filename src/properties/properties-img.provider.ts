@@ -28,7 +28,7 @@ export class PropertiesImgProvider {
     const property = await this.MyProperty(id, userId);
 
     if (property.propertyImage) {
-      unlinkSync(join(process.cwd(), `./images/vehicles/${filename}`)); //file path
+      unlinkSync(join(process.cwd(), `./images/estate/${filename}`)); //file path
     }
     property.propertyImage = filename;
     await this.propertyRepository.save(property);
@@ -58,7 +58,7 @@ export class PropertiesImgProvider {
     //current working directory
     const imagePath = join(
       process.cwd(),
-      `./images/vehicles/${property.propertyImage}`,
+      `./images/estate/${property.propertyImage}`,
     );
     unlinkSync(imagePath); //delete
     property.propertyImage = null;
@@ -84,7 +84,7 @@ export class PropertiesImgProvider {
       select: { user: { password: true } },
     });
     if (!vehicle) {
-      throw new UnauthorizedException('Vehicle not yours');
+      throw new UnauthorizedException('Property not yours');
     }
     return vehicle;
   }

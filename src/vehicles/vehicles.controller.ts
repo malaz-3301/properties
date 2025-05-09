@@ -31,7 +31,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { FilterVehicleDto } from './dto/filter-vehicle.dto';
 
-@Controller('vehicles')
+@Controller('vehicle')
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
 

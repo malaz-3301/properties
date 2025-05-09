@@ -60,11 +60,11 @@ export class FavoriteService {
       const favorites = await this.favoriteRepository.find({
         where: { user: { id: userId } },
       });
-      let vehicles: any[] = [],
+      let vehicle: any[] = [],
         estates: any[] = [];
       favorites.forEach((favorite) => {
         if (favorite.propertyType == PropertyType.VEHICLE) {
-          vehicles.push(favorite.propertyId);
+          vehicle.push(favorite.propertyId);
         } else {
           if (favorite.propertyType == PropertyType.ESTATE) {
             estates.push(favorite.propertyId);
@@ -72,8 +72,8 @@ export class FavoriteService {
         }
       });
       estates = await this.estateService.getFavoriteEstates(estates);
-      vehicles = await this.vehicleService.getFavoriteVehicles(vehicles);
+      vehicle = await this.vehicleService.getFavoriteVehicles(vehicle);
   
-      return { estates: estates, vehicles: vehicles };
+      return { estates: estates, vehicle: vehicle };
     }*/
 }

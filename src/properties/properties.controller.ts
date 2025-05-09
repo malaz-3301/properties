@@ -28,6 +28,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { UpdateVehicleDto } from '../vehicles/dto/update-vehicle.dto';
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
+import { diskStorage } from 'multer';
 
 @Controller('properties')
 export class PropertiesController {
@@ -80,9 +81,9 @@ export class PropertiesController {
 
   @Post('upload-img/:id')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('vehicle-image'))
+  @UseInterceptors(FileInterceptor('Property-image'))
   //function
-  uploadVehicleImg(
+  uploadPropertyImg(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() payload: JwtPayloadType,
@@ -96,7 +97,7 @@ export class PropertiesController {
 
   @Post('upload-multiple-img/:id')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FilesInterceptor('vehicle-images', 8))
+  @UseInterceptors(FilesInterceptor('Property-images', 8))
   //function
   uploadMultiImg(
     @Param('id', ParseIntPipe) id: number,
@@ -115,7 +116,7 @@ export class PropertiesController {
 
   @Delete('remove-img/:id')
   @UseGuards(AuthGuard)
-  removeVehicleImage(
+  removePropertyImage(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() payload: JwtPayloadType,
   ) {

@@ -124,7 +124,7 @@ export class VehiclesService {
       },
     });
     if (!vehicles || vehicles.length === 0) {
-      throw new NotFoundException('No vehicles found');
+      throw new NotFoundException('No vehicle found');
     }
     return vehicles;
   }

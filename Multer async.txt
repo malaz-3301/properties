@@ -33,7 +33,7 @@ import { PropertiesGetProvider } from './properties-get.provider';
       useFactory: (propertiesService: PropertiesService) => {
         return {
           storage: diskStorage({
-            // اول مرحلة جيب ال type
+            //   destination: './images/vehicle',
             destination: (req, file, cb) => {
               const id = Number(req.params.id);
 

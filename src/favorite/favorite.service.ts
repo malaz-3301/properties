@@ -16,64 +16,64 @@ export class FavoriteService {
     private readonly vehicleService: VehiclesService,
   ) {}
 
-  findFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
-    return this.favoriteRepository.findOne({
-      where: {
-        propertyType: propertyDetails.type,
-        propertyId: propertyDetails.id,
-        user: { id: userId },
-      },
-    });
-  }
-
-  async isFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
-    const isFavorite = await this.findFavorite(userId, propertyDetails);
-    return isFavorite ? true : false;
-  }
-
-  async changeStatusOfFavorite(
-    userId: number,
-    propertyDetails: PropertyDetailsDto,
-  ) {
-    const favorite = await this.findFavorite(userId, propertyDetails);
-    if (favorite) {
-      return this.favoriteRepository.delete({ id: favorite.id });
-    } else {
-      let isExist: boolean;
-      if (propertyDetails.type === PropertyType.ESTATE) {
-        const estate = await this.estateService.findById(propertyDetails.id);
-        isExist = estate ? true : false;
-      } else {
-        const vehicle = await this.vehicleService.findById(propertyDetails.id);
-        isExist = vehicle ? true : false;
-      }
-      const newFavorite = this.favoriteRepository.create({
-        user: { id: userId },
-        propertyId: propertyDetails.id,
-        propertyType: propertyDetails.type,
+  /*  findFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
+      return this.favoriteRepository.findOne({
+        where: {
+          propertyType: propertyDetails.type,
+          propertyId: propertyDetails.id,
+          user: { id: userId },
+        },
       });
-      return this.favoriteRepository.save(newFavorite);
     }
-  }
-
-  async getAllFavorites(userId: number) {
-    const favorites = await this.favoriteRepository.find({
-      where: { user: { id: userId } },
-    });
-    let vehicles: any[] = [],
-      estates: any[] = [];
-    favorites.forEach((favorite) => {
-      if (favorite.propertyType == PropertyType.VEHICLE) {
-        vehicles.push(favorite.propertyId);
+  
+    async isFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
+      const isFavorite = await this.findFavorite(userId, propertyDetails);
+      return isFavorite ? true : false;
+    }
+  
+    async changeStatusOfFavorite(
+      userId: number,
+      propertyDetails: PropertyDetailsDto,
+    ) {
+      const favorite = await this.findFavorite(userId, propertyDetails);
+      if (favorite) {
+        return this.favoriteRepository.delete({ id: favorite.id });
       } else {
-        if (favorite.propertyType == PropertyType.ESTATE) {
-          estates.push(favorite.propertyId);
+        let isExist: boolean;
+        if (propertyDetails.type === PropertyType.ESTATE) {
+          const estate = await this.estateService.findById(propertyDetails.id);
+          isExist = estate ? true : false;
+        } else {
+          const vehicle = await this.vehicleService.findById(propertyDetails.id);
+          isExist = vehicle ? true : false;
         }
+        const newFavorite = this.favoriteRepository.create({
+          user: { id: userId },
+          propertyId: propertyDetails.id,
+          propertyType: propertyDetails.type,
+        });
+        return this.favoriteRepository.save(newFavorite);
       }
-    });
-    estates = await this.estateService.getFavoriteEstates(estates);
-    vehicles = await this.vehicleService.getFavoriteVehicles(vehicles);
-
-    return { estates: estates, vehicles: vehicles };
-  }
+    }
+  
+    async getAllFavorites(userId: number) {
+      const favorites = await this.favoriteRepository.find({
+        where: { user: { id: userId } },
+      });
+      let vehicles: any[] = [],
+        estates: any[] = [];
+      favorites.forEach((favorite) => {
+        if (favorite.propertyType == PropertyType.VEHICLE) {
+          vehicles.push(favorite.propertyId);
+        } else {
+          if (favorite.propertyType == PropertyType.ESTATE) {
+            estates.push(favorite.propertyId);
+          }
+        }
+      });
+      estates = await this.estateService.getFavoriteEstates(estates);
+      vehicles = await this.vehicleService.getFavoriteVehicles(vehicles);
+  
+      return { estates: estates, vehicles: vehicles };
+    }*/
 }

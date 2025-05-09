@@ -5,15 +5,15 @@ export class Location {
   @Column({ default: 'syria' })
   country: string; //"سوريا,
 
-  @Column()
+  @Column({ nullable: true })
   governorate: string; //"محافظة دمشق",
 
-  @Column()
+  @Column({ nullable: true })
   city: string; //"بلدية كفر سوسة"
 
-  @Column()
+  @Column({ nullable: true })
   quarter: string; //"حي كفر سوسة البلد",
 
-  @Column()
+  @Column({ nullable: true })
   street: string; //عبد الله بن حذافة
 }

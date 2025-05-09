@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { join } from 'node:path';
 import { unlinkSync } from 'node:fs';
 import * as process from 'node:process';
-import { Property } from './entities/property.entity'; //important
+import { Property } from '../entities/property.entity'; //important
 
 @Injectable()
 export class PropertiesImgProvider {
@@ -38,8 +38,8 @@ export class PropertiesImgProvider {
   async setMultiImg(id: number, userId: number, filenames: string[]) {
     const pro = await this.MyProperty(id, userId);
     //بقي الحذف
+    pro.propertyImages.concat(filenames); //concat
 
-    pro.propertyImages = filenames;
     await this.propertyRepository.save(pro);
     return {
       message: `File uploaded successfully :  ${filenames}`,

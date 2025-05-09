@@ -12,16 +12,19 @@ import { AuthModule } from '../auth/auth.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import e, { Express } from 'express';
-import { MailModule } from '../mail/mail.module';
 import { HttpModule } from '@nestjs/axios';
-import { UsersOtpProvider } from './users-otp.provider';
+import { UsersOtpProvider } from './providers/users-otp.provider';
 import { GeolocationModule } from '../geolocation/geolocation.module';
+import { UsersAdminController } from './users-admin.controller';
+import { UsersGetProvider } from './providers/users-get.provider';
+import { UsersImgProvider } from './providers/users-img.provider';
+import { UsersDelProvider } from './providers/users-del.provider';
+import { UsersUpdateProvider } from './providers/users-update.provider';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     AuthModule,
-    MailModule,
     HttpModule,
     GeolocationModule,
     MulterModule.register({
@@ -47,10 +50,14 @@ import { GeolocationModule } from '../geolocation/geolocation.module';
       limits: { fileSize: 1024 * 1024 * 2 },
     }),
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, UsersAdminController],
   providers: [
     UsersService,
     UsersOtpProvider,
+    UsersGetProvider,
+    UsersImgProvider,
+    UsersDelProvider,
+    UsersUpdateProvider,
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,

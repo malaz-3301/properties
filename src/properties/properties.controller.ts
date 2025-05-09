@@ -43,24 +43,16 @@ export class PropertiesController {
     return this.propertiesService.create(createPropertyDto, user.id);
   }
 
-  @Patch(':id')
-  update(
+  @Patch('my:id')
+  @UseGuards(AuthGuard)
+  updateMyPro(
     @Param('id') id: string,
+    @CurrentUser() user: JwtPayloadType,
     @Body() updatePropertyDto: UpdatePropertyDto,
   ) {
-    return this.propertiesService.update(+id, updatePropertyDto);
+    return this.propertiesService.updateMyPro(+id, user.id, updatePropertyDto);
   }
 
-  @Get()
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.ADMIN)
-  getAll() {
-    return this.propertiesService.getAll();
-  }
-
-  /**
-   *
-   */
   @Get('all')
   getAllAccepted(
     @Query('word') word: string,
@@ -77,53 +69,33 @@ export class PropertiesController {
 
   @Get('my')
   @UseGuards(AuthGuard)
-  getMyProperty(@CurrentUser() user: JwtPayloadType) {
+  getMyPro(@CurrentUser() user: JwtPayloadType) {
     return this.propertiesService.getByUserId(user.id);
   }
 
   @Get(':id')
-  getByPropId(@Param('id', ParseIntPipe) id: number) {
-    return this.propertiesService.getByPropId(id);
-  }
-
-  @Get('my')
-  @UseGuards(AuthGuard)
-  getMyProperties(@CurrentUser() user: JwtPayloadType) {
-    return this.propertiesService.getByUserId(user.id);
+  getByProId(@Param('id', ParseIntPipe) id: number) {
+    return this.propertiesService.getByProId(id);
   }
 
   //delete Dto change cwd
   @Delete(':id')
   @UseGuards(AuthGuard)
-  deleteMyProperty(
+  deleteMyPro(
     @Param('id') id: string,
     @Body() deleteUserDto: DeleteUserDto,
     @CurrentUser() user: JwtPayloadType,
   ) {
-    return this.propertiesService.deleteMyProperty(
+    return this.propertiesService.deleteMyPro(
       +id,
       user.id,
       deleteUserDto.password,
     );
   }
 
-  @Delete('delete')
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.ADMIN)
-  deletePropertyById(@Param('id') id: string) {
-    return this.propertiesService.deletePropertyById(+id);
-  }
-
-  /**
-   *
-   * @param id
-   * @param file
-   * @param payload
-   */
-
   @Post('upload-img/:id')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('Property-image'))
+  @UseInterceptors(FileInterceptor('property-image'))
   //function
   uploadSingleImg(
     @Param('id', ParseIntPipe) id: number,
@@ -139,7 +111,7 @@ export class PropertiesController {
 
   @Post('upload-multiple-img/:id')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FilesInterceptor('Property-images', 8))
+  @UseInterceptors(FilesInterceptor('property-images', 8))
   //function
   uploadMultiImg(
     @Param('id', ParseIntPipe) id: number,

@@ -19,14 +19,10 @@ import {
 import { Location } from '../../geolocation/entities/location.embedded';
 import { User } from '../../users/entities/user.entity';
 import { Favorite } from '../../favorite/entites/favorite.entity';
+import { Estate } from './estate.entity';
 
-//Mapped Superclass
-//Abstract
 @Entity('property')
-export abstract class Property {
-  /*    @Column({ type: 'enum', enum: PropertyType })
-      type: PropertyType;*/
-
+export abstract class Property extends Estate {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -65,50 +61,6 @@ export abstract class Property {
 
   @Column('simple-array', { nullable: true })
   propertyImages: string[];
-
-  /////////////
-
-  @Column()
-  rooms: number;
-
-  @Column()
-  bathrooms: number;
-
-  @Column()
-  area: number;
-
-  @Column({ type: 'boolean', default: true })
-  isFloor: boolean;
-
-  @Column({ nullable: true })
-  floorNumber: number;
-
-  @Column({ nullable: true })
-  hasGarage: boolean;
-
-  @Column({ nullable: true })
-  hasGarden: boolean;
-
-  @Column({
-    type: 'enum',
-    enum: PropertyType,
-    default: PropertyType.HOUSE,
-  })
-  propertyType: PropertyType;
-
-  @Column({
-    type: 'enum',
-    enum: HeatingType,
-    default: HeatingType.NONE,
-  })
-  heatingType: HeatingType;
-
-  @Column({
-    type: 'enum',
-    enum: FlooringType,
-    default: FlooringType.CERAMIC,
-  })
-  flooringType: FlooringType;
 
   @Column()
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })

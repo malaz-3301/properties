@@ -1,38 +1,30 @@
-import {
-  BadRequestException,
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcryptjs';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { join } from 'node:path';
-import { unlinkSync } from 'node:fs';
-import * as process from 'node:process';
-import { MailService } from '../mail/mail.service';
 
-import { UsersOtpProvider } from './users-otp.provider';
+import { UsersOtpProvider } from './providers/users-otp.provider';
 import { firstValueFrom } from 'rxjs';
 import { GeolocationService } from '../geolocation/geolocation.service';
+import { UsersUpdateProvider } from './providers/users-update.provider';
+import { UsersDelProvider } from './providers/users-del.provider';
+import { UsersGetProvider } from './providers/users-get.provider';
+import { UsersImgProvider } from './providers/users-img.provider';
+import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private readonly jwtService: JwtService,
-    private readonly mailService: MailService,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly geolocationService: GeolocationService,
+    private readonly usersUpdateProvider: UsersUpdateProvider,
+    private readonly usersImgProvider: UsersImgProvider,
+    private readonly usersGetProvider: UsersGetProvider,
+    private readonly usersDelProvider: UsersDelProvider,
   ) {}
 
   /**
@@ -60,12 +52,6 @@ export class UsersService {
     });
     await this.usersRepository.save(user);
 
-    /*    try {
-          await this.mailService.sendSignUpEmail(user);
-        } catch (error) {
-          console.log(error);
-          return { accessToken };
-        }*/
     await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
     await this.usersRepository.save(user);
     return {
@@ -78,8 +64,8 @@ export class UsersService {
     return this.usersOtpProvider.otpVerify(code, id);
   }
 
-  async otpTimer(user: User) {
-    return this.usersOtpProvider.otpTimer(user);
+  async otpTimer(id: number) {
+    return this.usersOtpProvider.otpTimer(id);
   }
 
   async otpReSend(id: number) {
@@ -90,81 +76,40 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  /**
-   *
-   * @param id
-   * @param updateUserDto
-   */
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.usersOtpProvider.findById(id);
-    const { myPassword, ...updateDto } = updateUserDto;
-    //test my password
-    const isPass = await bcrypt.compare(myPassword, user.password);
-    if (!isPass) {
-      throw new UnauthorizedException('Password is incorrect');
-    }
-
-    const { password } = updateDto;
-    if (password) {
-      user.password = await this.usersOtpProvider.hashCode(password);
-    }
-
-    await this.usersRepository.update(id, updateDto);
-    return this.usersOtpProvider.findById(id);
+  //مشترك
+  async updateMe(id: number, updateUserDto: UpdateUserDto) {
+    return this.usersUpdateProvider.updateMe(id, updateUserDto);
   }
 
-  /**
-   *
-   * @param id
-   * @param password
-   */
-  async delete(id: number, password: string) {
-    const user = await this.usersOtpProvider.findById(id);
-
-    const isPass = await bcrypt.compare(password, user.password);
-    if (!isPass) {
-      throw new UnauthorizedException('Password is incorrect');
-    }
-    await this.usersRepository.delete(id);
-    return user;
+  async updateUserById(id: number, updateUserByAdminDto: UpdateUserByAdminDto) {
+    return this.usersUpdateProvider.updateUserById(id, updateUserByAdminDto);
   }
 
-  /**
-   *  Remove Profile Image
-   * @param id
-   * @param profileImage
-   */
+  public async getUserById(id: number) {
+    return this.usersGetProvider.findById(id);
+  }
+
+  async deleteMe(id: number, password: string) {
+    return this.usersDelProvider.deleteMe(id, password);
+  }
+
+  async deleteUserById(id: number) {
+    return this.usersDelProvider.deleteUserById(id);
+  }
+
   async setProfileImage(id: number, profileImage: string) {
-    const user = await this.usersOtpProvider.findById(id);
-    if (user.profileImage) {
-      await this.removeProfileImage(id);
-    }
-    user.profileImage = profileImage;
-    await this.usersRepository.save(user);
-    return { message: 'File uploaded successfully' };
+    return this.usersImgProvider.setProfileImage(id, profileImage);
   }
 
-  /**
-   *
-   * @param id
-   */
   async removeProfileImage(id: number) {
-    const user = await this.usersOtpProvider.findById(id);
-    if (!user.profileImage) {
-      throw new BadRequestException('User does not have image');
-    }
-    //current working directory
-    const imagePath = join(
-      process.cwd(),
-      `./images/users/${user.profileImage}`,
-    );
-    unlinkSync(imagePath); //delete
-    user.profileImage = null;
-    return this.usersRepository.save(user);
+    return this.usersImgProvider.removeProfileImage(id);
   }
 
-  async getAllFavorites(userId : number) {
-    const favorites = await this.usersRepository.findOne({where : {id : userId}, relations : {favorites : {property : true}}, });
+  async getAllFavorites(userId: number) {
+    const favorites = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: { favorites: { property: true } },
+    });
     return favorites?.favorites;
   }
 }

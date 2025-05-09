@@ -15,9 +15,11 @@ import { GeolocationModule } from '../geolocation/geolocation.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import e, { Express } from 'express';
-import { PropertiesImgProvider } from './properties-img.provider';
-import { PropertiesDelProvider } from './properties-del.provider';
-import { PropertiesGetProvider } from './properties-get.provider';
+import { PropertiesImgProvider } from './providers/properties-img.provider';
+import { PropertiesDelProvider } from './providers/properties-del.provider';
+import { PropertiesGetProvider } from './providers/properties-get.provider';
+import { PropertiesAdminController } from './properties-admin.controller';
+import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 
 @Module({
   imports: [
@@ -37,7 +39,7 @@ import { PropertiesGetProvider } from './properties-get.provider';
               const id = Number(req.params.id);
 
               propertiesService
-                .getByPropId(id)
+                .getByProId(id)
                 .then((property) => {
                   cb(null, `./images/properties`);
                 })
@@ -82,9 +84,10 @@ import { PropertiesGetProvider } from './properties-get.provider';
       },
     }),
   ],
-  controllers: [PropertiesController],
+  controllers: [PropertiesController, PropertiesAdminController],
   providers: [
     PropertiesService,
+    PropertiesUpdateProvider,
     PropertiesImgProvider,
     PropertiesDelProvider,
     PropertiesGetProvider,

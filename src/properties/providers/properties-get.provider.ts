@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Property } from './entities/property.entity';
+import { Property } from '../entities/property.entity';
 import {
   Between,
   FindOptionsWhere,
@@ -9,7 +9,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
-import { PropertyStatus } from '../utils/enums';
+import { PropertyStatus } from '../../utils/enums';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -18,14 +18,20 @@ export class PropertiesGetProvider {
     private propertyRepository: Repository<Property>,
   ) {}
 
-  async getByPropId(id: number) {
-    return await this.findById(id);
-  }
-
   async getByUserId(userId: number) {
     return this.propertyRepository.find({
       where: { user: { id: userId } },
     });
+  }
+
+  async MyProperty(id: number, userId: number) {
+    const property = this.propertyRepository.find({
+      where: { id: id, user: { id: userId } },
+    });
+    if (!property) {
+      throw new NotFoundException('property not found!');
+    }
+    return property;
   }
 
   async findById(id: number) {

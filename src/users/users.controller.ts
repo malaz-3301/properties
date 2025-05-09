@@ -24,6 +24,9 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayloadType } from '../utils/constants';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import { Roles } from '../auth/decorators/user-role.decorator';
+import { UserType } from '../utils/enums';
+import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 
 @Controller('users')
 export class UsersController {
@@ -39,27 +42,34 @@ export class UsersController {
     return this.usersService.otpVerify(code, id);
   }
 
-  @Post('resend/:id')
+  @Get('resend/:id')
   otpReSend(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.otpReSend(id);
   }
 
+  @Get('timer/:id')
+  otpTimer(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.otpTimer(id);
+  }
+
   @Patch()
   @UseGuards(AuthGuard)
-  update(
+  updateMe(
     @CurrentUser() payload: JwtPayloadType,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(payload.id, updateUserDto);
+    return this.usersService.updateMe(payload.id, updateUserDto);
   }
 
+  //Normal
   @Delete('')
-  @UseGuards(AuthGuard)
-  deleteMine(
+  @Roles(UserType.NORMAL_USER)
+  @UseGuards(AuthRolesGuard)
+  deleteMe(
     @CurrentUser() payload: JwtPayloadType,
     @Body() deleteUserDto: DeleteUserDto,
   ) {
-    return this.usersService.delete(payload.id, deleteUserDto.password);
+    return this.usersService.deleteMe(payload.id, deleteUserDto.password);
   }
 
   @Post('upload-image')
@@ -90,6 +100,7 @@ export class UsersController {
   ) {
     return res.sendFile(image, { root: `images` });
   }
+
   @Get('favorites')
   @UseGuards(AuthGuard)
   getAllFavorites(@CurrentUser() payload: JwtPayloadType) {

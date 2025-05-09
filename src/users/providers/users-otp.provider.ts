@@ -6,7 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { User } from './entities/user.entity';
+import { User } from '../entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +15,7 @@ import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as process from 'node:process';
+import { UsersGetProvider } from './users-get.provider';
 
 @Injectable()
 export class UsersOtpProvider {
@@ -23,16 +24,17 @@ export class UsersOtpProvider {
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly usersGetProvider: UsersGetProvider,
   ) {}
 
   async otpVerify(code: string, id: number) {
-    const user = await this.findById(id);
+    const user = await this.usersGetProvider.findById(id);
     //If Hack delete him
     if (!/^\d+$/.test(code)) {
       await this.usersRepository.delete({ id: id });
       throw new BadRequestException('(: (: (:(: hhh');
     }
-    await this.otpTimer(user); //Limiter & Timer
+    await this.otpTokenTimer(user); //Limiter & Timer
     //verify
     const isCode = await bcrypt.compare(code, user.otpCode);
     if (!isCode) {
@@ -51,7 +53,7 @@ export class UsersOtpProvider {
     return { accessToken };
   }
 
-  async otpTimer(user: User) {
+  async otpTokenTimer(user: User) {
     //createAt for Expire
     //Expire
     const createdAtTimestamp = user.createdAt.getTime();
@@ -74,7 +76,10 @@ export class UsersOtpProvider {
   }
 
   async otpReSend(id: number) {
-    const user = await this.findById(id);
+    const user = await this.usersGetProvider.findById(id);
+    if (user.isAccountVerified) {
+      throw new BadRequestException('Your account has been verified');
+    }
     //اختبار  وقت اخر طلب كود
     const updateAtTimestamp = user.updatedAt.getTime();
     const LastReqInSec = (Date.now() - updateAtTimestamp) / 1000;
@@ -99,17 +104,17 @@ export class UsersOtpProvider {
     };
   }
 
-  /**
-   *
-   * @param id
-   * @private
-   */
-  public async findById(id: number) {
-    const user = await this.usersRepository.findOneBy({ id: id });
-    if (!user) {
-      throw new NotFoundException('User Not Found');
-    }
-    return user;
+  //فقط طلب
+  async otpTimer(id: number) {
+    const user = await this.usersGetProvider.findById(id);
+    //اختبار  وقت اخر طلب كود
+    const updateAtTimestamp = user.updatedAt.getTime();
+    const LastReqInSecond = ((Date.now() - updateAtTimestamp) / 1000) % 60;
+    const LastReqInMin = (Date.now() - updateAtTimestamp) / 1000 / 60;
+    console.log('LastReqInSec : ' + LastReqInMin);
+    return {
+      'Last SMS ': `  : ${Math.floor(LastReqInMin)} minutes : ${Math.floor(LastReqInSecond)} seconds ago`,
+    };
   }
 
   /**

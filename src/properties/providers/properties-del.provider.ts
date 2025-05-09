@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Property } from './entities/property.entity';
+import { Property } from '../entities/property.entity';
 import { Repository } from 'typeorm';
-import { PropertiesService } from './properties.service';
+import { PropertiesService } from '../properties.service';
 import { PropertiesGetProvider } from './properties-get.provider';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class PropertiesDelProvider {
     private readonly propertiesGetProvider: PropertiesGetProvider,
   ) {}
 
-  async deleteMyProperty(id: number, userId: number, password: string) {
+  async deleteMyPro(id: number, userId: number, password: string) {
     const property = await this.propertyRepository.findOne({
       //if it is mine && get password
       where: { id: id, user: { id: userId } },
@@ -35,7 +35,7 @@ export class PropertiesDelProvider {
     return this.propertyRepository.delete({ id: id });
   }
 
-  async deletePropertyById(id: number) {
+  async deleteProById(id: number) {
     const property = this.propertiesGetProvider.findById(id);
     return this.propertyRepository.delete({ id: id });
   }

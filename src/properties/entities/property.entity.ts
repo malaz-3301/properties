@@ -59,6 +59,12 @@ export abstract class Property {
 
   @Column({
     type: 'enum',
+    enum: PropertyType,
+  })
+  propertyType: PropertyType;
+
+  @Column({
+    type: 'enum',
     enum: PropertyStatus,
     default: PropertyStatus.PENDING,
   })

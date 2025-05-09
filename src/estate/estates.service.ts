@@ -77,7 +77,7 @@ export class EstateService {
     //
     const estates: Estate[] = await this.estateRepository.find({
       where,
-      relations: { property: true },
+      relations: { property: { user: true } },
       select: {
         property: {
           location: {
@@ -87,6 +87,7 @@ export class EstateService {
             quarter: true,
             street: true,
           },
+          user: { username: true },
         },
       },
     });

@@ -7,6 +7,7 @@ import * as bcrypt from 'bcryptjs';
 import { UsersGetProvider } from './users-get.provider';
 import { UsersOtpProvider } from './users-otp.provider';
 import { UpdateUserByAdminDto } from '../dto/update-user-by-admin.dto';
+import { UserType } from '../../utils/enums';
 
 @Injectable()
 export class UsersUpdateProvider {
@@ -38,6 +39,9 @@ export class UsersUpdateProvider {
   //cant update pass and phone
   async updateUserById(id: number, updateUserByAdminDto: UpdateUserByAdminDto) {
     const user = await this.usersGetProvider.findById(id);
+    if (user.userType !== UserType.NORMAL_USER) {
+      throw new UnauthorizedException("You Can't Update Admin");
+    }
     await this.usersRepository.update(id, updateUserByAdminDto);
     return this.usersGetProvider.findById(id);
   }

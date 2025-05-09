@@ -93,8 +93,8 @@ export class UsersService {
     return this.usersDelProvider.deleteMe(id, password);
   }
 
-  async deleteUserById(id: number) {
-    return this.usersDelProvider.deleteUserById(id);
+  async deleteUserById(id: number, message: string) {
+    return this.usersDelProvider.deleteUserById(id, message);
   }
 
   async setProfileImage(id: number, profileImage: string) {

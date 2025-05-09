@@ -15,7 +15,7 @@ import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 
-@Controller('users')
+@Controller('userA')
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -39,7 +39,10 @@ export class UsersAdminController {
   @Delete(':id')
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
-  deleteById(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.deleteUserById(+id);
+  deleteById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('message') message: string,
+  ) {
+    return this.usersService.deleteUserById(id, message);
   }
 }

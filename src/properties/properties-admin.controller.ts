@@ -13,7 +13,7 @@ import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 
-@Controller('property')
+@Controller('propertyA')
 export class PropertiesAdminController {
   constructor(private readonly propertiesService: PropertiesService) {}
 

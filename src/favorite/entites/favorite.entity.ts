@@ -3,10 +3,13 @@ import { PropertyType } from 'src/utils/enums';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Property } from '../../properties/entities/property.entity';
 
 @Entity()
 export class Favorite {
@@ -15,8 +18,9 @@ export class Favorite {
   @Column({ type: 'enum', enum: PropertyType })
   propertyType: PropertyType;
 
-  @Column()
-  propertyId: number;
+  @OneToOne(() => Property, (property) => property.id)
+  @JoinColumn({ name: 'propertyId' })
+  property: Property;
 
   @ManyToOne(() => User, (user) => user.favorites)
   user: User;

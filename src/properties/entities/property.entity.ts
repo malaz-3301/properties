@@ -16,6 +16,7 @@ import { Location } from '../../geolocation/entities/location.embedded';
 import { Vehicle } from '../../vehicles/entities/vehicle.entity';
 import { User } from '../../users/entities/user.entity';
 import { Estate } from '../../estate/entities/estate.entity';
+import { Favorite } from '../../favorite/entites/favorite.entity';
 
 //Mapped Superclass
 //Abstract
@@ -32,6 +33,9 @@ export abstract class Property {
 
   @OneToOne(() => Estate, (estate) => estate.property, { cascade: true })
   estate?: Estate;
+
+  @OneToOne(() => Favorite, (favorite) => favorite.property, { cascade: true })
+  favorite?: Favorite;
 
   @ManyToOne(() => User, (user: User) => user.properties, {
     onDelete: 'CASCADE',

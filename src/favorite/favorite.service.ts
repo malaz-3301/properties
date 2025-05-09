@@ -15,6 +15,7 @@ export class FavoriteService {
     private readonly estateService: EstateService,
     private readonly vehicleService: VehiclesService,
   ) {}
+
   findFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
     return this.favoriteRepository.findOne({
       where: {
@@ -24,24 +25,27 @@ export class FavoriteService {
       },
     });
   }
+
   async isFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
     const isFavorite = await this.findFavorite(userId, propertyDetails);
     return isFavorite ? true : false;
   }
+
   async changeStatusOfFavorite(
-userId: number, propertyDetails: PropertyDetailsDto,
+    userId: number,
+    propertyDetails: PropertyDetailsDto,
   ) {
     const favorite = await this.findFavorite(userId, propertyDetails);
     if (favorite) {
-      return this.favoriteRepository.delete({id : favorite.id});
+      return this.favoriteRepository.delete({ id: favorite.id });
     } else {
-      let isExist : boolean;
-      if(propertyDetails.type === PropertyType.ESTATE){
+      let isExist: boolean;
+      if (propertyDetails.type === PropertyType.ESTATE) {
         const estate = await this.estateService.findById(propertyDetails.id);
-        isExist = (estate)? true: false;
+        isExist = estate ? true : false;
       } else {
         const vehicle = await this.vehicleService.findById(propertyDetails.id);
-        isExist = (vehicle)? true: false;
+        isExist = vehicle ? true : false;
       }
       const newFavorite = this.favoriteRepository.create({
         user: { id: userId },
@@ -51,11 +55,13 @@ userId: number, propertyDetails: PropertyDetailsDto,
       return this.favoriteRepository.save(newFavorite);
     }
   }
+
   async getAllFavorites(userId: number) {
     const favorites = await this.favoriteRepository.find({
       where: { user: { id: userId } },
     });
-    let vehicles : any[] = [], estates : any[] = [];
+    let vehicles: any[] = [],
+      estates: any[] = [];
     favorites.forEach((favorite) => {
       if (favorite.propertyType == PropertyType.VEHICLE) {
         vehicles.push(favorite.propertyId);
@@ -68,6 +74,6 @@ userId: number, propertyDetails: PropertyDetailsDto,
     estates = await this.estateService.getFavoriteEstates(estates);
     vehicles = await this.vehicleService.getFavoriteVehicles(vehicles);
 
-    return {estates : estates, vehicles : vehicles};
+    return { estates: estates, vehicles: vehicles };
   }
 }

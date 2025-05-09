@@ -97,12 +97,19 @@ export class UsersService {
    */
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.usersOtpProvider.findById(id);
+    const { myPassword, ...updateDto } = updateUserDto;
+    //test my password
+    const isPass = await bcrypt.compare(myPassword, user.password);
+    if (!isPass) {
+      throw new UnauthorizedException('Password is incorrect');
+    }
 
-    const { phone, password } = updateUserDto;
+    const { password } = updateDto;
     if (password) {
       user.password = await this.usersOtpProvider.hashCode(password);
     }
-    await this.usersRepository.update(id, user);
+
+    await this.usersRepository.update(id, updateDto);
     return this.usersOtpProvider.findById(id);
   }
 

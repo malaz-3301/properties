@@ -19,33 +19,42 @@ import { UsersService } from '../users/users.service';
 import { PropertyStatus } from '../utils/enums';
 import * as bcrypt from 'bcryptjs';
 import { Vehicle } from './entities/vehicle.entity';
-import { VehImgProvider } from './veh-img.provider';
 import { UsersOtpProvider } from '../users/users-otp.provider';
-import { FilterVehicleDto } from './dto/filter-vehicle.dto'; //important
-import { Favorite } from 'src/favorite/entites/favorite.entity';
+import { FilterVehicleDto } from './dto/filter-vehicle.dto';
+import { GeolocationService } from '../geolocation/geolocation.service';
+import { Property } from '../properties/entities/property.entity';
+import { PropertiesService } from '../properties/properties.service'; //important
 
 @Injectable()
 export class VehiclesService {
   constructor(
     @InjectRepository(Vehicle)
     private vehicleRepository: Repository<Vehicle>,
-    private readonly vehImgProvider: VehImgProvider,
+    @InjectRepository(Property)
+    private propertyRepository: Repository<Property>,
     private readonly usersService: UsersService,
     private readonly usersOtpProvider: UsersOtpProvider,
+    private readonly propertiesService: PropertiesService,
   ) {}
 
-  async create(createVehicleDto: CreateVehicleDto, id: number) {
-    const user = await this.usersOtpProvider.findById(id);
-    const newVehicle = this.vehicleRepository.create({
+  async create(newCreateVehicleDto: CreateVehicleDto, id: number) {
+    const { createPropertyDto, ...createVehicleDto } = newCreateVehicleDto;
+
+    const newProperty: Property = await this.propertiesService.create(
+      createPropertyDto,
+      id,
+    );
+    const newVehicle: Vehicle = this.vehicleRepository.create({
       ...createVehicleDto,
-      user,
+      property: newProperty,
     });
-    //newVehicle :(
+
     return this.vehicleRepository.save(newVehicle);
   }
 
   async getAll(query: FilterVehicleDto, state?: PropertyStatus) {
-    const filters: FindOptionsWhere<Vehicle>[] = [];
+    const vehicleFilters: FindOptionsWhere<Vehicle>[] = [];
+    const propertyFilters: FindOptionsWhere<Property>[] = [];
     const {
       word,
       minPrice,
@@ -61,39 +70,56 @@ export class VehiclesService {
     } = query;
     // شرط البحث
     if (word) {
-      filters.push({ title: Like(`%${word}%`) });
-      filters.push({ description: Like(`%${word}%`) });
-      filters.push({ model: Like(`%${word}%`) });
+      propertyFilters.push({ title: Like(`%${word}%`) });
+      propertyFilters.push({ description: Like(`%${word}%`) });
+      vehicleFilters.push({ model: Like(`%${word}%`) });
     }
     if ('isForRent' in query) {
-      filters.push({ isForRent: isForRent });
+      propertyFilters.push({ isForRent: isForRent });
     }
     if ('condition' in query) {
-      filters.push({ condition: condition });
+      vehicleFilters.push({ condition: condition });
     }
-    if (' fuelType' in query) {
-      filters.push({ fuelType: fuelType });
+    if ('fuelType' in query) {
+      vehicleFilters.push({ fuelType: fuelType });
     }
     if ('transmission' in query) {
-      filters.push({ transmission: transmission });
+      vehicleFilters.push({ transmission: transmission });
     }
-    const priceConditions = { price: this.rangeConditions(minPrice, maxPrice) };
+    const priceConditions = {
+      property: {
+        price: this.rangeConditions(minPrice, maxPrice),
+      },
+    };
     const yearConditions = { year: this.rangeConditions(minYear, maxYear) };
     const mileageConditions = {
       mileage: this.rangeConditions(minMileage, maxMileage),
     };
 
-    const where =
-      filters.length > 0
-        ? filters.map((filter) => ({ ...filter, ...priceConditions }))
-        : { ...priceConditions, ...yearConditions };
+    const where: FindOptionsWhere<Vehicle>[] = (
+      vehicleFilters.length ? vehicleFilters : [{}]
+    ).flatMap((vehicleFilter) =>
+      (propertyFilters.length ? propertyFilters : [{}]).map(
+        (propertyFilter) => ({
+          ...vehicleFilter,
+          ...yearConditions,
+          ...mileageConditions,
+          property: {
+            ...propertyFilter,
+            ...priceConditions.property,
+          },
+        }),
+      ),
+    );
 
     const vehicles: Vehicle[] = await this.vehicleRepository.find({
       where,
-      relations: { user: true },
+      relations: { property: true },
       select: {
-        user: {
-          username: true,
+        property: {
+          user: {
+            username: true,
+          },
         },
       },
     });
@@ -109,7 +135,7 @@ export class VehiclesService {
 
   async getByUserId(userId: number) {
     return this.vehicleRepository.find({
-      where: { user: { id: userId } },
+      where: { property: { user: { id: userId } } },
     });
   }
 
@@ -121,14 +147,17 @@ export class VehiclesService {
   async deleteMyVehicle(id: number, userId: number, password: string) {
     const vehicle = await this.vehicleRepository.findOne({
       //if it is mine && get password
-      where: { id: id, user: { id: userId } },
-      relations: { user: true },
-      select: { user: { password: true } },
+      where: { id: id, property: { user: { id: userId } } },
+      relations: { property: true },
+      select: { property: { user: { password: true } } },
     });
     if (!vehicle) {
       throw new NotFoundException('Removed by Admin Or it is not yours');
     }
-    const isPass = await bcrypt.compare(password, vehicle.user.password);
+    const isPass = await bcrypt.compare(
+      password,
+      vehicle.property.user.password,
+    );
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');
     }
@@ -143,41 +172,15 @@ export class VehiclesService {
   async findById(id: number) {
     const vehicle = await this.vehicleRepository.findOne({
       where: { id: id },
-      relations: { user: true },
+      relations: { property: { user: true } },
       select: {
-        user: { username: true },
+        property: { user: { username: true } },
       },
     });
     if (!vehicle) {
       throw new NotFoundException('vehicle Not Found ');
     }
     return vehicle;
-  }
-
-  /**
-   *  Remove Profile Image
-   * @param id
-   * @param userId
-   * @param filename
-   */
-  async setVehicleImg(id: number, userId: number, filename: string) {
-    return this.vehImgProvider.setVehicleImg(id, userId, filename);
-  }
-
-  async setMultiImg(id: number, userId: number, filenames: string[]) {
-    return this.vehImgProvider.setMultiImg(id, userId, filenames);
-  }
-
-  async removeVehicleImage(id: number, userId: number) {
-    return this.vehImgProvider.removeVehicleImage(id, userId);
-  }
-
-  async removeAnyImg(id: number, userId: number, imageName: string) {
-    return this.vehImgProvider.removeAnyImg(id, userId, imageName);
-  }
-
-  async MyVehicle(id: number, userId: number) {
-    return this.vehImgProvider.MyVehicle(id, userId);
   }
 
   rangeConditions(minRange?: string, maxRange?: string) {
@@ -189,10 +192,4 @@ export class VehiclesService {
       return LessThanOrEqual(parseInt(maxRange));
     }
   }
-
-  async getFavoriteVehicles (ids : number[]) {
-    return Promise.all(ids.map(async (id) => {
-      return this.findById(id);
-    }));
-    }
 }

@@ -19,7 +19,9 @@ import { UsersService } from '../users/users.service';
 import { UsersOtpProvider } from '../users/users-otp.provider';
 import { PropertyStatus } from '../utils/enums';
 import * as bcrypt from 'bcryptjs';
-import { Favorite } from 'src/favorite/entites/favorite.entity';
+import { GeolocationService } from '../geolocation/geolocation.service';
+import { Property } from '../properties/entities/property.entity';
+import { PropertiesService } from '../properties/properties.service';
 
 @Injectable()
 export class EstateService {
@@ -27,13 +29,18 @@ export class EstateService {
     @InjectRepository(Estate)
     private estateRepository: Repository<Estate>,
     private readonly usersOtpProvider: UsersOtpProvider,
+    private readonly propertiesService: PropertiesService,
   ) {}
 
-  async create(createEstateDto: CreateEstateDto, id: number) {
-    const user = await this.usersOtpProvider.findById(id);
+  async create(newCreateEstateDto: CreateEstateDto, id: number) {
+    const { createPropertyDto, ...createEstateDto } = newCreateEstateDto;
+    const newProperty: Property = await this.propertiesService.create(
+      createPropertyDto,
+      id,
+    );
     const newEstate = this.estateRepository.create({
       ...createEstateDto,
-      user,
+      property: newProperty,
     });
     //newEstate :(
     return this.estateRepository.save(newEstate);
@@ -49,8 +56,8 @@ export class EstateService {
 
     // شرط البحث
     if (word) {
-      filters.push({ title: Like(`%${word}%`) });
-      filters.push({ description: Like(`%${word}%`) });
+      filters.push({ property: { title: Like(`%${word}%`) } });
+      filters.push({ property: { description: Like(`%${word}%`) } });
     }
 
     // شروط السعر
@@ -67,13 +74,15 @@ export class EstateService {
       filters.length > 0
         ? filters.map((filter) => ({ ...filter, ...priceConditions }))
         : { ...priceConditions };
-
+    //
     const estates: Estate[] = await this.estateRepository.find({
       where,
-      relations: { user: true },
+      relations: { property: { user: true } },
       select: {
-        user: {
-          username: true,
+        property: {
+          user: {
+            username: true,
+          },
         },
       },
     });
@@ -89,7 +98,7 @@ export class EstateService {
 
   async getByUserId(userId: number) {
     return this.estateRepository.find({
-      where: { user: { id: userId } },
+      where: { property: { user: { id: userId } } },
     });
   }
 
@@ -102,14 +111,17 @@ export class EstateService {
   async deleteMyEstate(id: number, userId: number, password: string) {
     const estate = await this.estateRepository.findOne({
       //if it is mine && get password
-      where: { id: id, user: { id: userId } },
-      relations: { user: true },
-      select: { user: { password: true } },
+      where: { id: id, property: { user: { id: userId } } },
+      relations: { property: { user: true } },
+      select: { property: { user: { password: true } } },
     });
     if (!estate) {
       throw new NotFoundException('Removed by Admin Or it is not yours');
     }
-    const isPass = await bcrypt.compare(password, estate.user.password);
+    const isPass = await bcrypt.compare(
+      password,
+      estate.property.user.password,
+    );
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');
     }
@@ -124,20 +136,16 @@ export class EstateService {
   async findById(id: number) {
     const estate = await this.estateRepository.findOne({
       where: { id: id },
-      relations: { user: true },
+      relations: { property: { user: true } },
       select: {
-        user: { username: true },
+        property: {
+          user: { username: true },
+        },
       },
     });
     if (!estate) {
       throw new NotFoundException('estate Not Found ');
     }
-
     return estate;
-  }
-  async getFavoriteEstates(ids: number[]) {
-    return Promise.all(ids.map(async (id) => {
-      return this.findById(id);
-    }));
   }
 }

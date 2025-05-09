@@ -1,9 +1,11 @@
 import {
+  ChildEntity,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Property } from '../../properties/entities/property.entity';
@@ -11,9 +13,15 @@ import { EstateType, HeatingType, FlooringType } from '../../utils/enums';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('estate')
-export class Estate extends Property {
+export class Estate {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @OneToOne(() => Property, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  property: Property;
 
   @Column()
   rooms: number;
@@ -56,14 +64,4 @@ export class Estate extends Property {
     default: FlooringType.CERAMIC,
   })
   flooringType: FlooringType;
-
-  @Column({ type: 'varchar', nullable: true, default: null })
-  estateImage: string | null;
-  @Column('simple-array', { nullable: true })
-  estateImages: string[];
-
-  @ManyToOne(() => User, (user: User) => user.estates, {
-    onDelete: 'CASCADE',
-  })
-  user: User;
 }

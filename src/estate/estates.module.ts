@@ -6,9 +6,16 @@ import { Estate } from './entities/estate.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from '../auth/auth.module';
+import { GeolocationModule } from '../geolocation/geolocation.module';
+import { PropertiesModule } from '../properties/properties.module';
 
 @Module({
-  imports: [UsersModule, TypeOrmModule.forFeature([Estate]), AuthModule],
+  imports: [
+    UsersModule,
+    PropertiesModule,
+    TypeOrmModule.forFeature([Estate]),
+    AuthModule,
+  ],
   controllers: [EstateController],
   providers: [EstateService],
   exports : [EstateService]

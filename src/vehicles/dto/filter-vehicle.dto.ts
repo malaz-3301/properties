@@ -61,9 +61,14 @@ export class FilterVehicleDto {
 
   @IsOptional()
   @Transform(({ value }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return undefined;
+    if (value === 'true') {
+      console.log('dddddddddd');
+      return true;
+    }
+    if (value === 'false') {
+      return false;
+    }
+    return true;
   })
   @IsBoolean()
   @IsOptional()

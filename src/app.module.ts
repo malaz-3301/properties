@@ -18,7 +18,6 @@ import { VehiclesModule } from './vehicles/vehicles.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailModule } from './mail/mail.module';
 import { GeolocationModule } from './geolocation/geolocation.module';
-import { MediaModule } from './media/media.module';
 
 import * as process from 'node:process';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
@@ -56,7 +55,6 @@ import { FavoriteModule } from './favorite/favorite.module';
     EstateModule,
     VehiclesModule,
     GeolocationModule,
-    MediaModule,
     FavoriteModule,
   ],
   controllers: [AppController],

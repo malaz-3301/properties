@@ -49,12 +49,9 @@ export class User {
   @Column({ nullable: true })
   otpTries: number;
 
-  @OneToMany(() => Vehicle, (vehicle: Vehicle) => vehicle.user)
-  vehicles: Vehicle[];
-
-  @OneToMany(() => Estate, (estate: Estate) => estate.user)
-  estates: Estate[];
-
+  @OneToMany(() => Property, (property: Property) => property.user)
+  properties: Property[];
+  
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;
   @UpdateDateColumn({
@@ -67,6 +64,6 @@ export class User {
   @Column({ type: 'varchar', nullable: true, default: null })
   profileImage: string | null;
 
-  @OneToMany(()=>Favorite, (favorite)=>favorite.user)
-  favorites : Favorite[]
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 }

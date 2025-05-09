@@ -1,5 +1,14 @@
 import { Property } from '../../properties/entities/property.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  ChildEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import {
   FuelType,
   TransmissionType,
@@ -7,10 +16,19 @@ import {
 } from '../../utils/enums';
 import { User } from '../../users/entities/user.entity';
 
+import { Type } from 'class-transformer';
+import { PointsDto } from '../../geolocation/dto/points.dto';
+
 @Entity('vehicle')
-export class Vehicle extends Property {
+export class Vehicle {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @OneToOne(() => Property, (property) => property.vehicle, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'propertyId' })
+  property: Property;
 
   @Column({ type: 'varchar', length: 10 })
   model: string;
@@ -32,11 +50,6 @@ export class Vehicle extends Property {
 
   @Column({ type: 'varchar', length: 10, nullable: true })
   color: string;
-
-  @ManyToOne(() => User, (user: User) => user.vehicles, {
-    onDelete: 'CASCADE',
-  })
-  user: User;
 
   @Column({ type: 'varchar', nullable: true, default: null })
   vehicleImage: string | null;

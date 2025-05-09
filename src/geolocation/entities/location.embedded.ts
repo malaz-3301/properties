@@ -1,7 +1,8 @@
 import { Column } from 'typeorm';
+import { defaults } from 'axios';
 
 export class Location {
-  @Column()
+  @Column({ default: 'syria' })
   country: string; //"سوريا,
 
   @Column()

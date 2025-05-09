@@ -11,10 +11,18 @@ import {
   IsString,
   Length,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { CreatePropertyDto } from '../../properties/dto/create-property.dto';
+import { Type } from 'class-transformer';
+import { PointsDto } from '../../geolocation/dto/points.dto';
 
-export class CreateVehicleDto extends CreatePropertyDto {
+export class CreateVehicleDto {
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => CreatePropertyDto)
+  createPropertyDto: CreatePropertyDto;
+
   @IsNotEmpty()
   @IsString()
   @Length(2, 10)

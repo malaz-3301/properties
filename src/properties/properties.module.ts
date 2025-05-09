@@ -13,7 +13,6 @@ import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { GeolocationModule } from '../geolocation/geolocation.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { VehiclesService } from '../vehicles/vehicles.service';
 import { diskStorage } from 'multer';
 import e, { Express } from 'express';
 import { PropertiesImgProvider } from './properties-img.provider';
@@ -40,7 +39,7 @@ import { PropertiesGetProvider } from './properties-get.provider';
               propertiesService
                 .getByPropId(id)
                 .then((property) => {
-                  cb(null, `./images/${property.propertyType}`);
+                  cb(null, `./images/properties`);
                 })
                 .catch((err) => {
                   cb(new NotFoundException('Property not found'), 'null');

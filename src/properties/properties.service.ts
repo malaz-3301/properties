@@ -9,13 +9,14 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from './entities/property.entity';
-import { CreateVehicleDto } from '../vehicles/dto/create-vehicle.dto';
 import { UsersOtpProvider } from '../users/users-otp.provider';
 import { GeolocationService } from '../geolocation/geolocation.service';
 import { PropertiesImgProvider } from './properties-img.provider';
 import * as bcrypt from 'bcryptjs';
 import { PropertiesDelProvider } from './properties-del.provider';
 import { PropertiesGetProvider } from './properties-get.provider';
+
+import { PropertyStatus } from '../utils/enums';
 
 @Injectable()
 export class PropertiesService {
@@ -45,8 +46,24 @@ export class PropertiesService {
     return this.propertyRepository.save(newProperty);
   }
 
-  getAll() {
-    return this.propertiesGetProvider.getAll();
+  async update(id: number, updatePropertyDto: UpdatePropertyDto) {
+    let estate = await this.propertiesGetProvider.findById(id);
+    estate = { ...estate, ...updatePropertyDto };
+    return this.propertyRepository.save(estate);
+  }
+
+  getAll(
+    word?: string,
+    minPrice?: string,
+    maxPrice?: string,
+    state?: PropertyStatus,
+  ) {
+    return this.propertiesGetProvider.getAll(
+      word,
+      minPrice,
+      maxPrice,
+      'ACCEPTED' as any,
+    );
   }
 
   async getByPropId(id: number) {
@@ -55,10 +72,6 @@ export class PropertiesService {
 
   async getByUserId(userId: number) {
     return this.propertiesGetProvider.getByUserId(userId);
-  }
-
-  async getTypeById(id: number) {
-    return this.propertiesGetProvider.getTypeById(id);
   }
 
   async deleteMyProperty(id: number, userId: number, password: string) {

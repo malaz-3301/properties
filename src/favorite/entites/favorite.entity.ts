@@ -1,5 +1,5 @@
 import { User } from 'src/users/entities/user.entity';
-import { PropertyType } from 'src/utils/enums';
+
 import {
   Column,
   Entity,
@@ -20,8 +20,8 @@ export class Favorite {
   @JoinColumn({ name: 'propertyId' })
   property: Property;
 
-  @Column({type : 'boolean', default : true})
-  isFavorite : boolean;
+  @Column({ type: 'boolean', default: true })
+  isFavorite: boolean;
 
   @ManyToOne(() => User, (user) => user.favorites)
   user: User;

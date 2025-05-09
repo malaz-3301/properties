@@ -10,12 +10,14 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CURRENT_TIMESTAMP } from '../../utils/constants';
-import { PropertyStatus } from '../../utils/enums';
-import { PropertyType } from '../../utils/enums';
+import {
+  FlooringType,
+  HeatingType,
+  PropertyStatus,
+  PropertyType,
+} from '../../utils/enums';
 import { Location } from '../../geolocation/entities/location.embedded';
-import { Vehicle } from '../../vehicles/entities/vehicle.entity';
 import { User } from '../../users/entities/user.entity';
-import { Estate } from '../../estate/entities/estate.entity';
 import { Favorite } from '../../favorite/entites/favorite.entity';
 
 //Mapped Superclass
@@ -27,12 +29,6 @@ export abstract class Property {
 
   @PrimaryGeneratedColumn()
   id: number;
-
-  @OneToOne(() => Vehicle, (vehicle) => vehicle.property, { cascade: true })
-  vehicle?: Vehicle;
-
-  @OneToOne(() => Estate, (estate) => estate.property, { cascade: true })
-  estate?: Estate;
 
   @OneToOne(() => Favorite, (favorite) => favorite.property, { cascade: true })
   favorite?: Favorite;
@@ -59,12 +55,6 @@ export abstract class Property {
 
   @Column({
     type: 'enum',
-    enum: PropertyType,
-  })
-  propertyType: PropertyType;
-
-  @Column({
-    type: 'enum',
     enum: PropertyStatus,
     default: PropertyStatus.PENDING,
   })
@@ -75,6 +65,50 @@ export abstract class Property {
 
   @Column('simple-array', { nullable: true })
   propertyImages: string[];
+
+  /////////////
+
+  @Column()
+  rooms: number;
+
+  @Column()
+  bathrooms: number;
+
+  @Column()
+  area: number;
+
+  @Column({ type: 'boolean', default: true })
+  isFloor: boolean;
+
+  @Column({ nullable: true })
+  floorNumber: number;
+
+  @Column({ nullable: true })
+  hasGarage: boolean;
+
+  @Column({ nullable: true })
+  hasGarden: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: PropertyType,
+    default: PropertyType.HOUSE,
+  })
+  propertyType: PropertyType;
+
+  @Column({
+    type: 'enum',
+    enum: HeatingType,
+    default: HeatingType.NONE,
+  })
+  heatingType: HeatingType;
+
+  @Column({
+    type: 'enum',
+    enum: FlooringType,
+    default: FlooringType.CERAMIC,
+  })
+  flooringType: FlooringType;
 
   @Column()
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })

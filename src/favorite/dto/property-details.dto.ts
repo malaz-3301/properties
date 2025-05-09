@@ -1,8 +1,7 @@
-import { IsEnum, IsNotEmpty, IsNumber } from "class-validator";
-import { PropertyType } from "src/utils/enums";
+import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class PropertyDetailsDto {
-    @IsNumber()
-    @IsNotEmpty()
-    id : number;
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
 }

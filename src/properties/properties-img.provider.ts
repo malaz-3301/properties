@@ -28,9 +28,7 @@ export class PropertiesImgProvider {
     const pro = await this.MyProperty(id, userId);
 
     if (pro.propertyImage) {
-      unlinkSync(
-        join(process.cwd(), `./images/${pro.propertyType}/${filename}`),
-      ); //file path
+      unlinkSync(join(process.cwd(), `./images/properties/${filename}`)); //file path
     }
     pro.propertyImage = filename;
     await this.propertyRepository.save(pro);
@@ -61,7 +59,7 @@ export class PropertiesImgProvider {
     //current working directory
     const imagePath = join(
       process.cwd(),
-      `./images/${pro.propertyType}/${pro.propertyImage}`,
+      `./images/properties/${pro.propertyImage}`,
     );
     unlinkSync(imagePath); //delete
     pro.propertyImage = null;
@@ -74,10 +72,7 @@ export class PropertiesImgProvider {
     if (!pro.propertyImages.includes(imageName)) {
       throw new BadRequestException('User does not have image');
     }
-    const imagePath = join(
-      process.cwd(),
-      `./images/${pro.propertyType}/${imageName}`,
-    );
+    const imagePath = join(process.cwd(), `./images/properties/${imageName}`);
     unlinkSync(imagePath); //delete
     pro.propertyImage = null;
     return this.propertyRepository.save(pro);

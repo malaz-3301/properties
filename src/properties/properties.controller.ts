@@ -13,6 +13,7 @@ import {
   BadRequestException,
   UploadedFiles,
   Res,
+  Query,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -21,22 +22,63 @@ import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { CreateVehicleDto } from '../vehicles/dto/create-vehicle.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayloadType } from '../utils/constants';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-import { UpdateVehicleDto } from '../vehicles/dto/update-vehicle.dto';
+
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
 import { diskStorage } from 'multer';
 
-@Controller('properties')
+@Controller('property')
 export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
 
+  @Post()
+  @UseGuards(AuthGuard)
+  create(
+    @Body() createPropertyDto: CreatePropertyDto,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
+    return this.propertiesService.create(createPropertyDto, user.id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updatePropertyDto: UpdatePropertyDto,
+  ) {
+    return this.propertiesService.update(+id, updatePropertyDto);
+  }
+
   @Get()
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.ADMIN)
   getAll() {
     return this.propertiesService.getAll();
+  }
+
+  /**
+   *
+   */
+  @Get('all')
+  getAllAccepted(
+    @Query('word') word: string,
+    @Query('minPrice') minPrice: string,
+    @Query('maxPrice') maxPrice: string,
+  ) {
+    return this.propertiesService.getAll(
+      word,
+      minPrice,
+      maxPrice,
+      'ACCEPTED' as any,
+    );
+  }
+
+  @Get('my')
+  @UseGuards(AuthGuard)
+  getMyProperty(@CurrentUser() user: JwtPayloadType) {
+    return this.propertiesService.getByUserId(user.id);
   }
 
   @Get(':id')

@@ -11,8 +11,6 @@ import { Exclude } from 'class-transformer';
 import { CURRENT_TIMESTAMP } from '../../utils/constants';
 import { UserType } from '../../utils/enums';
 import { Property } from '../../properties/entities/property.entity';
-import { Vehicle } from '../../vehicles/entities/vehicle.entity';
-import { Estate } from '../../estate/entities/estate.entity';
 import { Location } from '../../geolocation/entities/location.embedded';
 import { Favorite } from 'src/favorite/entites/favorite.entity';
 
@@ -51,7 +49,7 @@ export class User {
 
   @OneToMany(() => Property, (property: Property) => property.user)
   properties: Property[];
-  
+
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;
   @UpdateDateColumn({

@@ -3,11 +3,6 @@ export enum UserType {
   NORMAL_USER = 'normal_user',
 }
 
-export enum PropertyType {
-  VEHICLE = 'vehicle',
-  ESTATE = 'estate',
-}
-
 export enum PropertyStatus {
   PENDING = 'pending',
   ACCEPTED = 'accepted',
@@ -15,24 +10,12 @@ export enum PropertyStatus {
   HIDDEN = 'hidden',
 }
 
-export enum FuelType {
-  PETROL = 'petrol',
-  DIESEL = 'diesel',
-  ELECTRIC = 'electric',
-  HYBRID = 'hybrid',
-}
-
-export enum TransmissionType {
-  MANUAL = 'manual',
-  AUTOMATIC = 'automatic',
-}
-
 export enum VehicleCondition {
   NEW = 'new',
   USED = 'used',
 }
 
-export enum EstateType {
+export enum PropertyType {
   HOUSE = 'House',
   APARTMENT = 'Apartment',
   VILLA = 'Villa',

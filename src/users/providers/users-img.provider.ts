@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Repository } from 'typeorm';
 import { join } from 'node:path';
-import process from 'node:process';
+import * as process from 'node:process';
 import { unlinkSync } from 'node:fs';
 import { UsersGetProvider } from './users-get.provider';
 

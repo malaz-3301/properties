@@ -90,4 +90,9 @@ export class UsersController {
   ) {
     return res.sendFile(image, { root: `images` });
   }
+  @Get('favorites')
+  @UseGuards(AuthGuard)
+  getAllFavorites(@CurrentUser() payload: JwtPayloadType) {
+    return this.usersService.getAllFavorites(payload.id);
+  }
 }

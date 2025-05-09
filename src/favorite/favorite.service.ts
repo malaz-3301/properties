@@ -16,64 +16,58 @@ export class FavoriteService {
     private readonly vehicleService: VehiclesService,
   ) {}
 
-  /*  findFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
-      return this.favoriteRepository.findOne({
-        where: {
-          propertyType: propertyDetails.type,
-          propertyId: propertyDetails.id,
-          user: { id: userId },
-        },
-      });
+  findFavorite(userId: number, propertyId: number) {
+    return this.favoriteRepository.findOne({
+      where: {
+        property : {id: propertyId},
+        user: { id: userId },
+      },
+    });
+  }
+
+  async isFavorite(userId: number, propetyId: number) {
+    const isFavorite = await this.findFavorite(userId, propetyId);
+    if(!isFavorite) {
+      return false;
     }
-  
-    async isFavorite(userId: number, propertyDetails: PropertyDetailsDto) {
-      const isFavorite = await this.findFavorite(userId, propertyDetails);
-      return isFavorite ? true : false;
+    else {
+      return isFavorite.isFavorite;
     }
-  
-    async changeStatusOfFavorite(
-      userId: number,
-      propertyDetails: PropertyDetailsDto,
-    ) {
-      const favorite = await this.findFavorite(userId, propertyDetails);
-      if (favorite) {
-        return this.favoriteRepository.delete({ id: favorite.id });
-      } else {
-        let isExist: boolean;
-        if (propertyDetails.type === PropertyType.ESTATE) {
-          const estate = await this.estateService.findById(propertyDetails.id);
-          isExist = estate ? true : false;
-        } else {
-          const vehicle = await this.vehicleService.findById(propertyDetails.id);
-          isExist = vehicle ? true : false;
-        }
-        const newFavorite = this.favoriteRepository.create({
-          user: { id: userId },
-          propertyId: propertyDetails.id,
-          propertyType: propertyDetails.type,
-        });
-        return this.favoriteRepository.save(newFavorite);
-      }
+  }
+
+  async changeStatusOfFavorite(userId: number, propertyId: number) {
+    const favorite = await this.findFavorite(userId, propertyId);
+    
+    if (favorite) {
+      favorite.isFavorite = favorite.isFavorite ? false : true;
+      return this.favoriteRepository.update(favorite.id, favorite);
+    } else {
+      const newFavorite = this.favoriteRepository.create({
+        property: { id: propertyId },
+        user: { id: userId },
+      });
+      return this.favoriteRepository.save(newFavorite);
     }
-  
-    async getAllFavorites(userId: number) {
-      const favorites = await this.favoriteRepository.find({
-        where: { user: { id: userId } },
-      });
-      let vehicle: any[] = [],
-        estates: any[] = [];
-      favorites.forEach((favorite) => {
-        if (favorite.propertyType == PropertyType.VEHICLE) {
-          vehicle.push(favorite.propertyId);
-        } else {
-          if (favorite.propertyType == PropertyType.ESTATE) {
-            estates.push(favorite.propertyId);
-          }
-        }
-      });
-      estates = await this.estateService.getFavoriteEstates(estates);
-      vehicle = await this.vehicleService.getFavoriteVehicles(vehicle);
-  
-      return { estates: estates, vehicle: vehicle };
-    }*/
+  }
+
+  // async getAllFavorites(userId: number) {
+  //   const favorites = await this.favoriteRepository.find({
+  //     where: { user: { id: userId } },
+  //   });
+  //   let vehicles: any[] = [],
+  //     estates: any[] = [];
+  //   favorites.forEach((favorite) => {
+  //     if (favorite.propertyType == PropertyType.VEHICLE) {
+  //       vehicles.push(favorite.propertyId);
+  //     } else {
+  //       if (favorite.propertyType == PropertyType.ESTATE) {
+  //         estates.push(favorite.propertyId);
+  //       }
+  //     }
+  //   });
+  //   estates = await this.estateService.getFavoriteEstates(estates);
+  //   vehicles = await this.vehicleService.getFavoriteVehicles(vehicles);
+
+  //   return { estates: estates, vehicles: vehicles };
+  // }
 }

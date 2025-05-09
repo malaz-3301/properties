@@ -162,4 +162,9 @@ export class UsersService {
     user.profileImage = null;
     return this.usersRepository.save(user);
   }
+
+  async getAllFavorites(userId : number) {
+    const favorites = await this.usersRepository.findOne({where : {id : userId}, relations : {favorites : {property : true}}, });
+    return favorites?.favorites;
+  }
 }

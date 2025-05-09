@@ -15,12 +15,13 @@ import { Property } from '../../properties/entities/property.entity';
 export class Favorite {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ type: 'enum', enum: PropertyType })
-  propertyType: PropertyType;
 
   @OneToOne(() => Property, (property) => property.id)
   @JoinColumn({ name: 'propertyId' })
   property: Property;
+
+  @Column({type : 'boolean', default : true})
+  isFavorite : boolean;
 
   @ManyToOne(() => User, (user) => user.favorites)
   user: User;

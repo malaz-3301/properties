@@ -83,7 +83,7 @@ export class PropertiesController {
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('Property-image'))
   //function
-  uploadPropertyImg(
+  uploadSingleImg(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() payload: JwtPayloadType,
@@ -92,7 +92,7 @@ export class PropertiesController {
       throw new BadRequestException('No file uploaded');
     }
     console.log('File uploaded ', { file });
-    return this.propertiesService.setPropertyImg(id, payload.id, file.filename);
+    return this.propertiesService.setSingleImg(id, payload.id, file.filename);
   }
 
   @Post('upload-multiple-img/:id')
@@ -108,6 +108,7 @@ export class PropertiesController {
     if (!files || files.length === 0) {
       throw new BadRequestException('No file uploaded');
     }
+    //من الغرض بس الاسم
     const filenames: string[] = files.map((f) => f.filename);
 
     console.log('File uploaded ', { files });
@@ -116,11 +117,11 @@ export class PropertiesController {
 
   @Delete('remove-img/:id')
   @UseGuards(AuthGuard)
-  removePropertyImage(
+  removeSingleImage(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() payload: JwtPayloadType,
   ) {
-    return this.propertiesService.removePropertyImage(id, payload.id);
+    return this.propertiesService.removeSingleImage(id, payload.id);
   }
 
   @Delete('remove-any-img/:id/:imageName')

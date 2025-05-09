@@ -53,11 +53,11 @@ export class EstateService {
     state?: PropertyStatus,
   ) {
     const filters: FindOptionsWhere<Estate>[] = [];
-
+    const propertyFilters: FindOptionsWhere<Property>[] = [];
     // شرط البحث
     if (word) {
-      filters.push({ property: { title: Like(`%${word}%`) } });
-      filters.push({ property: { description: Like(`%${word}%`) } });
+      propertyFilters.push({ title: Like(`%${word}%`) });
+      propertyFilters.push({ description: Like(`%${word}%`) });
     }
 
     // شروط السعر

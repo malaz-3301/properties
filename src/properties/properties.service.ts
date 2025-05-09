@@ -69,16 +69,16 @@ export class PropertiesService {
     return this.propertiesDelProvider.deletePropertyById(id);
   }
 
-  async setPropertyImg(id: number, userId: number, filename: string) {
-    return this.propertiesImgProvider.setPropertyImg(id, userId, filename);
+  async setSingleImg(id: number, userId: number, filename: string) {
+    return this.propertiesImgProvider.setSingleImg(id, userId, filename);
   }
 
   async setMultiImg(id: number, userId: number, filenames: string[]) {
     return this.propertiesImgProvider.setMultiImg(id, userId, filenames);
   }
 
-  async removePropertyImage(id: number, userId: number) {
-    return this.propertiesImgProvider.removeVehicleImage(id, userId);
+  async removeSingleImage(id: number, userId: number) {
+    return this.propertiesImgProvider.removeSingleImage(id, userId);
   }
 
   async removeAnyImg(id: number, userId: number, imageName: string) {

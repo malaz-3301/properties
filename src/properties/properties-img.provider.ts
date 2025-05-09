@@ -24,22 +24,25 @@ export class PropertiesImgProvider {
    * @param userId
    * @param filename
    */
-  async setPropertyImg(id: number, userId: number, filename: string) {
-    const property = await this.MyProperty(id, userId);
+  async setSingleImg(id: number, userId: number, filename: string) {
+    const pro = await this.MyProperty(id, userId);
 
-    if (property.propertyImage) {
-      unlinkSync(join(process.cwd(), `./images/estate/${filename}`)); //file path
+    if (pro.propertyImage) {
+      unlinkSync(
+        join(process.cwd(), `./images/${pro.propertyType}/${filename}`),
+      ); //file path
     }
-    property.propertyImage = filename;
-    await this.propertyRepository.save(property);
+    pro.propertyImage = filename;
+    await this.propertyRepository.save(pro);
     return { message: `File uploaded successfully :  ${filename}` };
   }
 
   async setMultiImg(id: number, userId: number, filenames: string[]) {
-    const property = await this.MyProperty(id, userId);
+    const pro = await this.MyProperty(id, userId);
+    //بقي الحذف
 
-    property.propertyImages = filenames;
-    await this.propertyRepository.save(property);
+    pro.propertyImages = filenames;
+    await this.propertyRepository.save(pro);
     return {
       message: `File uploaded successfully :  ${filenames}`,
     };
@@ -50,30 +53,34 @@ export class PropertiesImgProvider {
    * @param id
    * @param userId
    */
-  async removeVehicleImage(id: number, userId: number) {
-    const property = await this.MyProperty(id, userId);
-    if (!property.propertyImage) {
+  async removeSingleImage(id: number, userId: number) {
+    const pro = await this.MyProperty(id, userId);
+    if (!pro.propertyImage) {
       throw new BadRequestException('User does not have image');
     }
     //current working directory
     const imagePath = join(
       process.cwd(),
-      `./images/estate/${property.propertyImage}`,
+      `./images/${pro.propertyType}/${pro.propertyImage}`,
     );
     unlinkSync(imagePath); //delete
-    property.propertyImage = null;
-    return this.propertyRepository.save(property);
+    pro.propertyImage = null;
+    return this.propertyRepository.save(pro);
   }
 
+  //حذف اي صورة من العقار
   async removeAnyImg(id: number, userId: number, imageName: string) {
-    const property = await this.MyProperty(id, userId);
-    if (!property.propertyImages.includes(imageName)) {
+    const pro = await this.MyProperty(id, userId);
+    if (!pro.propertyImages.includes(imageName)) {
       throw new BadRequestException('User does not have image');
     }
-    const imagePath = join(process.cwd(), `./images/vehicles/${imageName}`);
+    const imagePath = join(
+      process.cwd(),
+      `./images/${pro.propertyType}/${imageName}`,
+    );
     unlinkSync(imagePath); //delete
-    property.propertyImage = null;
-    return this.propertyRepository.save(property);
+    pro.propertyImage = null;
+    return this.propertyRepository.save(pro);
   }
 
   async MyProperty(id: number, userId: number) {

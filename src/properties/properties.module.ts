@@ -38,9 +38,9 @@ import { PropertiesGetProvider } from './properties-get.provider';
               const id = Number(req.params.id);
 
               propertiesService
-                .getTypeById(id)
-                .then((type) => {
-                  cb(null, `./images/${type}`);
+                .getByPropId(id)
+                .then((property) => {
+                  cb(null, `./images/${property.propertyType}`);
                 })
                 .catch((err) => {
                   cb(new NotFoundException('Property not found'), 'null');

@@ -21,8 +21,8 @@ import { Location } from '../../geolocation/entities/location.embedded';
 import { User } from '../../users/entities/user.entity';
 import { Favorite } from '../../favorite/entites/favorite.entity';
 import { Estate } from './estate.entity';
-import { Love } from '../../loves/entities/love.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
+import { Vote } from '../../votes/entities/vote.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -34,8 +34,8 @@ export abstract class Property extends Estate {
   })
   favorites?: Favorite[];
 
-  @OneToMany(() => Love, (loves) => loves.property, { cascade: true })
-  loves?: Love[];
+  @OneToMany(() => Vote, (vote) => vote.property, { cascade: true })
+  votes?: Vote[];
 
   @ManyToOne(() => User, (user: User) => user.properties, {
     onDelete: 'CASCADE',
@@ -71,7 +71,10 @@ export abstract class Property extends Estate {
   propertyImages: string[];
 
   @Column({ default: 0 })
-  loveCount: number;
+  voteScore: number;
+
+  @Column({ default: 0 })
+  priorityScore: number;
 
   @Column()
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })

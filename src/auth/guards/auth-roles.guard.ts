@@ -46,6 +46,7 @@ export class AuthRolesGuard implements CanActivate {
     }
 
     if (!roles.includes(payload.userType)) {
+      console.log(payload.userType);
       return false;
     }
     req['payload'] = payload;

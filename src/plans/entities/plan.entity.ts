@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { PlanDuration, PlanType } from '../../utils/enums';
-import { Love } from '../../loves/entities/love.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('plan')

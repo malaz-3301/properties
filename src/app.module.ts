@@ -17,9 +17,9 @@ import { GeolocationModule } from './geolocation/geolocation.module';
 import * as process from 'node:process';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { FavoriteModule } from './favorite/favorite.module';
-import { LovesModule } from './loves/loves.module';
 import { PlansModule } from './plans/plans.module';
 import { ContractsModule } from './contracts/contracts.module';
+import { VotesModule } from './votes/votes.module';
 
 @Module({
   imports: [
@@ -55,7 +55,7 @@ import { ContractsModule } from './contracts/contracts.module';
 
     FavoriteModule,
 
-    LovesModule,
+    VotesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,9 +14,9 @@ import { UserType } from '../../utils/enums';
 import { Property } from '../../properties/entities/property.entity';
 import { Location } from '../../geolocation/entities/location.embedded';
 import { Favorite } from 'src/favorite/entites/favorite.entity';
-import { Love } from '../../loves/entities/love.entity';
 import { Plan } from '../../plans/entities/plan.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
+import { Vote } from '../../votes/entities/vote.entity';
 
 @Entity('users')
 export class User {
@@ -39,7 +39,7 @@ export class User {
   @Column({ type: 'integer', default: 18 })
   age: number;
 
-  @Column({ type: 'enum', enum: UserType, default: UserType.ADMIN })
+  @Column({ type: 'enum', enum: UserType, default: UserType.SUPER_ADMIN })
   userType: UserType;
 
   @Column({ type: 'boolean', default: false })
@@ -54,11 +54,14 @@ export class User {
   @OneToMany(() => Property, (property: Property) => property.user)
   properties?: Property[];
 
-  @OneToMany(() => Love, (loves: Love) => loves.user)
-  loves?: Love[];
+  @OneToMany(() => Vote, (vote: Vote) => vote.user)
+  votes?: Vote[];
 
   @ManyToOne(() => Plan, (plan: Plan) => plan.users)
   plan?: Plan;
+
+  @Column({ default: 0 })
+  totalVoteScore: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;

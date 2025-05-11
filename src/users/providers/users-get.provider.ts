@@ -20,9 +20,9 @@ export class UsersGetProvider {
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-    if (user.userType === UserType.SUPER_ADMIN) {
-      throw new UnauthorizedException("You Can't");
-    }
+    /*    if (user.userType === UserType.SUPER_ADMIN) {
+          throw new UnauthorizedException("You Can't");
+        }*/
     return user;
   }
 }

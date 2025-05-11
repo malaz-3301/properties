@@ -162,7 +162,7 @@ export class PropertiesController {
   }
 
   @Get('top/:limit')
-  getTopLovedPro(@Param('limit', ParseIntPipe) limit: number) {
-    return this.propertiesService.getTopLovedPro(limit);
+  getTopScorePro(@Param('limit', ParseIntPipe) limit: number) {
+    return this.propertiesService.getTopScorePro(limit);
   }
 }

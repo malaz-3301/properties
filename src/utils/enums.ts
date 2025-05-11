@@ -58,6 +58,7 @@ export enum PlanDuration {
   THREE_MONTHS = '3_months',
   SIX_MONTHS = '6_months',
   TEEN_MONTHS = '10_months',
+  OTHER = 'Other',
 }
 
 export enum PlanType {

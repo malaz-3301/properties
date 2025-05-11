@@ -116,10 +116,10 @@ export class PropertiesService {
     return this.propertiesImgProvider.removeAnyImg(id, userId, imageName);
   }
 
-  getTopLovedPro(limit: number) {
+  getTopScorePro(limit: number) {
     return this.propertyRepository.find({
       order: {
-        loveCount: 'DESC',
+        voteScore: 'DESC',
       },
       take: limit,
       select: {

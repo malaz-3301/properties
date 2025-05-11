@@ -39,7 +39,7 @@ export class PropertiesGetProvider {
       where: { id: id },
       relations: { user: true },
       select: {
-        user: { username: true },
+        user: { id: true, username: true },
       },
     });
     if (!property) {

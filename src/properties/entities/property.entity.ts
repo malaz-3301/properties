@@ -20,6 +20,7 @@ import { Location } from '../../geolocation/entities/location.embedded';
 import { User } from '../../users/entities/user.entity';
 import { Favorite } from '../../favorite/entites/favorite.entity';
 import { Estate } from './estate.entity';
+import { Love } from '../../loves/entities/love.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -28,6 +29,9 @@ export abstract class Property extends Estate {
 
   @OneToOne(() => Favorite, (favorite) => favorite.property, { cascade: true })
   favorite?: Favorite;
+
+  @OneToOne(() => Love, (loves) => loves.property, { cascade: true })
+  loves?: Love[];
 
   @ManyToOne(() => User, (user: User) => user.properties, {
     onDelete: 'CASCADE',
@@ -61,6 +65,9 @@ export abstract class Property extends Estate {
 
   @Column('simple-array', { nullable: true })
   propertyImages: string[];
+
+  @Column({ default: 0 })
+  loveCount: number;
 
   @Column()
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })

@@ -43,14 +43,18 @@ export class PropertiesController {
     return this.propertiesService.create(createPropertyDto, user.id);
   }
 
-  @Patch('my:id')
+  @Patch('my:proId')
   @UseGuards(AuthGuard)
   updateMyPro(
-    @Param('id') id: string,
+    @Param('proId', ParseIntPipe) proId: number,
     @CurrentUser() user: JwtPayloadType,
     @Body() updatePropertyDto: UpdatePropertyDto,
   ) {
-    return this.propertiesService.updateMyPro(+id, user.id, updatePropertyDto);
+    return this.propertiesService.updateMyPro(
+      proId,
+      user.id,
+      updatePropertyDto,
+    );
   }
 
   @Get('all')
@@ -73,21 +77,21 @@ export class PropertiesController {
     return this.propertiesService.getByUserId(user.id);
   }
 
-  @Get(':id')
-  getByProId(@Param('id', ParseIntPipe) id: number) {
-    return this.propertiesService.getByProId(id);
+  @Get(':proId')
+  getOnePro(@Param('proId', ParseIntPipe) proId: number) {
+    return this.propertiesService.getOnePro(proId);
   }
 
   //delete Dto change cwd
-  @Delete(':id')
+  @Delete(':proId')
   @UseGuards(AuthGuard)
   deleteMyPro(
-    @Param('id') id: string,
+    @Param('proId', ParseIntPipe) proId: number,
     @Body() deleteUserDto: DeleteUserDto,
     @CurrentUser() user: JwtPayloadType,
   ) {
     return this.propertiesService.deleteMyPro(
-      +id,
+      proId,
       user.id,
       deleteUserDto.password,
     );
@@ -129,13 +133,13 @@ export class PropertiesController {
     return this.propertiesService.setMultiImg(id, payload.id, filenames);
   }
 
-  @Delete('remove-img/:id')
+  @Delete('remove-img/:proId')
   @UseGuards(AuthGuard)
   removeSingleImage(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() payload: JwtPayloadType,
+    @Param('proId', ParseIntPipe) proId: number,
+    @CurrentUser() user: JwtPayloadType,
   ) {
-    return this.propertiesService.removeSingleImage(id, payload.id);
+    return this.propertiesService.removeSingleImage(proId, user.id);
   }
 
   @Delete('remove-any-img/:id/:imageName')
@@ -155,5 +159,10 @@ export class PropertiesController {
     @Res() res: Response,
   ) {
     return res.sendFile(imageName, { root: `images/vehicles` });
+  }
+
+  @Get('top/:limit')
+  getTopLovedPro(@Param('limit', ParseIntPipe) limit: number) {
+    return this.propertiesService.getTopLovedPro(limit);
   }
 }

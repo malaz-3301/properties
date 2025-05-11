@@ -82,6 +82,7 @@ export class PropertiesGetProvider {
       where,
       relations: { user: true },
       select: {
+        id: true,
         location: {
           country: true,
           governorate: true,

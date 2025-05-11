@@ -13,6 +13,7 @@ import { UserType } from '../../utils/enums';
 import { Property } from '../../properties/entities/property.entity';
 import { Location } from '../../geolocation/entities/location.embedded';
 import { Favorite } from 'src/favorite/entites/favorite.entity';
+import { Love } from '../../loves/entities/love.entity';
 
 @Entity('users')
 export class User {
@@ -48,7 +49,10 @@ export class User {
   otpTries: number;
 
   @OneToMany(() => Property, (property: Property) => property.user)
-  properties: Property[];
+  properties?: Property[];
+
+  @OneToMany(() => Love, (loves: Love) => loves.user)
+  loves?: Love[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;

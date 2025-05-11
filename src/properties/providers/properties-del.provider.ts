@@ -18,10 +18,10 @@ export class PropertiesDelProvider {
     private readonly propertiesGetProvider: PropertiesGetProvider,
   ) {}
 
-  async deleteMyPro(id: number, userId: number, password: string) {
+  async deleteMyPro(proId: number, userId: number, password: string) {
     const property = await this.propertyRepository.findOne({
       //if it is mine && get password
-      where: { id: id, user: { id: userId } },
+      where: { id: proId, user: { id: userId } },
       relations: { user: true },
       select: { user: { password: true } },
     });
@@ -32,7 +32,7 @@ export class PropertiesDelProvider {
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');
     }
-    return this.propertyRepository.delete({ id: id });
+    return this.propertyRepository.delete({ id: proId });
   }
 
   async deleteProById(id: number) {

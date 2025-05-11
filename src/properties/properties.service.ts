@@ -49,12 +49,12 @@ export class PropertiesService {
   }
 
   async updateMyPro(
-    id: number,
+    proId: number,
     userId: number,
     updatePropertyDto: UpdatePropertyDto,
   ) {
     return this.propertiesUpdateProvider.updateMyPro(
-      id,
+      proId,
       userId,
       updatePropertyDto,
     );
@@ -78,7 +78,7 @@ export class PropertiesService {
     );
   }
 
-  async getByProId(id: number) {
+  async getOnePro(id: number) {
     return this.propertiesGetProvider.findById(id);
   }
 
@@ -90,8 +90,8 @@ export class PropertiesService {
     return this.propertiesImgProvider.MyProperty(id, userId);
   }
 
-  async deleteMyPro(id: number, userId: number, password: string) {
-    return this.propertiesDelProvider.deleteMyPro(id, userId, password);
+  async deleteMyPro(proId: number, userId: number, password: string) {
+    return this.propertiesDelProvider.deleteMyPro(proId, userId, password);
   }
 
   async deleteProById(id: number) {
@@ -112,5 +112,18 @@ export class PropertiesService {
 
   async removeAnyImg(id: number, userId: number, imageName: string) {
     return this.propertiesImgProvider.removeAnyImg(id, userId, imageName);
+  }
+
+  getTopLovedPro(limit: number) {
+    return this.propertyRepository.find({
+      order: {
+        loveCount: 'DESC',
+      },
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+      },
+    });
   }
 }

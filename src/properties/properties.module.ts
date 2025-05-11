@@ -34,19 +34,7 @@ import { PropertiesUpdateProvider } from './providers/properties-update.provider
       useFactory: (propertiesService: PropertiesService) => {
         return {
           storage: diskStorage({
-            // اول مرحلة جيب ال type
-            destination: (req, file, cb) => {
-              const id = Number(req.params.id);
-
-              propertiesService
-                .getByProId(id)
-                .then((property) => {
-                  cb(null, `./images/properties`);
-                })
-                .catch((err) => {
-                  cb(new NotFoundException('Property not found'), 'null');
-                });
-            },
+            destination: './images/properties',
             filename(
               req: e.Request,
               file: Express.Multer.File,
@@ -92,6 +80,6 @@ import { PropertiesUpdateProvider } from './providers/properties-update.provider
     PropertiesDelProvider,
     PropertiesGetProvider,
   ],
-  exports: [PropertiesService],
+  exports: [PropertiesService, PropertiesGetProvider],
 })
 export class PropertiesModule {}

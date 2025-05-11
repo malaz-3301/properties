@@ -46,6 +46,8 @@ import { UsersUpdateProvider } from './providers/users-update.provider';
         } else {
           callback(new BadRequestException('Unsupported Media Type'), false);
         }
+
+        //لا تنسى المعالجة
       },
       limits: { fileSize: 1024 * 1024 * 2 },
     }),
@@ -63,6 +65,6 @@ import { UsersUpdateProvider } from './providers/users-update.provider';
       useClass: ClassSerializerInterceptor,
     },
   ],
-  exports: [UsersService, UsersOtpProvider],
+  exports: [UsersService, UsersOtpProvider, UsersGetProvider],
 })
 export class UsersModule {}

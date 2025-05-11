@@ -98,7 +98,7 @@ export class UsersController {
     @Param('image') image: string,
     @Res() res: Response,
   ) {
-    return res.sendFile(image, { root: `images` });
+    return res.sendFile(image, { root: `images/users` });
   }
 
   @Get('favorites')

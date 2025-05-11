@@ -22,7 +22,6 @@ import { User } from '../../users/entities/user.entity';
 import { Favorite } from '../../favorite/entites/favorite.entity';
 import { Estate } from './estate.entity';
 import { Love } from '../../loves/entities/love.entity';
-import { Contract } from 'src/contracts/entities/contract.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -82,7 +81,4 @@ export abstract class Property extends Estate {
     onUpdate: CURRENT_TIMESTAMP,
   })
   updatedAt: Date;
-
-  @OneToMany(()=>Contract, (contracts)=>contracts.property)
-  contacts : Contract[];
 }

@@ -16,8 +16,9 @@ export class Favorite {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Property, (property) => property.id)
-  @JoinColumn({ name: 'propertyId' })
+  @ManyToOne(() => Property, (property) => property.favorites, {
+    onDelete: 'CASCADE',
+  })
   property: Property;
 
   @Column({ type: 'boolean', default: true })

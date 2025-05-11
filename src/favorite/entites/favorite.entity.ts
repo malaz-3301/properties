@@ -21,9 +21,6 @@ export class Favorite {
   })
   property: Property;
 
-  @Column({ type: 'boolean', default: true })
-  isFavorite: boolean;
-
   @ManyToOne(() => User, (user) => user.favorites)
   user: User;
 }

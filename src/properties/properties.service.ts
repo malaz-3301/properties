@@ -45,7 +45,7 @@ export class PropertiesService {
     const newProperty = this.propertyRepository.create({
       ...createPropertyDto,
       location: location,
-      user: { id: user.id },
+      user: user,
     });
     return this.propertyRepository.save(newProperty);
   }

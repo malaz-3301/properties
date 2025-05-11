@@ -19,6 +19,7 @@ import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { FavoriteModule } from './favorite/favorite.module';
 import { LovesModule } from './loves/loves.module';
 import { PlansModule } from './plans/plans.module';
+import { ContractsModule } from './contracts/contracts.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PlansModule } from './plans/plans.module';
     UploadsModule,
     FavoriteModule,
     PlansModule,
+    ContractsModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {

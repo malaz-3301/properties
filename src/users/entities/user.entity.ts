@@ -16,6 +16,7 @@ import { Location } from '../../geolocation/entities/location.embedded';
 import { Favorite } from 'src/favorite/entites/favorite.entity';
 import { Love } from '../../loves/entities/love.entity';
 import { Plan } from '../../plans/entities/plan.entity';
+import { Contract } from '../../contracts/entities/contract.entity';
 
 @Entity('users')
 export class User {
@@ -73,4 +74,7 @@ export class User {
 
   @OneToMany(() => Favorite, (favorite) => favorite.user)
   favorites: Favorite[];
+
+  @OneToMany(() => Contract, (contracts) => contracts.user)
+  contracts: Contract[];
 }

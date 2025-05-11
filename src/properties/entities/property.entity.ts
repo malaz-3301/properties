@@ -29,10 +29,12 @@ export abstract class Property extends Estate {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => Favorite, (favorite) => favorite.property, { cascade: true })
+  @OneToMany(() => Favorite, (favorites) => favorites.property, {
+    cascade: true,
+  })
   favorites?: Favorite[];
 
-  @OneToOne(() => Love, (loves) => loves.property, { cascade: true })
+  @OneToMany(() => Love, (loves) => loves.property, { cascade: true })
   loves?: Love[];
 
   @ManyToOne(() => User, (user: User) => user.properties, {

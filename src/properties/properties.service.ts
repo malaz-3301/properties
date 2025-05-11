@@ -18,6 +18,7 @@ import { PropertiesGetProvider } from './providers/properties-get.provider';
 
 import { PropertyStatus } from '../utils/enums';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
+import { UsersGetProvider } from '../users/providers/users-get.provider';
 
 @Injectable()
 export class PropertiesService {
@@ -26,6 +27,7 @@ export class PropertiesService {
     private propertyRepository: Repository<Property>,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly geolocationService: GeolocationService,
+    private readonly usersGetProvider: UsersGetProvider,
     private readonly propertiesUpdateProvider: PropertiesUpdateProvider,
     private readonly propertiesImgProvider: PropertiesImgProvider,
     private readonly propertiesDelProvider: PropertiesDelProvider,
@@ -34,7 +36,7 @@ export class PropertiesService {
 
   //create from other
   async create(createPropertyDto: CreatePropertyDto, id: number) {
-    // const user = await this.usersGetProvider.findById(id);
+    const user = await this.usersGetProvider.findById(id);
     const { pointsDto } = createPropertyDto;
     const location = await this.geolocationService.reverse_geocoding(
       pointsDto.lat,

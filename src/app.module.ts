@@ -18,9 +18,11 @@ import * as process from 'node:process';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { FavoriteModule } from './favorite/favorite.module';
 import { LovesModule } from './loves/loves.module';
+import { ContractsModule } from './contracts/contracts.module';
 
 @Module({
   imports: [
+    ContractsModule,
     UsersModule,
     PropertiesModule,
     AdminModule,
@@ -48,10 +50,11 @@ import { LovesModule } from './loves/loves.module';
     }),
     AuthModule,
     GeolocationModule,
-
     FavoriteModule,
 
     LovesModule,
+
+    ContractsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

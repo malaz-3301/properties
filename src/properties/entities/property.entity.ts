@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   TableInheritance,
@@ -21,14 +22,15 @@ import { User } from '../../users/entities/user.entity';
 import { Favorite } from '../../favorite/entites/favorite.entity';
 import { Estate } from './estate.entity';
 import { Love } from '../../loves/entities/love.entity';
+import { Contract } from 'src/contracts/entities/contract.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Favorite, (favorite) => favorite.property, { cascade: true })
-  favorite?: Favorite;
+  @OneToMany(() => Favorite, (favorite) => favorite.property, { cascade: true })
+  favorites?: Favorite[];
 
   @OneToOne(() => Love, (loves) => loves.property, { cascade: true })
   loves?: Love[];
@@ -78,4 +80,7 @@ export abstract class Property extends Estate {
     onUpdate: CURRENT_TIMESTAMP,
   })
   updatedAt: Date;
+
+  @OneToMany(()=>Contract, (contracts)=>contracts.property)
+  contacts : Contract[];
 }

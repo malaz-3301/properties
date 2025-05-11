@@ -16,12 +16,8 @@ export class Favorite {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Property, (property) => property.id)
-  @JoinColumn({ name: 'propertyId' })
+  @ManyToOne(() => Property, (property) => property.id)
   property: Property;
-
-  @Column({ type: 'boolean', default: true })
-  isFavorite: boolean;
 
   @ManyToOne(() => User, (user) => user.favorites)
   user: User;

@@ -34,7 +34,7 @@ export class PropertiesService {
 
   //create from other
   async create(createPropertyDto: CreatePropertyDto, id: number) {
-    const user = await this.propertiesGetProvider.findById(id);
+    // const user = await this.usersGetProvider.findById(id);
     const { pointsDto } = createPropertyDto;
     const location = await this.geolocationService.reverse_geocoding(
       pointsDto.lat,
@@ -43,7 +43,7 @@ export class PropertiesService {
     const newProperty = this.propertyRepository.create({
       ...createPropertyDto,
       location: location,
-      user: user,
+      user: {id : id},
     });
     return this.propertyRepository.save(newProperty);
   }

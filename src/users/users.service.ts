@@ -112,4 +112,10 @@ export class UsersService {
     });
     return favorites?.favorites;
   }
+
+  async setPlan(id: number, planId: number) {
+    const user = await this.usersRepository.update(id, {
+      plan: { id: planId },
+    });
+  }
 }

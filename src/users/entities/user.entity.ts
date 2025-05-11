@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 
@@ -14,6 +15,7 @@ import { Property } from '../../properties/entities/property.entity';
 import { Location } from '../../geolocation/entities/location.embedded';
 import { Favorite } from 'src/favorite/entites/favorite.entity';
 import { Love } from '../../loves/entities/love.entity';
+import { Plan } from '../../plans/entities/plan.entity';
 
 @Entity('users')
 export class User {
@@ -51,8 +53,11 @@ export class User {
   @OneToMany(() => Property, (property: Property) => property.user)
   properties?: Property[];
 
-  @OneToMany(() => Love, (loves: Love) => loves.user)
+  @OneToMany(() => Love, (love: Love) => love.user)
   loves?: Love[];
+
+  @ManyToOne(() => Plan, (plan: Plan) => plan.users)
+  plan?: Plan;
 
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;

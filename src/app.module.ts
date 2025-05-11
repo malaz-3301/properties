@@ -18,6 +18,7 @@ import * as process from 'node:process';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { FavoriteModule } from './favorite/favorite.module';
 import { LovesModule } from './loves/loves.module';
+import { PlansModule } from './plans/plans.module';
 
 @Module({
   imports: [
@@ -52,6 +53,8 @@ import { LovesModule } from './loves/loves.module';
     FavoriteModule,
 
     LovesModule,
+
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [AppService],

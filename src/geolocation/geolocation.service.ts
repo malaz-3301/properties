@@ -41,6 +41,8 @@ export class GeolocationService {
         city: comp.city || comp.town,
         quarter: comp.suburb, // حي أو ضاحية
         street: comp.road, //غالبا ما عم تكون
+        lat: lat,
+        lon: lon,
         nearestPoint: {
           lat: result.geometry.lat,
           lon: result.geometry.lng,

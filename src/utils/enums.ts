@@ -49,3 +49,20 @@ export enum FlooringType {
   CONCRETE = 'Concrete',
   OTHER = 'other',
 }
+
+export enum PlanDuration {
+  ONE_DAY = '1_day',
+  ONE_WEEK = '7_days',
+  TWO_WEEKS = '14_days',
+  ONE_MONTH = '1_month',
+  THREE_MONTHS = '3_months',
+  SIX_MONTHS = '6_months',
+  TEEN_MONTHS = '10_months',
+}
+
+export enum PlanType {
+  TRIAL = 'Trial',
+  BASIC = 'Basic',
+  Platinum = 'Platinum',
+  VIP = 'Vip',
+}

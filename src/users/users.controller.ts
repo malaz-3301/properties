@@ -106,4 +106,13 @@ export class UsersController {
   getAllFavorites(@CurrentUser() payload: JwtPayloadType) {
     return this.usersService.getAllFavorites(payload.id);
   }
+
+  @Get('plan/:planId')
+  @UseGuards(AuthGuard)
+  setPlan(
+    @Param('planId', ParseIntPipe) planId: number,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
+    return this.usersService.setPlan(user.id, planId);
+  }
 }

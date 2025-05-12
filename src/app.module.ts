@@ -20,6 +20,9 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { PlansModule } from './plans/plans.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { VotesModule } from './votes/votes.module';
+import { OrdersModule } from './orders/orders.module';
+import { CornModule } from './corn/corn.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -56,6 +59,10 @@ import { VotesModule } from './votes/votes.module';
     FavoriteModule,
 
     VotesModule,
+
+    OrdersModule,
+    ScheduleModule.forRoot(),
+    CornModule,
   ],
   controllers: [AppController],
   providers: [AppService],

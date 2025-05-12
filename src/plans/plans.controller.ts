@@ -13,6 +13,9 @@ import { UpdatePlanDto } from './dto/update-plan.dto';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { JwtPayloadType } from '../utils/constants';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('plans')
 export class PlansController {
@@ -33,7 +36,8 @@ export class PlansController {
   }
 
   @Get()
-  findAll() {
-    return this.plansService.findAll();
+  @UseGuards(AuthGuard)
+  findAll(@CurrentUser() user: JwtPayloadType) {
+    return this.plansService.findAll(user.id);
   }
 }

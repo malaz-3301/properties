@@ -20,10 +20,12 @@ import { UsersGetProvider } from './providers/users-get.provider';
 import { UsersImgProvider } from './providers/users-img.provider';
 import { UsersDelProvider } from './providers/users-del.provider';
 import { UsersUpdateProvider } from './providers/users-update.provider';
+import { Plan } from '../plans/entities/plan.entity';
+import { Order } from '../orders/entities/order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Plan, Order]),
     AuthModule,
     HttpModule,
     GeolocationModule,

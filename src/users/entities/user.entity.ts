@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  OneToOne,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 
@@ -17,13 +18,14 @@ import { Favorite } from 'src/favorite/entites/favorite.entity';
 import { Plan } from '../../plans/entities/plan.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 11 })
+  @Column({ type: 'varchar', length: 11, unique: true })
   phone: string;
   //make it unique
   @Column({ type: 'varchar', length: 18 })
@@ -57,14 +59,12 @@ export class User {
   @OneToMany(() => Vote, (vote: Vote) => vote.user)
   votes?: Vote[];
 
-  @ManyToOne(() => Plan, (plan: Plan) => plan.users)
-  plan?: Plan;
-
   @Column({ default: 0 })
   totalVoteScore: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;
+
   @UpdateDateColumn({
     type: 'timestamp',
     default: () => CURRENT_TIMESTAMP,
@@ -80,4 +80,16 @@ export class User {
 
   @OneToMany(() => Contract, (contracts) => contracts.user)
   contracts: Contract[];
+  ////
+  @ManyToOne(() => Plan, (plan: Plan) => plan.users)
+  plan?: Plan;
+
+  @Column({ type: 'int', nullable: true })
+  planId: number;
+  
+  @Column({ default: false })
+  hasUsedTrial: boolean;
+  ////
+  @OneToMany(() => Order, (order: Order) => order.user)
+  orders?: Order[];
 }

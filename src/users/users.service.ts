@@ -13,12 +13,18 @@ import { UsersDelProvider } from './providers/users-del.provider';
 import { UsersGetProvider } from './providers/users-get.provider';
 import { UsersImgProvider } from './providers/users-img.provider';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
+import { Plan } from '../plans/entities/plan.entity';
+import { Order, OrderStatus } from '../orders/entities/order.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Plan)
+    private readonly planRepository: Repository<Plan>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly geolocationService: GeolocationService,
     private readonly usersUpdateProvider: UsersUpdateProvider,
@@ -113,10 +119,38 @@ export class UsersService {
     return favorites?.favorites;
   }
 
-  async setPlan(id: number, planId: number) {
-    await this.usersRepository.update(id, {
-      plan: { id: planId },
+  async setPlan(userId: number, planId: number) {
+    const plan = await this.planRepository.findOne({
+      where: { id: planId },
+      select: { planDuration: true },
     });
-    return planId;
+    let durationMs: number;
+    const [numStr, unit] = plan?.planDuration.split('_') ?? [];
+    switch (unit) {
+      case 'd':
+        durationMs = parseInt(numStr) * 24 * 60 * 60 * 1000;
+        break;
+      case 'w':
+        durationMs = parseInt(numStr) * 7 * 24 * 60 * 60 * 1000;
+        break;
+      case 'm':
+        durationMs = parseInt(numStr) * 30 * 24 * 60 * 60 * 1000;
+        break;
+      default:
+        throw new Error(`Unsupported time unit: ${unit}`);
+    }
+    //make it
+    //  planExpiresAt: new Date(Date.now() + durationMs),
+    const order = this.orderRepository.create({
+      plan: { id: planId },
+      user: { id: userId },
+      planStatus: OrderStatus.ACTIVE,
+      planExpiresAt: new Date(Date.now() + durationMs),
+    });
+    await this.orderRepository.save(order);
+
+    return await this.usersRepository.update(userId, {
+      planId: planId,
+    });
   }
 }

@@ -60,7 +60,8 @@ export abstract class Property extends Estate {
   @Column({
     type: 'enum',
     enum: PropertyStatus,
-    default: PropertyStatus.PENDING,
+    //make it Pending
+    default: PropertyStatus.ACCEPTED,
   })
   state: PropertyStatus;
 

@@ -28,6 +28,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^11.1.6",
     "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.9.0",
@@ -41,6 +42,7 @@
     "nodemailer": "^6.10.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "stripe": "^18.1.0",
     "typeorm": "^0.3.22"
   },
   "devDependencies": {

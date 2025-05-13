@@ -19,6 +19,7 @@ import { Plan } from '../../plans/entities/plan.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
 import { Order } from '../../orders/entities/order.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 
 @Entity('users')
 export class User {
@@ -92,4 +93,7 @@ export class User {
   ////
   @OneToMany(() => Order, (order: Order) => order.user)
   orders?: Order[];
+
+  @OneToMany(()=>Notification, (notifications)=>notifications.user)
+  notifications : Notification[];
 }

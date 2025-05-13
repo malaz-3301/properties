@@ -1,5 +1,6 @@
 import { Property } from 'src/properties/entities/property.entity';
 import { User } from 'src/users/entities/user.entity';
+import { CURRENT_TIMESTAMP } from 'src/utils/constants';
 import {
   Column,
   Entity,
@@ -12,7 +13,11 @@ import {
 export class Contract {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+
+  @Column({ type: 'timestamp', default: () => CURRENT_TIMESTAMP }) 
+  createdAt : Date
+
+  @Column({nullable : false})
   validUntil: Date;
 
   @ManyToOne(() => Property, (property) => property.contacts)
@@ -20,4 +25,5 @@ export class Contract {
 
   @ManyToOne(() => User, (user) => user.contracts)
   user: User;
+
 }

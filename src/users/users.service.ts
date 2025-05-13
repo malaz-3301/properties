@@ -1,8 +1,16 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import {
+  FindOperator,
+  FindOptionsUtils,
+  IsNull,
+  LessThan,
+  MoreThan,
+  Not,
+  Repository,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UsersOtpProvider } from './providers/users-otp.provider';
@@ -119,6 +127,45 @@ export class UsersService {
     return favorites?.favorites;
   }
 
+  async getMyActiveContracts(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+        contracts: { validUntil: MoreThan(new Date()) },
+      },
+      relations: ['contracts'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.contracts;
+  }
+
+  async getMyExpiredContracts(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+        contracts: { validUntil: LessThan(new Date()) },
+      },
+      relations: ['contracts'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.contracts;
+  }
+
+  async getMyContracts(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['contracts'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.contracts;
+  }
+
   async setPlan(userId: number, planId: number) {
     const plan = await this.planRepository.findOne({
       where: { id: planId },
@@ -152,5 +199,40 @@ export class UsersService {
     return await this.usersRepository.update(userId, {
       planId: planId,
     });
+  }
+
+  async findMyUnreadNotifications(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId, notifications: { readAt: IsNull() } },
+      relations: ['notifications'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.notifications;
+  }
+
+  async findMyReadNotifications(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId, notifications: { readAt: Not(IsNull()) } },
+      relations: ['notifications'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.notifications;
+  }
+
+  async findUnreadNotificationById(userId: number, notificationId: number) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+        notifications: { id: notificationId, readAt: IsNull() },
+      },
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.notifications[0];
   }
 }

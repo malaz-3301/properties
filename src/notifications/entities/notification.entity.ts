@@ -1,7 +1,7 @@
 import { Property } from "src/properties/entities/property.entity";
 import { User } from "src/users/entities/user.entity";
 import { CURRENT_TIMESTAMP } from "src/utils/constants";
-import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Notification {
@@ -11,7 +11,7 @@ export class Notification {
     user : User;
     @Column()
     message : string;
-    @Column({type: 'timestamp', default: () => CURRENT_TIMESTAMP})
+    @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
     readAt : Date;
     @ManyToOne(()=>Property, (property)=>property.notifications)
     property : Property;

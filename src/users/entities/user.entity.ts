@@ -19,7 +19,9 @@ import { Plan } from '../../plans/entities/plan.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
 import { Order } from '../../orders/entities/order.entity';
+
 import { OtpEntity } from './otp.entity';
+
 import { Notification } from 'src/notifications/entities/notification.entity';
 
 @Entity('users')

@@ -68,6 +68,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     CornModule,
     NotificationsModule,
     StripeModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

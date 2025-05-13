@@ -1,8 +1,16 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import {
+  FindOperator,
+  FindOptionsUtils,
+  IsNull,
+  LessThan,
+  MoreThan,
+  Not,
+  Repository,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UsersOtpProvider } from './providers/users-otp.provider';
@@ -15,6 +23,7 @@ import { UsersImgProvider } from './providers/users-img.provider';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { Plan } from '../plans/entities/plan.entity';
 import { Order, OrderStatus } from '../orders/entities/order.entity';
+import { OtpEntity } from './entities/otp.entity';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +34,8 @@ export class UsersService {
     private readonly planRepository: Repository<Plan>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(OtpEntity)
+    private readonly otpEntityRepository: Repository<OtpEntity>,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly geolocationService: GeolocationService,
     private readonly usersUpdateProvider: UsersUpdateProvider,
@@ -54,9 +65,12 @@ export class UsersService {
     const user = this.usersRepository.create({
       ...registerUserDto,
       location,
-      otpCode,
     });
     await this.usersRepository.save(user);
+    await this.otpEntityRepository.save({
+      otpCode: otpCode,
+      user: { id: user.id },
+    });
 
     await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
     await this.usersRepository.save(user);
@@ -119,6 +133,45 @@ export class UsersService {
     return favorites?.favorites;
   }
 
+  async getMyActiveContracts(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+        contracts: { validUntil: MoreThan(new Date()) },
+      },
+      relations: ['contracts'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.contracts;
+  }
+
+  async getMyExpiredContracts(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+        contracts: { validUntil: LessThan(new Date()) },
+      },
+      relations: ['contracts'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.contracts;
+  }
+
+  async getMyContracts(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['contracts'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.contracts;
+  }
+
   async setPlan(userId: number, planId: number) {
     const plan = await this.planRepository.findOne({
       where: { id: planId },
@@ -127,13 +180,13 @@ export class UsersService {
     let durationMs: number;
     const [numStr, unit] = plan?.planDuration.split('_') ?? [];
     switch (unit) {
-      case 'd':
+      case 'day':
         durationMs = parseInt(numStr) * 24 * 60 * 60 * 1000;
         break;
-      case 'w':
+      case 'week':
         durationMs = parseInt(numStr) * 7 * 24 * 60 * 60 * 1000;
         break;
-      case 'm':
+      case 'month':
         durationMs = parseInt(numStr) * 30 * 24 * 60 * 60 * 1000;
         break;
       default:
@@ -152,5 +205,40 @@ export class UsersService {
     return await this.usersRepository.update(userId, {
       planId: planId,
     });
+  }
+
+  async findMyUnreadNotifications(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId, notifications: { readAt: IsNull() } },
+      relations: ['notifications'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.notifications;
+  }
+
+  async findMyReadNotifications(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId, notifications: { readAt: Not(IsNull()) } },
+      relations: ['notifications'],
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.notifications;
+  }
+
+  async findUnreadNotificationById(userId: number, notificationId: number) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+        notifications: { id: notificationId, readAt: IsNull() },
+      },
+    });
+    if (!user) {
+      throw new HttpException('User Not Found', 404);
+    }
+    return user.notifications[0];
   }
 }

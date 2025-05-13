@@ -4,9 +4,18 @@ import { OrdersController } from './orders.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { Plan } from '../plans/entities/plan.entity';
+import { AuthModule } from '../auth/auth.module';
+import Stripe from 'stripe';
+import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Plan])],
+  imports: [
+    AuthModule,
+    UsersModule,
+    ConfigModule,
+    TypeOrmModule.forFeature([Order, Plan]),
+  ],
   controllers: [OrdersController],
   providers: [OrdersService],
 })

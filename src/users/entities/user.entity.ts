@@ -19,6 +19,8 @@ import { Plan } from '../../plans/entities/plan.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
 import { Order } from '../../orders/entities/order.entity';
+import { OtpEntity } from './otp.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 
 @Entity('users')
 export class User {
@@ -28,7 +30,7 @@ export class User {
   @Column({ type: 'varchar', length: 11, unique: true })
   phone: string;
   //make it unique
-  @Column({ type: 'varchar', length: 18 })
+  @Column({ type: 'varchar', length: 18, unique: true })
   username: string;
 
   @Column({ type: 'varchar' })
@@ -47,11 +49,8 @@ export class User {
   @Column({ type: 'boolean', default: false })
   isAccountVerified: boolean;
 
-  @Column({ nullable: true })
-  otpCode: string;
-
-  @Column({ nullable: true })
-  otpTries: number;
+  @OneToOne(() => OtpEntity, (otpEntity) => otpEntity.user)
+  otpEntity: OtpEntity;
 
   @OneToMany(() => Property, (property: Property) => property.user)
   properties?: Property[];
@@ -86,10 +85,13 @@ export class User {
 
   @Column({ type: 'int', nullable: true })
   planId: number;
-  
+
   @Column({ default: false })
   hasUsedTrial: boolean;
   ////
   @OneToMany(() => Order, (order: Order) => order.user)
   orders?: Order[];
+
+  @OneToMany(()=>Notification, (notifications)=>notifications.user)
+  notifications : Notification[];
 }

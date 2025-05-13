@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { LoggerInterceptor } from './utils/interceptors/logger.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +19,8 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
+  app.use('/webhook/stripe', express.raw({ type: 'application/json' }));
+
   //عدنا مرجع
   const swagger = new DocumentBuilder().setVersion('1.0').build();
   const documentation = SwaggerModule.createDocument(app, swagger);

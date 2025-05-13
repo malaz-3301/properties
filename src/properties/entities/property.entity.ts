@@ -23,6 +23,7 @@ import { Favorite } from '../../favorite/entites/favorite.entity';
 import { Estate } from './estate.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -89,4 +90,7 @@ export abstract class Property extends Estate {
 
   @OneToMany(() => Contract, (contracts) => contracts.property)
   contacts: Contract[];
+
+  @OneToMany(()=>Notification, (notifications)=>notifications.property)
+  notifications : Notification[];
 }

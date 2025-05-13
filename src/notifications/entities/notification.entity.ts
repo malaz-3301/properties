@@ -10,7 +10,7 @@ export class Notification {
     user : User;
     @Column()
     message : string;
-    @Column({nullable : true})
+    @Column({type: 'timestamp', nullable : true})
     readAt : Date;
     @ManyToOne(()=>Property, (property)=>property.notifications)
     property : Property;

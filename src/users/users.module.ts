@@ -22,10 +22,11 @@ import { UsersDelProvider } from './providers/users-del.provider';
 import { UsersUpdateProvider } from './providers/users-update.provider';
 import { Plan } from '../plans/entities/plan.entity';
 import { Order } from '../orders/entities/order.entity';
+import { OtpEntity } from './entities/otp.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Plan, Order]),
+    TypeOrmModule.forFeature([User, Plan, Order, OtpEntity]),
     AuthModule,
     HttpModule,
     GeolocationModule,

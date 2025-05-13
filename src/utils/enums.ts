@@ -52,12 +52,12 @@ export enum FlooringType {
 
 export enum PlanDuration {
   ONE_DAY = '1_day',
-  ONE_WEEK = '7_days',
-  TWO_WEEKS = '14_days',
+  ONE_WEEK = '7_day',
+  TWO_WEEKS = '14_day',
   ONE_MONTH = '1_month',
-  THREE_MONTHS = '3_months',
-  SIX_MONTHS = '6_months',
-  TEEN_MONTHS = '10_months',
+  THREE_MONTHS = '3_month',
+  SIX_MONTHS = '6_month',
+  TEEN_MONTHS = '10_month',
   OTHER = 'Other',
 }
 

@@ -25,4 +25,21 @@ export class UsersGetProvider {
         }*/
     return user;
   }
+
+  public async findByIdOtp(id: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      relations: { otpEntity: true },
+      select: {
+        otpEntity: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+    /*    if (user.userType === UserType.SUPER_ADMIN) {
+          throw new UnauthorizedException("You Can't");
+        }*/
+    return user;
+  }
 }

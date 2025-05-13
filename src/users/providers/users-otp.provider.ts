@@ -28,7 +28,7 @@ export class UsersOtpProvider {
   ) {}
 
   async otpVerify(code: string, id: number) {
-    const user = await this.usersGetProvider.findById(id);
+    const user = await this.usersGetProvider.findByIdOtp(id);
     //If Hack delete him
     if (!/^\d+$/.test(code)) {
       await this.usersRepository.delete({ id: id });
@@ -36,14 +36,14 @@ export class UsersOtpProvider {
     }
     await this.otpTokenTimer(user); //Limiter & Timer
     //verify
-    const isCode = await bcrypt.compare(code, user.otpCode);
+    const isCode = await bcrypt.compare(code, user.otpEntity.otpCode);
     if (!isCode) {
-      user.otpTries += 1;
+      user.otpEntity.otpTries += 1;
       await this.usersRepository.save(user);
       throw new UnauthorizedException('Code is incorrect');
     }
     user.isAccountVerified = true;
-    user.otpTries = 0;
+    user.otpEntity.otpTries = 0;
     await this.usersRepository.save(user);
     //token
     const accessToken = await this.jwtService.signAsync({
@@ -67,7 +67,7 @@ export class UsersOtpProvider {
     }
 
     //Limit of tries
-    if (user.otpTries === 3) {
+    if (user.otpEntity.otpTries === 3) {
       throw new UnauthorizedException({
         message: 'Too many incorrect attempts , request a new code',
         signUpButton: false,
@@ -76,7 +76,7 @@ export class UsersOtpProvider {
   }
 
   async otpReSend(id: number) {
-    const user = await this.usersGetProvider.findById(id);
+    const user = await this.usersGetProvider.findByIdOtp(id);
     if (user.isAccountVerified) {
       throw new BadRequestException('Your account has been verified');
     }
@@ -91,10 +91,10 @@ export class UsersOtpProvider {
     //مر خمس دقائق خود كود
     //OTP
     const code = Math.floor(10000 + Math.random() * 90000).toString();
-    user.otpCode = await this.hashCode(code);
+    user.otpEntity.otpCode = await this.hashCode(code);
     user.createdAt = new Date(); // وقتت جديد للتوكين
     user.updatedAt = new Date(); // وقت جديد لامكانية الطلب
-    user.otpTries = 0; //تصفير المحاولات
+    user.otpEntity.otpTries = 0; //تصفير المحاولات
     await this.usersRepository.save(user);
     await this.sendSms('0930983492', `Your Key is ${code}`);
     return {

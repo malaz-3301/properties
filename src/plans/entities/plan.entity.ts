@@ -20,6 +20,9 @@ export class Plan {
   })
   planDuration: PlanDuration;
 
+  @Column({ type: 'varchar', length: 140 })
+  description: string;
+
   @Column({
     type: 'enum',
     enum: PlanType,

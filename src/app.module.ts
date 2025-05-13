@@ -23,6 +23,7 @@ import { VotesModule } from './votes/votes.module';
 import { OrdersModule } from './orders/orders.module';
 import { CornModule } from './corn/corn.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { StripeModule } from './stripe/stripe.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
@@ -66,6 +67,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ScheduleModule.forRoot(),
     CornModule,
     NotificationsModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -23,6 +23,7 @@ import { UsersImgProvider } from './providers/users-img.provider';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { Plan } from '../plans/entities/plan.entity';
 import { Order, OrderStatus } from '../orders/entities/order.entity';
+import { OtpEntity } from './entities/otp.entity';
 
 @Injectable()
 export class UsersService {
@@ -33,6 +34,8 @@ export class UsersService {
     private readonly planRepository: Repository<Plan>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(OtpEntity)
+    private readonly otpEntityRepository: Repository<OtpEntity>,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly geolocationService: GeolocationService,
     private readonly usersUpdateProvider: UsersUpdateProvider,
@@ -62,9 +65,12 @@ export class UsersService {
     const user = this.usersRepository.create({
       ...registerUserDto,
       location,
-      otpCode,
     });
     await this.usersRepository.save(user);
+    await this.otpEntityRepository.save({
+      otpCode: otpCode,
+      user: { id: user.id },
+    });
 
     await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
     await this.usersRepository.save(user);
@@ -174,13 +180,13 @@ export class UsersService {
     let durationMs: number;
     const [numStr, unit] = plan?.planDuration.split('_') ?? [];
     switch (unit) {
-      case 'd':
+      case 'day':
         durationMs = parseInt(numStr) * 24 * 60 * 60 * 1000;
         break;
-      case 'w':
+      case 'week':
         durationMs = parseInt(numStr) * 7 * 24 * 60 * 60 * 1000;
         break;
-      case 'm':
+      case 'month':
         durationMs = parseInt(numStr) * 30 * 24 * 60 * 60 * 1000;
         break;
       default:

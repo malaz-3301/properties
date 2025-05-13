@@ -17,7 +17,7 @@ export class Contract {
   @Column({ type: 'timestamp', default: () => CURRENT_TIMESTAMP }) 
   createdAt : Date
 
-  @Column({nullable : false})
+  @Column({type: 'timestamp', nullable : false})
   validUntil: Date;
 
   @ManyToOne(() => Property, (property) => property.contacts)

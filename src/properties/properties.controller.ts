@@ -29,6 +29,7 @@ import { Response } from 'express';
 
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
 import { diskStorage } from 'multer';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('property')
 export class PropertiesController {
@@ -78,6 +79,7 @@ export class PropertiesController {
   }
 
   @Get(':proId')
+  @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
   getOnePro(@Param('proId', ParseIntPipe) proId: number) {
     return this.propertiesService.getOnePro(proId);
   }

@@ -8,12 +8,14 @@ import { UsersModule } from '../users/users.module';
 import { PropertiesModule } from '../properties/properties.module';
 import { Property } from '../properties/entities/property.entity';
 import { User } from '../users/entities/user.entity';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     PropertiesModule,
+    AuditModule,
     TypeOrmModule.forFeature([Vote, Property, User]),
   ],
   controllers: [VotesController],

@@ -23,6 +23,7 @@ import { UsersUpdateProvider } from './providers/users-update.provider';
 import { Plan } from '../plans/entities/plan.entity';
 import { Order } from '../orders/entities/order.entity';
 import { OtpEntity } from './entities/otp.entity';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OtpEntity } from './entities/otp.entity';
     AuthModule,
     HttpModule,
     GeolocationModule,
+    AuditModule,
     MulterModule.register({
       storage: diskStorage({
         destination: './images/users',
@@ -63,6 +65,7 @@ import { OtpEntity } from './entities/otp.entity';
     UsersImgProvider,
     UsersDelProvider,
     UsersUpdateProvider,
+    //Exclude()
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,

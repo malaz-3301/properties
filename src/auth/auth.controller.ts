@@ -12,6 +12,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtPayloadType } from '../utils/constants';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {

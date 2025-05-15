@@ -21,6 +21,7 @@ import { Vote } from '../../votes/entities/vote.entity';
 import { Order } from '../../orders/entities/order.entity';
 import { OtpEntity } from './otp.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
+import { Audit } from '../../audit/entities/audit.entity';
 
 @Entity('users')
 export class User {
@@ -34,7 +35,7 @@ export class User {
   username: string;
 
   @Column({ type: 'varchar' })
-  @Exclude()
+  @Exclude() //SerializerInterceptor
   password: string;
 
   @Column(() => Location) //embedded
@@ -85,13 +86,16 @@ export class User {
 
   @Column({ type: 'int', nullable: true })
   planId: number;
-  
+
   @Column({ default: false })
   hasUsedTrial: boolean;
   ////
   @OneToMany(() => Order, (order: Order) => order.user)
   orders?: Order[];
 
-  @OneToMany(()=>Notification, (notifications)=>notifications.user)
-  notifications : Notification[];
+  @OneToMany(() => Notification, (notifications) => notifications.user)
+  notifications: Notification[];
+
+  @OneToMany(() => Audit, (audit) => audit.admin)
+  audits: Audit[];
 }

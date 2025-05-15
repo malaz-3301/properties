@@ -25,6 +25,11 @@ import { CornModule } from './corn/corn.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StripeModule } from './stripe/stripe.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AuditModule } from './audit/audit.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { rateLimiting } from './utils/constants';
+import { ThrottlerProxyGuard } from './throttler-proxy.guard';
 
 @Module({
   imports: [
@@ -68,9 +73,25 @@ import { NotificationsModule } from './notifications/notifications.module';
     CornModule,
     NotificationsModule,
     StripeModule,
+    AuditModule,
+    ThrottlerModule.forRoot({
+      //first policy
+      throttlers: rateLimiting,
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerProxyGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

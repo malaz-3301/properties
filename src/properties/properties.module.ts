@@ -20,12 +20,14 @@ import { PropertiesDelProvider } from './providers/properties-del.provider';
 import { PropertiesGetProvider } from './providers/properties-get.provider';
 import { PropertiesAdminController } from './properties-admin.controller';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     GeolocationModule,
+    AuditModule,
     TypeOrmModule.forFeature([Property]),
     MulterModule.registerAsync({
       imports: [forwardRef(() => PropertiesModule)],

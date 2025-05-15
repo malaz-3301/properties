@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { VotesService } from './votes.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -16,6 +17,7 @@ import { JwtPayloadType } from '../utils/constants';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
+import { AuditInterceptor } from '../utils/interceptors/audit.interceptor';
 
 @Controller('votes')
 export class VotesController {
@@ -57,6 +59,7 @@ export class VotesController {
   @Get('user/:userId')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.ADMIN)
+  @UseInterceptors(AuditInterceptor)
   getUserVotesC(@Param('userId', ParseIntPipe) userId: number) {
     return this.votesService.getUserVotesC(userId);
   }
@@ -68,6 +71,7 @@ export class VotesController {
   @Get('spammers')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.ADMIN)
+  @UseInterceptors(AuditInterceptor)
   getUsersSpam() {
     return this.votesService.getUsersSpam();
   }

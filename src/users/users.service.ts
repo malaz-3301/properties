@@ -125,6 +125,7 @@ export class UsersService {
     return this.usersImgProvider.removeProfileImage(id);
   }
 
+  //
   async getAllFavorites(userId: number) {
     const favorites = await this.usersRepository.findOne({
       where: { id: userId },

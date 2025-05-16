@@ -29,7 +29,7 @@ export class UsersUpdateProvider {
 
     const { password } = updateDto;
     if (password) {
-      user.password = await this.usersOtpProvider.hashCode(password);
+      updateDto.password = await this.usersOtpProvider.hashCode(password);
     }
 
     await this.usersRepository.update(id, updateDto);

@@ -31,7 +31,7 @@ export class UsersUpdateProvider {
     if (password) {
       //
       updateDto.password = await this.usersOtpProvider.hashCode(password);
-    }
+    } //
 
     await this.usersRepository.update(id, updateDto);
     return this.usersGetProvider.findById(id);

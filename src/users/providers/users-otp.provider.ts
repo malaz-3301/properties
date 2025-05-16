@@ -86,7 +86,7 @@ export class UsersOtpProvider {
     console.log('LastReqInSec : ' + LastReqInSec);
     //660
     if (LastReqInSec < 120) {
-      throw new UnauthorizedException('Wait 2 min for a new code');
+      throw new UnauthorizedException(`${await this.otpTimer(user.id)}`);
     }
     //مر خمس دقائق خود كود
     //OTP

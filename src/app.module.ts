@@ -30,6 +30,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { rateLimiting } from './utils/constants';
 import { ThrottlerProxyGuard } from './throttler-proxy.guard';
+import { ViewsModule } from './views/views.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { ThrottlerProxyGuard } from './throttler-proxy.guard';
       //first policy
       throttlers: rateLimiting,
     }),
+    ViewsModule,
   ],
   controllers: [AppController],
   providers: [

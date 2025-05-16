@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Order, OrderStatus } from '../orders/entities/order.entity';
-import now = jest.now;
+import { View } from '../views/entities/view.entity';
 
 @Injectable()
 export class CornService {
@@ -18,6 +18,8 @@ export class CornService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Plan)
     private readonly planRepository: Repository<Plan>,
+    @InjectRepository(View)
+    private readonly viewRepository: Repository<View>,
   ) {}
 
   //min-hour-day-month-day of week
@@ -46,5 +48,10 @@ export class CornService {
         planId: 1,
       });
     }
+  }
+
+  @Cron('0 0 1 */3 *') //every three month
+  async deleteViewEntity() {
+    await this.viewRepository.clear();
   }
 }

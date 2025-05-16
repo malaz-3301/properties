@@ -8,6 +8,8 @@ import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { PropertiesGetProvider } from '../properties/providers/properties-get.provider';
 import { Vote } from './entities/vote.entity';
 import { User } from '../users/entities/user.entity';
+import { PropertiesVoViProvider } from '../properties/providers/properties-vo-vi.provider';
+import { UsersVoViProvider } from '../users/providers/users-vo-vi.provider';
 
 @Injectable()
 export class VotesService {
@@ -19,6 +21,8 @@ export class VotesService {
     private userRepository: Repository<User>,
     private readonly usersGetProvider: UsersGetProvider,
     private readonly propertiesGetProvider: PropertiesGetProvider,
+    private readonly propertiesVoViProvider: PropertiesVoViProvider,
+    private readonly usersVoViProvider: UsersVoViProvider,
   ) {}
 
   async create(proId: number, value: number, userId: number) {
@@ -27,7 +31,7 @@ export class VotesService {
       throw new BadRequestException('Invalid vote value, it must be 1 or -1');
     }
     //تحقق من وجود العقار و جيب صاحبه
-    const property = await this.propertiesGetProvider.findById(proId);
+    const property = await this.propertiesGetProvider.getUserIdByProId(proId);
     const ownerId = property.user.id;
 
     const vote = await this.voteRepository.findOne({
@@ -38,33 +42,20 @@ export class VotesService {
       if (vote.value === value) {
         throw new BadRequestException('Your Vote already exists!');
       }
-      await this.propertyRepository.increment(
-        { id: proId },
-        'voteScore',
-        value * 2,
-      );
+      await this.propertiesVoViProvider.incrementVote(proId, 2 * value);
       await this.priorityScore(proId, 2 * value);
-      await this.userRepository.increment(
-        { id: ownerId },
-        'totalVoteScore',
-        value * 2,
-      );
+      await this.usersVoViProvider.incrementTotalVotes(ownerId, 2 * value);
 
       return this.voteRepository.update(vote.id, { value: value });
     }
-    const newVote = this.voteRepository.create({
+    await this.voteRepository.save({
       property: { id: proId },
       user: { id: userId },
       value: value,
     });
-    await this.voteRepository.save(newVote);
-    await this.userRepository.increment(
-      { id: ownerId },
-      'totalVoteScore',
-      value,
-    );
+    await this.usersVoViProvider.incrementTotalVotes(ownerId, value);
     await this.priorityScore(proId, value);
-    return this.propertyRepository.increment({ id: proId }, 'voteScore', value);
+    return await this.propertiesVoViProvider.incrementVote(proId, value);
   }
 
   async remove(proId: number, userId: number) {

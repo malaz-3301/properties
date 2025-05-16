@@ -24,6 +24,7 @@ import { Estate } from './estate.entity';
 import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
+import { View } from '../../views/entities/view.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -37,6 +38,9 @@ export abstract class Property extends Estate {
 
   @OneToMany(() => Vote, (vote) => vote.property, { cascade: true })
   votes?: Vote[];
+
+  @OneToMany(() => View, (view) => view.property, { cascade: true })
+  views?: View[];
 
   @ManyToOne(() => User, (user: User) => user.properties, {
     onDelete: 'CASCADE',
@@ -76,6 +80,9 @@ export abstract class Property extends Estate {
   voteScore: number;
 
   @Column({ default: 0 })
+  viewCount: number;
+
+  @Column({ default: 0 })
   priorityScore: number;
 
   @Column()
@@ -91,6 +98,6 @@ export abstract class Property extends Estate {
   @OneToMany(() => Contract, (contracts) => contracts.property)
   contacts: Contract[];
 
-  @OneToMany(()=>Notification, (notifications)=>notifications.property)
-  notifications : Notification[];
+  @OneToMany(() => Notification, (notifications) => notifications.property)
+  notifications: Notification[];
 }

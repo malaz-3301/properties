@@ -21,6 +21,7 @@ import { PropertiesGetProvider } from './providers/properties-get.provider';
 import { PropertiesAdminController } from './properties-admin.controller';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { AuditModule } from '../audit/audit.module';
+import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
 
 @Module({
   imports: [
@@ -81,7 +82,8 @@ import { AuditModule } from '../audit/audit.module';
     PropertiesImgProvider,
     PropertiesDelProvider,
     PropertiesGetProvider,
+    PropertiesVoViProvider,
   ],
-  exports: [PropertiesService, PropertiesGetProvider],
+  exports: [PropertiesService, PropertiesGetProvider, PropertiesVoViProvider],
 })
 export class PropertiesModule {}

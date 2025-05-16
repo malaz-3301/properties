@@ -34,6 +34,18 @@ export class PropertiesGetProvider {
     return property;
   }
 
+  async getUserIdByProId(proId: number) {
+    const property = await this.propertyRepository.findOne({
+      where: { id: proId },
+      relations: { user: true },
+      select: { user: { id: true } },
+    });
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+    return property;
+  }
+
   async findById(id: number) {
     const property = await this.propertyRepository.findOne({
       where: { id: id },

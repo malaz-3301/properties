@@ -24,6 +24,7 @@ import { Plan } from '../plans/entities/plan.entity';
 import { Order } from '../orders/entities/order.entity';
 import { OtpEntity } from './entities/otp.entity';
 import { AuditModule } from '../audit/audit.module';
+import { UsersVoViProvider } from './providers/users-vo-vi.provider';
 
 @Module({
   imports: [
@@ -65,12 +66,18 @@ import { AuditModule } from '../audit/audit.module';
     UsersImgProvider,
     UsersDelProvider,
     UsersUpdateProvider,
+    UsersVoViProvider,
     //Exclude()
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
     },
   ],
-  exports: [UsersService, UsersOtpProvider, UsersGetProvider],
+  exports: [
+    UsersService,
+    UsersOtpProvider,
+    UsersGetProvider,
+    UsersVoViProvider,
+  ],
 })
 export class UsersModule {}

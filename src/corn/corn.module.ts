@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Corn } from './entities/corn.entity';
 import { User } from '../users/entities/user.entity';
 import { Plan } from '../plans/entities/plan.entity';
+import { View } from '../views/entities/view.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Corn, Order, User, Plan])],
+  imports: [TypeOrmModule.forFeature([Corn, Order, User, Plan, View])],
   controllers: [CornController],
   providers: [CornService],
 })

@@ -19,11 +19,11 @@ export class FavoriteController {
        propertyId,
      );
    }
-   @Get('')
-   @UseGuards(AuthGuard)
-   getAllFavorites(@CurrentUser() user: JwtPayloadType,) {
-     return this.favoriteService.getAllFavorites(user.id);
-   }
+  //  @Get('')
+  //  @UseGuards(AuthGuard)
+  //  getAllFavorites(@CurrentUser() user: JwtPayloadType,) {
+  //    return this.favoriteService.getAllFavorites(user.id);
+  //  }
    @Get('isFavorite')
    @UseGuards(AuthGuard)
    isFavorite(@CurrentUser() user: JwtPayloadType, @Body('propertyId',ParseIntPipe ) propertyId: number,){

@@ -27,7 +27,6 @@ import { Response } from 'express';
 import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
-import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('user')
 export class UsersController {
@@ -102,18 +101,13 @@ export class UsersController {
     return res.sendFile(image, { root: `images/users` });
   }
 
-  @Get('favorites')
-  @UseGuards(AuthGuard)
-  getAllFavorites(@CurrentUser() payload: JwtPayloadType) {
-    return this.usersService.getAllFavorites(payload.id);
-  }
 
-  /*  @Get('plan/:planId')
-    @UseGuards(AuthGuard)
-    setPlan(
-      @Param('planId', ParseIntPipe) planId: number,
-      @CurrentUser() user: JwtPayloadType,
-    ) {
-      return this.usersService.setPlan(user.id, planId);
-    }*/
+  @Get('plan/:planId')
+  @UseGuards(AuthGuard)
+  setPlan(
+    @Param('planId', ParseIntPipe) planId: number,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
+    return this.usersService.setPlan(user.id, planId);
+  }
 }

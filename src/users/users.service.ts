@@ -1,7 +1,7 @@
-import { ConflictException, HttpException, Injectable } from '@nestjs/common';
-import { RegisterUserDto } from './dto/register-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { ConflictException, HttpException, Injectable } from "@nestjs/common";
+import { RegisterUserDto } from "./dto/register-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
 import {
   FindOperator,
   FindOptionsUtils,
@@ -10,20 +10,20 @@ import {
   MoreThan,
   Not,
   Repository,
-} from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+} from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
-import { UsersOtpProvider } from './providers/users-otp.provider';
-import { firstValueFrom } from 'rxjs';
-import { GeolocationService } from '../geolocation/geolocation.service';
-import { UsersUpdateProvider } from './providers/users-update.provider';
-import { UsersDelProvider } from './providers/users-del.provider';
-import { UsersGetProvider } from './providers/users-get.provider';
-import { UsersImgProvider } from './providers/users-img.provider';
-import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
-import { Plan } from '../plans/entities/plan.entity';
-import { Order, OrderStatus } from '../orders/entities/order.entity';
-import { OtpEntity } from './entities/otp.entity';
+import { UsersOtpProvider } from "./providers/users-otp.provider";
+import { firstValueFrom } from "rxjs";
+import { GeolocationService } from "../geolocation/geolocation.service";
+import { UsersUpdateProvider } from "./providers/users-update.provider";
+import { UsersDelProvider } from "./providers/users-del.provider";
+import { UsersGetProvider } from "./providers/users-get.provider";
+import { UsersImgProvider } from "./providers/users-img.provider";
+import { UpdateUserByAdminDto } from "./dto/update-user-by-admin.dto";
+import { Plan } from "../plans/entities/plan.entity";
+import { Order, OrderStatus } from "../orders/entities/order.entity";
+import { OtpEntity } from "./entities/otp.entity";
 
 @Injectable()
 export class UsersService {
@@ -41,7 +41,7 @@ export class UsersService {
     private readonly usersUpdateProvider: UsersUpdateProvider,
     private readonly usersImgProvider: UsersImgProvider,
     private readonly usersGetProvider: UsersGetProvider,
-    private readonly usersDelProvider: UsersDelProvider,
+    private readonly usersDelProvider: UsersDelProvider
   ) {}
 
   /**
@@ -51,7 +51,7 @@ export class UsersService {
   async register(registerUserDto: RegisterUserDto) {
     const { phone, password, pointsDto } = registerUserDto;
     if (await this.usersRepository.findOneBy({ phone: phone })) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException("User already exists");
     }
     registerUserDto.password = await this.usersOtpProvider.hashCode(password);
     //OTP
@@ -60,7 +60,7 @@ export class UsersService {
     //
     const location = await this.geolocationService.reverse_geocoding(
       pointsDto.lat,
-      pointsDto.lon,
+      pointsDto.lon
     );
     const user = this.usersRepository.create({
       ...registerUserDto,
@@ -75,7 +75,7 @@ export class UsersService {
     await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
     await this.usersRepository.save(user);
     return {
-      message: 'Verify your account',
+      message: "Verify your account",
       userId: user.id,
     };
   }
@@ -125,68 +125,21 @@ export class UsersService {
     return this.usersImgProvider.removeProfileImage(id);
   }
 
-  async getAllFavorites(userId: number) {
-    const favorites = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: { favorites: { property: true } },
-    });
-    return favorites?.favorites;
-  }
-
-  async getMyActiveContracts(userId: number) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: userId,
-        contracts: { validUntil: MoreThan(new Date()) },
-      },
-      relations: ['contracts'],
-    });
-    if (!user) {
-      throw new HttpException('User Not Found', 404);
-    }
-    return user.contracts;
-  }
-
-  async getMyExpiredContracts(userId: number) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: userId,
-        contracts: { validUntil: LessThan(new Date()) },
-      },
-      relations: ['contracts'],
-    });
-    if (!user) {
-      throw new HttpException('User Not Found', 404);
-    }
-    return user.contracts;
-  }
-
-  async getMyContracts(userId: number) {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: ['contracts'],
-    });
-    if (!user) {
-      throw new HttpException('User Not Found', 404);
-    }
-    return user.contracts;
-  }
-
   async setPlan(userId: number, planId: number) {
     const plan = await this.planRepository.findOne({
       where: { id: planId },
       select: { planDuration: true },
     });
     let durationMs: number;
-    const [numStr, unit] = plan?.planDuration.split('_') ?? [];
+    const [numStr, unit] = plan?.planDuration.split("_") ?? [];
     switch (unit) {
-      case 'day':
+      case "day":
         durationMs = parseInt(numStr) * 24 * 60 * 60 * 1000;
         break;
-      case 'week':
+      case "week":
         durationMs = parseInt(numStr) * 7 * 24 * 60 * 60 * 1000;
         break;
-      case 'month':
+      case "month":
         durationMs = parseInt(numStr) * 30 * 24 * 60 * 60 * 1000;
         break;
       default:
@@ -205,40 +158,5 @@ export class UsersService {
     return await this.usersRepository.update(userId, {
       planId: planId,
     });
-  }
-
-  async findMyUnreadNotifications(userId: number) {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId, notifications: { readAt: IsNull() } },
-      relations: ['notifications'],
-    });
-    if (!user) {
-      throw new HttpException('User Not Found', 404);
-    }
-    return user.notifications;
-  }
-
-  async findMyReadNotifications(userId: number) {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId, notifications: { readAt: Not(IsNull()) } },
-      relations: ['notifications'],
-    });
-    if (!user) {
-      throw new HttpException('User Not Found', 404);
-    }
-    return user.notifications;
-  }
-
-  async findUnreadNotificationById(userId: number, notificationId: number) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        id: userId,
-        notifications: { id: notificationId, readAt: IsNull() },
-      },
-    });
-    if (!user) {
-      throw new HttpException('User Not Found', 404);
-    }
-    return user.notifications[0];
   }
 }

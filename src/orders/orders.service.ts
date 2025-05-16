@@ -41,7 +41,7 @@ export class OrdersService {
             currency: 'usd',
             product_data: {
               name: 'EasyRent',
-              description: '💎 Easy Rent Diamond',
+              description: `${plan.description}`,
               images: [
                 'https://cdn-icons-png.flaticon.com/512/1907/1907649.png', // ← هنا رابط الصورة
               ],

@@ -59,18 +59,17 @@ export class NotificationsService {
   }
 
   async markAsRead(userId: number, notificationId: number) {
-    const notifications = await this.notificationRepository.find({
-      where: {
-        user: { id: userId },
-        readAt: IsNull(),
-      },
-    });
-    return notifications;
+    const notification = await this.userService.findUnreadNotificationById(
+      userId,
+      notificationId,
+    );
+    notification.readAt = new Date();
+    return this.notificationRepository.update(notification.id, notification);
   }
 
   async markAllAsRead(userId: number) {
     const notifications =
-      await this.getUnreadNotifications(userId);
+      await this.userService.findMyUnreadNotifications(userId);
     notifications.map((notification) => {
       notification.readAt = new Date();
       return this.notificationRepository.update(notification.id, notification);
@@ -78,17 +77,11 @@ export class NotificationsService {
     return notifications;
   }
 
-  async getUnreadNotifications(userId: number) {
-    const notifications = await this.notificationRepository.find({
-      where: { user: { id: userId }, readAt: IsNull() },
-    });
-    return notifications;
+  getUnreadNotifications(userId: number) {
+    return this.userService.findMyUnreadNotifications(userId);
   }
 
-  async getReadNotifications(userId: number) {
-    const notifications = await this.notificationRepository.find({
-      where: { user: { id: userId }, readAt: Not(IsNull()) },
-    });
-    return notifications;
+  getReadNotifications(userId: number) {
+    return this.userService.findMyReadNotifications(userId);
   }
 }

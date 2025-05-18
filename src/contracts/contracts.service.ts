@@ -3,7 +3,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Contract } from './entities/contract.entity';
-import { Between, FindOperator, LessThan, MoreThan, Repository } from 'typeorm';
+import { Between, FindOperator, Repository } from 'typeorm';
 import { Cron } from '@nestjs/schedule';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { UsersService } from 'src/users/users.service';
@@ -37,31 +37,16 @@ export class ContractsService {
     return this.contractRepository.delete(id);
   }
 
-  async getMyActiveContracts(userId: number) {
-    const contracts = await this.contractRepository.find({
-      where: {
-        user: {id : userId},
-
-        validUntil : MoreThan(new Date())}
-    });
-    return contracts;
+  getMyActiveContracts(userId: number) {
+    return this.userService.getMyActiveContracts(userId);
   }
 
-  async getMyExpiredContracts(userId: number) {
-    const contracts = await this.contractRepository.find({
-      where: {
-        user: {id : userId},
-        validUntil : LessThan(new Date())
-      },
-    });
-    return contracts
+  getMyExpiredContracts(userId: number) {
+    return this.userService.getMyExpiredContracts(userId);
   }
 
-  async getMyContracts(userId: number) {
-    const contracts = await this.contractRepository.find({
-      where: { user: { id: userId } },
-    });
-    return contracts;
+  getMyContracts(userId: number) {
+    return this.userService.getMyContracts(userId);
   }
 
   expiredAfterWeek() {

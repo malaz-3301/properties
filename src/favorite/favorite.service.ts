@@ -39,7 +39,13 @@ export class FavoriteService {
     }
   }
 
-  deleteAll(userId : number) {
-    return this.favoriteRepository.delete({user : {id : userId}});
+  deleteAll(userId: number) {
+    return this.favoriteRepository.delete({ user: { id: userId } });
+  }
+
+  async getAllFavorites(userId: number) {
+    const favorites = await this.favoriteRepository.find({
+      where: { user: { id: userId } },
+    });
   }
 }

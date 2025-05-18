@@ -42,10 +42,16 @@ export class ContractsController {
     return this.contractsService.getMyExpiredContracts(user.id);
   }
 
-  @Get('all')
+  @Get('all_my_contracts')
   @UseGuards(AuthGuard)
   getMyContracts(@CurrentUser() user: JwtPayloadType) {
     return this.contractsService.getMyContracts(user.id);
+  }
+
+  @Get('less_than_week')
+  @UseGuards(AuthGuard)
+  expiredaAfterWeekOrLess(@CurrentUser() user: JwtPayloadType) {
+    return this.contractsService.MyContractsExpiredAfterWeek(user.id);
   }
 
   @Get()

@@ -58,10 +58,9 @@ export class ContractsService {
   }
 
   async getMyContracts(userId: number) {
-    const contracts = await this.contractRepository.find({
-      where: { user: { id: userId } },
-    });
-    return contracts;
+    const active = this.getMyActiveContracts(userId);
+    const expired = this.getMyExpiredContracts(userId);
+    return {active : active, expired : expired};
   }
 
   expiredAfterWeek() {
@@ -71,6 +70,19 @@ export class ContractsService {
     return this.contractRepository.find({
       where: {
         validUntil: Between(today, afterWeek),
+      },
+      relations: ['property'],
+    });
+  }
+
+  MyContractsExpiredAfterWeek(userId : number) {
+    const today = new Date();
+    const afterWeek = new Date();
+    today.setDate(today.getDate() + 7);
+    return this.contractRepository.find({
+      where: {
+        validUntil: Between(today, afterWeek),
+        user : {id : userId}
       },
       relations: ['property'],
     });

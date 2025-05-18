@@ -20,7 +20,7 @@ export class NotificationsService {
 
   private readonly logger = new Logger(NotificationsService.name);
 
-  @Cron('0 30 11 * * 1')
+  @Cron('0 30 11 * * *')
   async handleCron() {
     const contracts = await this.contractService.expiredAfterWeek();
     contracts.forEach((contract) => {
@@ -59,20 +59,26 @@ export class NotificationsService {
   }
 
   async markAsRead(userId: number, notificationId: number) {
-    const notifications = await this.notificationRepository.find({
+    const notification = await this.notificationRepository.findOne({
       where: {
-        user: { id: userId },
+        id : notificationId,
+        user : {id : userId},
         readAt: IsNull(),
       },
     });
-    return notifications;
+    if(!notification) {
+      throw new HttpException('notification no found or is alredy read', 400);
+    }
+    notification.readAt = new Date();
+    return this.notificationRepository.update(notificationId, notification);
   }
 
   async markAllAsRead(userId: number) {
     const notifications =
       await this.getUnreadNotifications(userId);
+     let date = new Date();
     notifications.map((notification) => {
-      notification.readAt = new Date();
+      notification.readAt = date;
       return this.notificationRepository.update(notification.id, notification);
     });
     return notifications;
@@ -90,5 +96,11 @@ export class NotificationsService {
       where: { user: { id: userId }, readAt: Not(IsNull()) },
     });
     return notifications;
+  }
+
+  getAMyNotifications(userId : number){
+    const unread = this.getUnreadNotifications(userId);
+    const read = this.getReadNotifications(userId);
+    return {unread : unread, read : read};
   }
 }

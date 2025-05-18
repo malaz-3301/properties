@@ -101,13 +101,14 @@ export class UsersController {
     return res.sendFile(image, { root: `images/users` });
   }
 
-
+  // لن تستخدم الهاندلر الا في حالة اهداء
   @Get('plan/:planId')
-  @UseGuards(AuthGuard)
-  setPlan(
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.SUPER_ADMIN)
+  setUserPlan(
     @Param('planId', ParseIntPipe) planId: number,
     @CurrentUser() user: JwtPayloadType,
   ) {
-    return this.usersService.setPlan(user.id, planId);
+    return this.usersService.setUserPlan(user.id, planId);
   }
 }

@@ -22,3 +22,18 @@ export const rateLimiting = [
     limit: 100,
   },
 ];
+
+export const ideal = {
+  rooms: 3,
+  bathrooms: 2,
+  area: 120,
+};
+
+export const weights = {
+  rooms: 20,
+  bathrooms: 15,
+  area: 25,
+  garden: 10,
+  garage: 10,
+  price: 20,
+};

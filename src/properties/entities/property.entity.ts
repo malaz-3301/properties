@@ -76,6 +76,9 @@ export abstract class Property extends Estate {
   @Column('simple-array', { nullable: true })
   propertyImages: string[];
 
+  @Column('simple-array', { nullable: true })
+  panoramaImages: string[];
+
   @Column({ default: 0 })
   voteScore: number;
 

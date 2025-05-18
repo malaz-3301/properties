@@ -30,16 +30,7 @@ export class VotesController {
     @Param('value', ParseIntPipe) value: number,
     @CurrentUser() user: JwtPayloadType,
   ) {
-    return this.votesService.create(proId, value, user.id);
-  }
-
-  @Delete(':proId')
-  @UseGuards(AuthGuard)
-  remove(
-    @Param('proId', ParseIntPipe) proId: number,
-    @CurrentUser() user: JwtPayloadType,
-  ) {
-    return this.votesService.remove(proId, user.id);
+    return this.votesService.changeVoteStatus(proId, value, user.id);
   }
 
   /**

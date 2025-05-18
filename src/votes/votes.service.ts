@@ -25,7 +25,7 @@ export class VotesService {
     private readonly usersVoViProvider: UsersVoViProvider,
   ) {}
 
-  async create(proId: number, value: number, userId: number) {
+  async changeVoteStatus(proId: number, value: number, userId: number) {
     //
     if (value !== 1 && value !== -1) {
       throw new BadRequestException('Invalid vote value, it must be 1 or -1');
@@ -37,41 +37,27 @@ export class VotesService {
     const vote = await this.voteRepository.findOne({
       where: { property: { id: proId }, user: { id: userId } },
     });
-    //موجود الصوت حدثه
-    if (vote) {
-      if (vote.value === value) {
-        throw new BadRequestException('Your Vote already exists!');
-      }
-      await this.propertiesVoViProvider.incrementVote(proId, 2 * value);
-      await this.priorityScore(proId, 2 * value);
-      await this.usersVoViProvider.incrementTotalVotes(ownerId, 2 * value);
 
+    if (vote) {
+      //Remove
+      if (vote.value === value) {
+        //موجود وحط نفس القيمة (شاله)
+        await this.changeVoteValues(proId, value, ownerId);
+        return this.voteRepository.delete(vote.id);
+      }
+      //Update
+      await this.changeVoteValues(proId, 2 * value, ownerId);
       return this.voteRepository.update(vote.id, { value: value });
     }
-    await this.voteRepository.save({
-      property: { id: proId },
-      user: { id: userId },
-      value: value,
-    });
-    await this.usersVoViProvider.incrementTotalVotes(ownerId, value);
-    await this.priorityScore(proId, value);
-    return await this.propertiesVoViProvider.incrementVote(proId, value);
-  }
-
-  async remove(proId: number, userId: number) {
-    const vote = await this.voteRepository.findOneBy({
-      property: { id: proId },
-      user: { id: userId },
-    });
-    if (!vote) {
-      throw new BadRequestException("You didn't vote");
+    //حالة Create
+    else {
+      await this.changeVoteValues(proId, value, ownerId);
+      return await this.voteRepository.save({
+        property: { id: proId },
+        user: { id: userId },
+        value: value,
+      });
     }
-    await this.voteRepository.delete(vote.id);
-    return this.propertyRepository.increment(
-      { id: proId },
-      'voteScore',
-      vote.value,
-    );
   }
 
   //if not found 0
@@ -130,19 +116,19 @@ export class VotesService {
     }));
   }
 
+  //انتبه ownerId
+  async changeVoteValues(proId: number, value: number, ownerId: number) {
+    await this.usersVoViProvider.incrementTotalVotes(ownerId, value);
+    await this.priorityScore(proId, value);
+    return await this.propertiesVoViProvider.incrementVote(proId, value);
+  }
+
+  //نقاط الظهور %30
   async priorityScore(proId: number, value: number) {
-    if (value === 1) {
-      await this.propertyRepository.increment(
-        { id: proId },
-        'priorityScore',
-        value * 3,
-      );
-    } else {
-      await this.propertyRepository.increment(
-        { id: proId },
-        'priorityScore', //الرقم هام
-        value * 2,
-      );
-    }
+    return this.propertyRepository.increment(
+      { id: proId },
+      'priorityScore',
+      value * 3,
+    );
   }
 }

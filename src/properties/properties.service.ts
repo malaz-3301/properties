@@ -19,6 +19,7 @@ import { PropertiesGetProvider } from './providers/properties-get.provider';
 import { PropertyStatus } from '../utils/enums';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
+import { ideal, weights } from '../utils/constants';
 
 @Injectable()
 export class PropertiesService {
@@ -47,7 +48,8 @@ export class PropertiesService {
       location: location,
       user: { id: user.id },
     });
-    return this.propertyRepository.save(newProperty);
+    await this.propertyRepository.save(newProperty);
+    return this.computePropertySuitability(newProperty);
   }
 
   async updateMyPro(
@@ -114,6 +116,42 @@ export class PropertiesService {
 
   async removeAnyImg(id: number, userId: number, imageName: string) {
     return this.propertiesImgProvider.removeAnyImg(id, userId, imageName);
+  }
+
+  async computePropertySuitability(property: Property) {
+    const minPricePro = await this.propertyRepository.findOne({
+      order: {
+        price: 'ASC',
+      },
+      select: { price: true },
+    });
+    const maxPricePro = await this.propertyRepository.findOne({
+      order: {
+        price: 'DESC',
+      },
+      select: { price: true },
+    });
+    const minPrice = minPricePro?.price ?? 0;
+    const maxPrice = maxPricePro?.price ?? 0;
+    let score = 0;
+
+    score += weights.rooms * Math.min(property.rooms / ideal.rooms, 1);
+    score +=
+      weights.bathrooms * Math.min(property.bathrooms / ideal.bathrooms, 1);
+    score += weights.area * Math.min(property.area / ideal.area, 1);
+    score += weights.garden * (property.hasGarden ? 1 : 0);
+    score += weights.garage * (property.hasGarage ? 1 : 0);
+
+    // Min-Max Normalization
+    let priceScore = 1 - (property.price - minPrice) / (maxPrice - minPrice);
+    priceScore = Math.max(0, Math.min(1, priceScore));
+    score += weights.price * priceScore;
+    // ideal score = 100
+    return await this.propertyRepository.increment(
+      { id: property.id },
+      'priorityScore',
+      score / 2,
+    );
   }
 
   getTopScorePro(limit: number) {

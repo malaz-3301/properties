@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -13,10 +14,16 @@ import { Plan } from '../plans/entities/plan.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
+import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
+import { UserType } from '../utils/enums';
+import { Roles } from '../auth/decorators/user-role.decorator';
+import { Order, OrderStatus } from './entities/order.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     @InjectRepository(Plan)
     private readonly planRepository: Repository<Plan>,
     @Inject('STRIPE_CLIENT') private readonly stripe: Stripe,
@@ -92,7 +99,7 @@ export class OrdersService {
         console.log('اشتراك ناجح');
         console.log('Customer ID:', customerId);
         console.log('Subscription ID:', subscriptionId);
-        await this.usersService.setPlan(userId, planId);
+        await this.setOrder(userId, planId);
         break;
       }
 
@@ -101,6 +108,8 @@ export class OrdersService {
     }
   }
 
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   findAll() {
     return `This action returns all orders`;
   }
@@ -109,11 +118,48 @@ export class OrdersService {
     return `This action returns a #${id} order`;
   }
 
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.SUPER_ADMIN)
   update(id: number, updateOrderDto: UpdateOrderDto) {
     return `This action updates a #${id} order`;
   }
 
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.SUPER_ADMIN)
   remove(id: number) {
     return `This action removes a #${id} order`;
+  }
+
+  async setOrder(userId: number, planId: number) {
+    const plan = await this.planRepository.findOne({
+      where: { id: planId },
+      select: { planDuration: true },
+    });
+    let durationMs: number;
+    const [numStr, unit] = plan?.planDuration.split('_') ?? [];
+    switch (unit) {
+      case 'day':
+        durationMs = parseInt(numStr) * 24 * 60 * 60 * 1000;
+        break;
+      case 'week':
+        durationMs = parseInt(numStr) * 7 * 24 * 60 * 60 * 1000;
+        break;
+      case 'month':
+        durationMs = parseInt(numStr) * 30 * 24 * 60 * 60 * 1000;
+        break;
+      default:
+        throw new Error(`Unsupported time unit: ${unit}`);
+    }
+    //make it
+    //  planExpiresAt: new Date(Date.now() + durationMs),
+    const order = this.orderRepository.create({
+      plan: { id: planId },
+      user: { id: userId },
+      planStatus: OrderStatus.ACTIVE,
+      planExpiresAt: new Date(Date.now() + durationMs),
+    });
+    await this.orderRepository.save(order);
+
+    return await this.usersService.setUserPlan(userId, planId);
   }
 }

@@ -82,6 +82,7 @@ export class RequestsService {
     const newContract = await this.contractService.create(accept.user.id, {
       propertyId: accept.property.id,
       time: accept.time,
+      price : accept.time
     });
     // console.log(accept.property);
 

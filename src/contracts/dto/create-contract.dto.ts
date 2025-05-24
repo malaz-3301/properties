@@ -10,5 +10,9 @@ export class CreateContractDto {
     @IsNumber()
     @IsNotEmpty()
     @IsPositive()
-    propertyId : number
+    propertyId : number;
+    @IsNumber()
+    @IsNotEmpty()
+    @IsPositive()
+    price : number;
 }

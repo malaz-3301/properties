@@ -12,4 +12,8 @@ export class CreateRequestDto {
     @IsNotEmpty()
     @Min(1)
     time : number
+    @IsNotEmpty()
+    @IsNumber()
+    @IsPositive()
+    price : number;
 }

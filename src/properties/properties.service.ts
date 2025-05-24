@@ -20,6 +20,7 @@ import { PropertyStatus } from '../utils/enums';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ideal, weights } from '../utils/constants';
+import { OrderStatus } from 'src/orders/entities/order.entity';
 
 @Injectable()
 export class PropertiesService {
@@ -49,6 +50,7 @@ export class PropertiesService {
       user: { id: user.id },
     });
     await this.propertyRepository.save(newProperty);
+    
     return this.computePropertySuitability(newProperty);
   }
 
@@ -132,7 +134,9 @@ export class PropertiesService {
       select: { price: true },
     });
     const minPrice = minPricePro?.price ?? 0;
+    
     const maxPrice = maxPricePro?.price ?? 0;
+    
     let score = 0;
 
     score += weights.rooms * Math.min(property.rooms / ideal.rooms, 1);
@@ -143,10 +147,18 @@ export class PropertiesService {
     score += weights.garage * (property.hasGarage ? 1 : 0);
 
     // Min-Max Normalization
-    let priceScore = 1 - (property.price - minPrice) / (maxPrice - minPrice);
+    const temp = (maxPrice - minPrice);
+    let priceScore = 1 - (property.price - minPrice) / ((maxPrice - minPrice) + 1e-12);
+    console.log(priceScore);
+    console.log((maxPrice - minPrice) + 1e-12);
+    
+    
     priceScore = Math.max(0, Math.min(1, priceScore));
     score += weights.price * priceScore;
+    console.log(score);
+    
     // ideal score = 100
+    
     return await this.propertyRepository.increment(
       { id: property.id },
       'priorityScore',

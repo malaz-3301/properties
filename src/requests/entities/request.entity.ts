@@ -12,4 +12,6 @@ export class Request {
     property : Property;
     @Column()
     time : number;
+    @Column()
+    price : number;
 }

@@ -28,7 +28,9 @@ export class PropertiesImgProvider {
     const pro = await this.MyProperty(id, userId);
 
     if (pro.propertyImage) {
-      unlinkSync(join(process.cwd(), `./images/properties/${filename}`)); //file path
+      unlinkSync(
+        join(process.cwd(), `./images/properties/${pro.propertyImage}`),
+      ); //file path
     }
     pro.propertyImage = filename;
     await this.propertyRepository.save(pro);
@@ -37,10 +39,21 @@ export class PropertiesImgProvider {
 
   async setMultiImg(id: number, userId: number, filenames: string[]) {
     const pro = await this.MyProperty(id, userId);
-    //بقي الحذف
+    //بقي الحذف لسا
 
-    pro.propertyImages = filenames.concat(); //concat
-    console.log('dd');
+    if (pro.propertyImages?.length ?? 0 >= 8) {
+      console.log('ddddddddddddddddddddddddddddd');
+      const sub = pro.propertyImages.length - 8 || 2;
+      const forDelete = pro.propertyImages.splice(0, sub); //حذف + عرفت الاسماء
+      for (const photo of forDelete) {
+        unlinkSync(join(process.cwd(), `./images/properties/${photo}`)); //file path
+      }
+    }
+
+    pro.propertyImages = pro.propertyImages
+      ? pro.propertyImages.concat(filenames)
+      : filenames.concat(); //concat
+
     await this.propertyRepository.save(pro);
     return {
       message: `File uploaded successfully :  ${filenames}`,

@@ -23,6 +23,7 @@ import { OtpEntity } from './otp.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { Audit } from '../../audit/entities/audit.entity';
 import { View } from '../../views/entities/view.entity';
+import { Request } from 'src/requests/entities/request.entity';
 
 @Entity('users')
 export class User {
@@ -105,4 +106,7 @@ export class User {
 
   @OneToMany(() => View, (view) => view.user, { cascade: true })
   views?: View[];
+
+  @OneToMany(()=>Request, (requests)=>requests.user)
+  requests : Request[]
 }

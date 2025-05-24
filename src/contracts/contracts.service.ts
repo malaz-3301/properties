@@ -16,8 +16,17 @@ export class ContractsService {
     private readonly userService: UsersService,
   ) {}
 
-  create(createContractDto: CreateContractDto) {
-    const newContract = this.contractRepository.create(createContractDto);
+  create(userId: number, createContractDto: CreateContractDto) {
+    const validUntil = new Date();
+    validUntil.setMonth(validUntil.getMonth() + createContractDto.time);
+    console.log(validUntil);
+
+    const newContract = this.contractRepository.create({
+      ...createContractDto,
+      user: { id: userId },
+      validUntil: validUntil,
+      property: { id: createContractDto.propertyId },
+    });
     return this.contractRepository.save(newContract);
   }
 
@@ -30,7 +39,14 @@ export class ContractsService {
   }
 
   update(id: number, updateContractDto: UpdateContractDto) {
-    return this.contractRepository.update(id, updateContractDto);
+    if (updateContractDto.time) {
+      const validUntil = new Date();
+      validUntil.setMonth(validUntil.getMonth() + updateContractDto.time);
+      return this.contractRepository.update(id, {
+        ...updateContractDto,
+        validUntil,
+      });
+    }
   }
 
   remove(id: number) {
@@ -40,9 +56,10 @@ export class ContractsService {
   async getMyActiveContracts(userId: number) {
     const contracts = await this.contractRepository.find({
       where: {
-        user: {id : userId},
+        user: { id: userId },
 
-        validUntil : MoreThan(new Date())}
+        validUntil: MoreThan(new Date()),
+      },
     });
     return contracts;
   }
@@ -50,17 +67,17 @@ export class ContractsService {
   async getMyExpiredContracts(userId: number) {
     const contracts = await this.contractRepository.find({
       where: {
-        user: {id : userId},
-        validUntil : LessThan(new Date())
+        user: { id: userId },
+        validUntil: LessThan(new Date()),
       },
     });
-    return contracts
+    return contracts;
   }
 
   async getMyContracts(userId: number) {
     const active = this.getMyActiveContracts(userId);
     const expired = this.getMyExpiredContracts(userId);
-    return {active : active, expired : expired};
+    return { active: active, expired: expired };
   }
 
   expiredAfterWeek() {
@@ -75,14 +92,14 @@ export class ContractsService {
     });
   }
 
-  MyContractsExpiredAfterWeek(userId : number) {
+  MyContractsExpiredAfterWeek(userId: number) {
     const today = new Date();
     const afterWeek = new Date();
     today.setDate(today.getDate() + 7);
     return this.contractRepository.find({
       where: {
         validUntil: Between(today, afterWeek),
-        user : {id : userId}
+        user: { id: userId },
       },
       relations: ['property'],
     });

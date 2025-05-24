@@ -1,18 +1,19 @@
-import { IsDate, IsNotEmpty, IsNumber, IsPositive, isPositive, MinDate } from "class-validator";
+import { Exclude } from "class-transformer";
+import { IsNotEmpty, IsNumber, IsPositive, Min } from "class-validator";
 import { Property } from "src/properties/entities/property.entity";
 import { User } from "src/users/entities/user.entity";
 
-export class CreateContractDto {
-    @IsNumber()
+export class CreateRequestDto {
     @IsNotEmpty()
-    @IsPositive()
-    time : number;
     @IsNumber()
-    @IsNotEmpty()
-    @IsPositive()
+    @Min(1)
     propertyId : number;
     @IsNumber()
     @IsNotEmpty()
+    @Min(1)
+    time : number
+    @IsNotEmpty()
+    @IsNumber()
     @IsPositive()
     price : number;
 }

@@ -27,4 +27,6 @@ export class Contract {
   @ManyToOne(() => User, (user) => user.contracts)
   user: User;
 
+  @Column()
+  price: number;
 }

@@ -20,6 +20,7 @@ import { PropertyStatus } from '../utils/enums';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ideal, weights } from '../utils/constants';
+import { OrderStatus } from 'src/orders/entities/order.entity';
 
 @Injectable()
 export class PropertiesService {

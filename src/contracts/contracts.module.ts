@@ -10,7 +10,7 @@ import { Notification } from 'src/notifications/entities/notification.entity';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports : [AuthModule, TypeOrmModule.forFeature([Contract]), UsersModule],
+  imports : [AuthModule, TypeOrmModule.forFeature([Contract]), UsersModule,],
   controllers: [ContractsController],
   providers: [ContractsService],
   exports : [ContractsService]

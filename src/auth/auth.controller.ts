@@ -36,6 +36,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AuthGuard)
+  @Throttle({ default: { ttl: 10000, limit: 8 } }) // منفصل overwrite
   getCurrentUser(@CurrentUser() payload: JwtPayloadType) {
     return this.authService.getCurrentUser(payload.id);
   }

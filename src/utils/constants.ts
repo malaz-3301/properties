@@ -9,7 +9,7 @@ export const rateLimiting = [
   {
     name: 'short',
     ttl: 10000,
-    limit: 4,
+    limit: 8,
   },
   {
     name: 'medium',

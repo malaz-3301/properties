@@ -11,6 +11,7 @@ export const rateLimiting = [
     ttl: 10000,
     limit: 8,
   },
+  //
   {
     name: 'medium',
     ttl: 10000,

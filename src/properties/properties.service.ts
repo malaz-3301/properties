@@ -119,20 +119,23 @@ export class PropertiesService {
   }
 
   async computePropertySuitability(property: Property) {
-    const minPricePro = await this.propertyRepository.findOne({
+    const [minPricePro] = await this.propertyRepository.find({
       order: {
         price: 'ASC',
       },
       select: { price: true },
+      take: 1,
     });
-    const maxPricePro = await this.propertyRepository.findOne({
+    const [maxPricePro] = await this.propertyRepository.find({
       order: {
         price: 'DESC',
       },
       select: { price: true },
+      take: 1,
     });
     const minPrice = minPricePro?.price ?? 0;
     const maxPrice = maxPricePro?.price ?? 0;
+    const sub = maxPrice - minPrice || 1;
     let score = 0;
 
     score += weights.rooms * Math.min(property.rooms / ideal.rooms, 1);
@@ -143,7 +146,7 @@ export class PropertiesService {
     score += weights.garage * (property.hasGarage ? 1 : 0);
 
     // Min-Max Normalization
-    let priceScore = 1 - (property.price - minPrice) / (maxPrice - minPrice);
+    let priceScore = 1 - (property.price - minPrice) / sub;
     priceScore = Math.max(0, Math.min(1, priceScore));
     score += weights.price * priceScore;
     // ideal score = 100

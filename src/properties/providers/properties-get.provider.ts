@@ -105,6 +105,8 @@ export class PropertiesGetProvider {
           city: true,
           quarter: true,
           street: true,
+          lon: true,
+          lat: true,
         },
         user: { username: true },
       },
@@ -115,6 +117,7 @@ export class PropertiesGetProvider {
 
     return properties.map((p) => ({
       ...p,
+      propertyImages: null,
       firstImage:
         p.propertyImages?.[0] ??
         'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',

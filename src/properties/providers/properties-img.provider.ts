@@ -38,8 +38,9 @@ export class PropertiesImgProvider {
   async setMultiImg(id: number, userId: number, filenames: string[]) {
     const pro = await this.MyProperty(id, userId);
     //بقي الحذف
-    pro.propertyImages.concat(filenames); //concat
 
+    pro.propertyImages = filenames.concat(); //concat
+    console.log('dd');
     await this.propertyRepository.save(pro);
     return {
       message: `File uploaded successfully :  ${filenames}`,

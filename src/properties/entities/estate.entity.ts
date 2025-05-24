@@ -10,7 +10,7 @@ export abstract class Estate {
   @Column()
   bathrooms: number;
 
-  @Column()
+  @Column({type : 'float'})
   area: number;
 
   @Column({ type: 'boolean', default: true })

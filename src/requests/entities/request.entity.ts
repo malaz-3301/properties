@@ -12,6 +12,6 @@ export class Request {
     property : Property;
     @Column()
     time : number;
-    @Column()
+    @Column({type : 'float'})
     price : number;
 }

@@ -54,7 +54,7 @@ export abstract class Property extends Estate {
   @Column({ type: 'varchar', length: 180 })
   description: string;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'float' })
   price: number;
 
   @Column(() => Location) //embedded

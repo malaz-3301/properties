@@ -95,6 +95,10 @@ export class PropertiesGetProvider {
       relations: { user: true },
       select: {
         id: true,
+        bathrooms: true,
+        area: true,
+        price: true,
+        propertyImages: true,
         location: {
           country: true,
           governorate: true,
@@ -108,6 +112,12 @@ export class PropertiesGetProvider {
     if (!properties || properties.length === 0) {
       throw new NotFoundException('No estates found');
     }
-    return properties;
+
+    return properties.map((p) => ({
+      ...p,
+      firstImage:
+        p.propertyImages?.[0] ??
+        'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
+    }));
   }
 }

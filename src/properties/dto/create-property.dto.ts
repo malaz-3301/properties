@@ -38,12 +38,15 @@ export class CreatePropertyDto {
   @IsBoolean()
   isForRent: boolean;
 
+  @IsNotEmpty()
   @IsNumber()
   rooms: number;
 
+  @IsNotEmpty()
   @IsNumber()
   bathrooms: number;
 
+  @IsNotEmpty()
   @IsNumber()
   area: number;
 

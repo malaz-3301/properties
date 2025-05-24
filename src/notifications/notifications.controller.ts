@@ -39,7 +39,7 @@ export class NotificationsController {
   getUnreadNotification(@CurrentUser() user: JwtPayloadType) {
     return this.notificationsService.getUnreadNotifications(user.id);
   }
-  
+
   @Get('read_notification')
   @UseGuards(AuthGuard)
   getReadNotification(@CurrentUser() user: JwtPayloadType) {
@@ -47,14 +47,17 @@ export class NotificationsController {
   }
   @Get('all_my_notifications')
   @UseGuards(AuthGuard)
-  getMyNotifications(@CurrentUser() user: JwtPayloadType,) {
+  getMyNotifications(@CurrentUser() user: JwtPayloadType) {
     return this.notificationsService.getAMyNotifications(user.id);
   }
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationsService.create(createNotificationDto);
+  create(
+    @Body() createNotificationDto: CreateNotificationDto,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
+    return this.notificationsService.create(createNotificationDto, user.id);
   }
 
   @Get()
@@ -83,6 +86,4 @@ export class NotificationsController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.notificationsService.remove(id);
   }
-
-  
 }

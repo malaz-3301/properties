@@ -25,6 +25,7 @@ import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { View } from '../../views/entities/view.entity';
+import { Request } from 'src/requests/entities/request.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -103,4 +104,7 @@ export abstract class Property extends Estate {
 
   @OneToMany(() => Notification, (notifications) => notifications.property)
   notifications: Notification[];
+
+  @OneToMany(()=>Request, (requests)=>requests.property)
+  requests : Request[];
 }

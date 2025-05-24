@@ -35,10 +35,12 @@ export class NotificationsService {
     });
   }
 
-  create(createNotificationDto: CreateNotificationDto) {
-    const newNotification = this.notificationRepository.create(
-      createNotificationDto,
-    );
+  create(createNotificationDto: CreateNotificationDto, userId: number) {
+    const newNotification = this.notificationRepository.create({
+      ...createNotificationDto,
+      user: { id: userId },
+      property: { id: createNotificationDto.propertyId },
+    });
     return this.notificationRepository.save(newNotification);
   }
 
@@ -61,12 +63,12 @@ export class NotificationsService {
   async markAsRead(userId: number, notificationId: number) {
     const notification = await this.notificationRepository.findOne({
       where: {
-        id : notificationId,
-        user : {id : userId},
+        id: notificationId,
+        user: { id: userId },
         readAt: IsNull(),
       },
     });
-    if(!notification) {
+    if (!notification) {
       throw new HttpException('notification no found or is alredy read', 400);
     }
     notification.readAt = new Date();
@@ -74,9 +76,8 @@ export class NotificationsService {
   }
 
   async markAllAsRead(userId: number) {
-    const notifications =
-      await this.getUnreadNotifications(userId);
-     let date = new Date();
+    const notifications = await this.getUnreadNotifications(userId);
+    let date = new Date();
     notifications.map((notification) => {
       notification.readAt = date;
       return this.notificationRepository.update(notification.id, notification);
@@ -98,9 +99,9 @@ export class NotificationsService {
     return notifications;
   }
 
-  getAMyNotifications(userId : number){
+  getAMyNotifications(userId: number) {
     const unread = this.getUnreadNotifications(userId);
     const read = this.getReadNotifications(userId);
-    return {unread : unread, read : read};
+    return { unread: unread, read: read };
   }
 }

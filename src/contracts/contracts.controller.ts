@@ -22,8 +22,8 @@ export class ContractsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createContractDto: CreateContractDto) {
-    return this.contractsService.create(createContractDto);
+  create(@CurrentUser() user: JwtPayloadType, @Body() createContractDto: CreateContractDto) {
+    return this.contractsService.create(user.id, createContractDto);
   }
 
   @Get('active')

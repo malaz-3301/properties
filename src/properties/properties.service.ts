@@ -50,7 +50,8 @@ export class PropertiesService {
       user: { id: user.id },
     });
     await this.propertyRepository.save(newProperty);
-    return this.computePropertySuitability(newProperty);
+    await this.computePropertySuitability(newProperty);
+    return newProperty.id;
   }
 
   async updateMyPro(

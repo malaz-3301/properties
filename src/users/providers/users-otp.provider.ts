@@ -44,13 +44,17 @@ export class UsersOtpProvider {
     }
     user.isAccountVerified = true;
     user.otpEntity.otpTries = 0;
+    user.otpEntity.passChangeAccess = true; //مو دائما بحاجتها resetAccount
+
     await this.usersRepository.save(user);
     //token
     const accessToken = await this.jwtService.signAsync({
       id: user.id,
       userType: user.userType,
     });
-    return { accessToken };
+    return {
+      accessToken,
+    };
   }
 
   async otpTokenTimer(user: User) {

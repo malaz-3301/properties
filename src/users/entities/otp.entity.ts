@@ -24,4 +24,7 @@ export class OtpEntity {
 
   @Column({ nullable: true })
   otpTries: number;
+
+  @Column({ nullable: false })
+  passChangeAccess: boolean;
 }

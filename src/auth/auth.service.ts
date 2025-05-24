@@ -10,6 +10,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateUserDto } from '../users/dto/update-user.dto';
+import { ResetAccountDto } from './dto/reset-account.dto';
+import { UsersOtpProvider } from '../users/providers/users-otp.provider';
+import { UsersGetProvider } from '../users/providers/users-get.provider';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +22,8 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly usersOtpProvider: UsersOtpProvider,
+    private readonly usersGetProvider: UsersGetProvider,
   ) {}
 
   /**
@@ -54,6 +61,30 @@ export class AuthService {
    */
   async getCurrentUser(id: number) {
     return this.findById(id);
+  }
+
+  async resetAccount(resetAccountDto: ResetAccountDto) {
+    const { phone, username } = resetAccountDto;
+    const user = phone //if بطريقة عمك ملاز
+      ? await this.usersRepository.findOneBy({ phone: phone })
+      : await this.usersRepository.findOneBy({ username: username });
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+    const code = Math.floor(10000 + Math.random() * 90000).toString();
+    const otpCode = await this.usersOtpProvider.hashCode(code);
+    await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
+    //otpVerify
+  }
+
+  async resetPassword(userId: number, resetPasswordDto: ResetPasswordDto) {
+    const user = await this.usersGetProvider.findByIdOtp(userId);
+    user.password = await this.usersOtpProvider.hashCode(
+      resetPasswordDto.password,
+    );
+    if (user.otpEntity.passChangeAccess) {
+      await this.usersRepository.update(userId, { password: user.password });
+    }
   }
 
   tokenTime(payload) {

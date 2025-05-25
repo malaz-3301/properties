@@ -155,7 +155,6 @@ export class PropertiesController {
   }
 
   @Get('images/:image')
-  @UseGuards(AuthGuard)
   public showUploadedImage(
     @Param('image') imageName: string,
     @Res() res: Response,

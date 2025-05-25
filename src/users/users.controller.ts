@@ -93,7 +93,6 @@ export class UsersController {
   }
 
   @Get('images/:image')
-  @UseGuards(AuthGuard)
   public showUploadedImage(
     @Param('image') image: string,
     @Res() res: Response,

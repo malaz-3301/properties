@@ -159,7 +159,7 @@ export class PropertiesController {
     @Param('image') imageName: string,
     @Res() res: Response,
   ) {
-    return res.sendFile(imageName, { root: `images/vehicles` });
+    return res.sendFile(imageName, { root: `images/properties` });
   }
 
   @Get('top/:limit')

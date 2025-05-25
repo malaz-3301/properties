@@ -27,7 +27,7 @@ export class NotificationsService {
       const notification = this.notificationRepository.create({
         property: contract.property,
         user: contract.user,
-        message: `The property lease agreement expires on ${contract.validUntil}`,
+        message: `The property lease agreement expires on ${contract.expireIn}`,
       });
       this.notificationRepository.save(notification);
       notification.user = contract.property.user;

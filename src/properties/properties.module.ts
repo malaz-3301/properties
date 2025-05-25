@@ -83,7 +83,8 @@ import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
     PropertiesDelProvider,
     PropertiesGetProvider,
     PropertiesVoViProvider,
+    
   ],
-  exports: [PropertiesService, PropertiesGetProvider, PropertiesVoViProvider],
+  exports: [PropertiesService, PropertiesGetProvider, PropertiesVoViProvider , PropertiesUpdateProvider],
 })
 export class PropertiesModule {}

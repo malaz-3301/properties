@@ -14,12 +14,10 @@ import {
 export class Contract {
   @PrimaryGeneratedColumn()
   id: number;
+  
 
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
-  createdAt: Date;
-
-  @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
-  validUntil: Date;
+  expireIn: Date;
 
   @ManyToOne(() => Property, (property) => property.contacts)
   property: Property;
@@ -30,4 +28,7 @@ export class Contract {
 
   @Column({type : 'float'})
   price: number;
+
+    @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
+  createdAt: Date;
 }

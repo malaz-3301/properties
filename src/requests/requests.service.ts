@@ -8,6 +8,10 @@ import { ContractsService } from 'src/contracts/contracts.service';
 import { CreateContractDto } from 'src/contracts/dto/create-contract.dto';
 import { Property } from 'src/properties/entities/property.entity';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { UsersUpdateProvider } from 'src/users/providers/users-update.provider';
+import { PropertiesUpdateProvider } from 'src/properties/providers/properties-update.provider';
+import { PropertyStatus } from 'src/utils/enums';
+import { UpdatePropertyDto } from 'src/properties/dto/update-property.dto';
 
 @Injectable()
 export class RequestsService {
@@ -16,6 +20,7 @@ export class RequestsService {
     private readonly requestRepository: Repository<Request>,
     private readonly contractService: ContractsService,
     private readonly notificationService: NotificationsService,
+    private readonly propertiesUpdateProvider: PropertiesUpdateProvider
   ) {}
   async create(createRequestDto: CreateRequestDto, userId: number) {
     const exists = await this.requestRepository.findOne({
@@ -100,6 +105,7 @@ export class RequestsService {
       userId,
     );
 
+    await this.propertiesUpdateProvider.updateStateProById(accept.property.id, PropertyStatus.HIDDEN );
     return newContract;
   }
 

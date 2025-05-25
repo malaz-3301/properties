@@ -24,7 +24,7 @@ export class ContractsService {
     const newContract = this.contractRepository.create({
       ...createContractDto,
       user: { id: userId },
-      validUntil: validUntil,
+      expireIn: validUntil,
       property: { id: createContractDto.propertyId },
     });
     return this.contractRepository.save(newContract);
@@ -44,7 +44,7 @@ export class ContractsService {
       validUntil.setMonth(validUntil.getMonth() + updateContractDto.time);
       return this.contractRepository.update(id, {
         ...updateContractDto,
-        validUntil,
+        expireIn: validUntil,
       });
     }
   }
@@ -58,7 +58,7 @@ export class ContractsService {
       where: {
         user: { id: userId },
 
-        validUntil: MoreThan(new Date()),
+        expireIn: MoreThan(new Date()),
       },
     });
     return contracts;
@@ -68,7 +68,7 @@ export class ContractsService {
     const contracts = await this.contractRepository.find({
       where: {
         user: { id: userId },
-        validUntil: LessThan(new Date()),
+        expireIn: LessThan(new Date()),
       },
     });
     return contracts;
@@ -86,7 +86,7 @@ export class ContractsService {
     today.setDate(today.getDate() + 7);
     return this.contractRepository.find({
       where: {
-        validUntil: Between(today, afterWeek),
+        expireIn: Between(today, afterWeek),
       },
       relations: ['property'],
     });
@@ -98,7 +98,7 @@ export class ContractsService {
     today.setDate(today.getDate() + 7);
     return this.contractRepository.find({
       where: {
-        validUntil: Between(today, afterWeek),
+        expireIn: Between(today, afterWeek),
         user: { id: userId },
       },
       relations: ['property'],

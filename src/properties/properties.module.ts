@@ -44,7 +44,10 @@ import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
               callback: (error: Error | null, filename: string) => void,
             ) {
               const prefix = `${Date.now()}-${Math.round(Math.random() * 10000)}`;
-              const filename = `${prefix}-${file.originalname}`;
+              const filename = `${prefix}-${file.originalname}`.replace(
+                /[\s,]/g,
+                '',
+              );
               callback(null, filename);
             },
           }),
@@ -83,8 +86,12 @@ import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
     PropertiesDelProvider,
     PropertiesGetProvider,
     PropertiesVoViProvider,
-    
   ],
-  exports: [PropertiesService, PropertiesGetProvider, PropertiesVoViProvider , PropertiesUpdateProvider],
+  exports: [
+    PropertiesService,
+    PropertiesGetProvider,
+    PropertiesVoViProvider,
+    PropertiesUpdateProvider,
+  ],
 })
 export class PropertiesModule {}

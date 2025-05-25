@@ -17,9 +17,9 @@ export class Location {
   @Column({ nullable: true })
   street: string; //عبد الله بن حذافة
   //make not nullable
-  @Column({type : 'float',  nullable: true })
+  @Column({type : 'float',  nullable: false })
   lat: number;
 
-  @Column({type : 'float',  nullable: true })
+  @Column({type : 'float',  nullable: false })
   lon: number;
 }

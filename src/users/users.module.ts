@@ -78,6 +78,7 @@ import { UsersVoViProvider } from './providers/users-vo-vi.provider';
     UsersOtpProvider,
     UsersGetProvider,
     UsersVoViProvider,
+  
   ],
 })
 export class UsersModule {}

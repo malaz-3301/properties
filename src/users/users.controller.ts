@@ -27,8 +27,10 @@ import { Response } from 'express';
 import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('user')
+@UseInterceptors(CacheInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

@@ -107,13 +107,16 @@ export class PropertiesGetProvider {
     //
     const properties: Property[] = await this.propertyRepository.find({
       where,
-      relations: { user: true },
+      relations: { user: true, favorites: true },
       select: {
+        favorites: { id: true },
         id: true,
+        rooms: true,
         bathrooms: true,
         area: true,
         price: true,
         propertyImages: true,
+        state: true,
         location: {
           country: true,
           governorate: true,

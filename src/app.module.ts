@@ -33,6 +33,7 @@ import { ThrottlerProxyGuard } from './throttler-proxy.guard';
 import { ViewsModule } from './views/views.module';
 import { RequestsModule } from './requests/requests.module';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { GlobalCacheModule } from './cache/global/global.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
     NotificationsModule,
     StripeModule,
     AuditModule,
+    GlobalCacheModule,
     ThrottlerModule.forRoot({
       //first policy
       throttlers: rateLimiting,
@@ -95,10 +97,6 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
     {
       provide: APP_GUARD,
       useClass: ThrottlerProxyGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
     },
   ],
 })

@@ -31,7 +31,6 @@ import { GlobalCacheModule } from '../cache/global/global.module';
     UsersModule,
     GeolocationModule,
     AuditModule,
-    GlobalCacheModule,
     TypeOrmModule.forFeature([Property]),
     MulterModule.registerAsync({
       imports: [forwardRef(() => PropertiesModule)],

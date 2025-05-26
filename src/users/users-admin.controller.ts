@@ -17,9 +17,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { AuditInterceptor } from '../utils/interceptors/audit.interceptor';
 import { SkipThrottle } from '@nestjs/throttler';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @SkipThrottle() //مؤقتا
 @Controller('userA')
+@UseInterceptors(CacheInterceptor)
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 

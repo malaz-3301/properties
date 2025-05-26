@@ -25,6 +25,7 @@ import { Order } from '../orders/entities/order.entity';
 import { OtpEntity } from './entities/otp.entity';
 import { AuditModule } from '../audit/audit.module';
 import { UsersVoViProvider } from './providers/users-vo-vi.provider';
+import { GlobalCacheModule } from '../cache/global/global.module';
 
 @Module({
   imports: [
@@ -78,7 +79,6 @@ import { UsersVoViProvider } from './providers/users-vo-vi.provider';
     UsersOtpProvider,
     UsersGetProvider,
     UsersVoViProvider,
-  
   ],
 })
 export class UsersModule {}

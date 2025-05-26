@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PlansService } from './plans.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
@@ -16,8 +17,10 @@ import { UserType } from '../utils/enums';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { JwtPayloadType } from '../utils/constants';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('plans')
+@UseInterceptors(CacheInterceptor)
 export class PlansController {
   constructor(private readonly plansService: PlansService) {}
 

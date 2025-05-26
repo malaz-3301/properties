@@ -31,7 +31,6 @@ import { diskStorage } from 'multer';
 import { Throttle } from '@nestjs/throttler';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
-@CacheTTL(20 * 1000)
 //@UseInterceptors(CacheInterceptor)
 @Controller('property')
 //@Res not work with Cache Interceptor
@@ -78,11 +77,13 @@ export class PropertiesController {
 
   @Get('my')
   @UseGuards(AuthGuard)
+  @UseInterceptors(CacheInterceptor)
   getMyPro(@CurrentUser() user: JwtPayloadType) {
     return this.propertiesService.getByUserId(user.id);
   }
 
   @Get(':proId')
+  @UseInterceptors(CacheInterceptor)
   @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
   getOnePro(@Param('proId', ParseIntPipe) proId: number) {
     return this.propertiesService.getOnePro(proId);
@@ -159,6 +160,7 @@ export class PropertiesController {
   }
 
   @Get('images/:image')
+  @UseInterceptors(CacheInterceptor)
   public showUploadedImage(
     @Param('image') imageName: string,
     @Res() res: Response,
@@ -167,6 +169,7 @@ export class PropertiesController {
   }
 
   @Get('top/:limit')
+  @UseInterceptors(CacheInterceptor)
   getTopScorePro(@Param('limit', ParseIntPipe) limit: number) {
     return this.propertiesService.getTopScorePro(limit);
   }

@@ -22,6 +22,8 @@ import { PropertiesAdminController } from './properties-admin.controller';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { AuditModule } from '../audit/audit.module';
 import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
+import { CacheModule } from '@nestjs/cache-manager';
+import { GlobalCacheModule } from '../cache/global/global.module';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
     UsersModule,
     GeolocationModule,
     AuditModule,
+    GlobalCacheModule,
     TypeOrmModule.forFeature([Property]),
     MulterModule.registerAsync({
       imports: [forwardRef(() => PropertiesModule)],

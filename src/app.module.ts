@@ -27,11 +27,12 @@ import { StripeModule } from './stripe/stripe.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { rateLimiting } from './utils/constants';
 import { ThrottlerProxyGuard } from './throttler-proxy.guard';
 import { ViewsModule } from './views/views.module';
 import { RequestsModule } from './requests/requests.module';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -94,6 +95,10 @@ import { RequestsModule } from './requests/requests.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerProxyGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
     },
   ],
 })

@@ -26,13 +26,17 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayloadType } from '../utils/constants';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
 import { diskStorage } from 'multer';
 import { Throttle } from '@nestjs/throttler';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
+@CacheTTL(20 * 1000)
+//@UseInterceptors(CacheInterceptor)
 @Controller('property')
+//@Res not work with Cache Interceptor
 export class PropertiesController {
+  ///
   constructor(private readonly propertiesService: PropertiesService) {}
 
   @Post()

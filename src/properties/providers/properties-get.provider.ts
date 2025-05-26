@@ -1,21 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../entities/property.entity';
 import {
   Between,
   FindOptionsWhere,
+  In,
   LessThanOrEqual,
   Like,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
 import { PropertyStatus } from '../../utils/enums';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class PropertiesGetProvider {
   constructor(
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async getByUserId(userId: number) {
@@ -61,6 +64,7 @@ export class PropertiesGetProvider {
   }
 
   ////////////////
+
   async getAll(
     word?: string,
     minPrice?: string,
@@ -68,9 +72,20 @@ export class PropertiesGetProvider {
     state?: PropertyStatus,
   ) {
     const filters: FindOptionsWhere<Property>[] = [];
-
+    const cacheData = await this.cacheManager.get(
+      `properties${word}${minPrice}${maxPrice}${state}`,
+    );
+    if (cacheData) {
+      console.log('Cache data'); //
+      return cacheData;
+    }
     // شرط البحث
     if (word) {
+      const cacheData = await this.cacheManager.get('properties');
+      if (cacheData) {
+        console.log('Cache data'); //
+        return cacheData;
+      }
       filters.push({ title: Like(`%${word}%`) });
       filters.push({ description: Like(`%${word}%`) });
     }
@@ -115,12 +130,17 @@ export class PropertiesGetProvider {
       throw new NotFoundException('No estates found');
     }
 
-    return properties.map((p) => ({
+    const res = properties.map((p) => ({
       ...p,
       propertyImages: null,
       firstImage:
         p.propertyImages?.[0] ??
         'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
     }));
+    await this.cacheManager.set(
+      `properties${word}${minPrice}${maxPrice}${state}`,
+      res,
+    );
+    return res;
   }
 }

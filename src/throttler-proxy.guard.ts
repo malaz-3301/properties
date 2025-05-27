@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Injectable()
+//extends ThrottlerGuard (:
 export class ThrottlerProxyGuard extends ThrottlerGuard {
   //X-Forwarded-For
   protected async getTracker(req: Record<string, any>): Promise<string> {

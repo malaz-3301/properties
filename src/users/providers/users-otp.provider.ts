@@ -16,11 +16,14 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as process from 'node:process';
 import { UsersGetProvider } from './users-get.provider';
+import { OtpEntity } from '../entities/otp.entity';
 
 @Injectable()
 export class UsersOtpProvider {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(OtpEntity)
+    private readonly otpEntityRepository: Repository<OtpEntity>,
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
@@ -38,6 +41,7 @@ export class UsersOtpProvider {
     //verify
     const isCode = await bcrypt.compare(code, user.otpEntity.otpCode);
     if (!isCode) {
+      console.log('dd : ' + code);
       user.otpEntity.otpTries += 1;
       await this.usersRepository.save(user);
       throw new UnauthorizedException('Code is incorrect');
@@ -95,11 +99,15 @@ export class UsersOtpProvider {
     //مر خمس دقائق خود كود
     //OTP
     const code = Math.floor(10000 + Math.random() * 90000).toString();
-    user.otpEntity.otpCode = await this.hashCode(code);
+    const otpCode = await this.hashCode(code);
+    const otpTries = 0; //تصفير المحاولات
     user.createdAt = new Date(); // وقتت جديد للتوكين
     user.updatedAt = new Date(); // وقت جديد لامكانية الطلب
-    user.otpEntity.otpTries = 0; //تصفير المحاولات
     await this.usersRepository.save(user);
+    await this.otpEntityRepository.update(user.id, {
+      otpTries: otpTries,
+      otpCode,
+    });
     await this.sendSms('0930983492', `Your Key is ${code}`);
     return {
       message: 'Check your phone messages',

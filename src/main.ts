@@ -9,11 +9,15 @@ import { ThrottlerProxyGuard } from './throttler-proxy.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  //لا تعدل على جسم الطلب
+  app.use('/webhook/stripe', express.raw({ type: 'application/json' }));
+  
   // get X-Forwarded-For when I use proxy  I didn't use true for range limiting
   app.getHttpAdapter().getInstance().set('trust proxy', 'loopback');
   //X-Frame-Options: DENY
   app.use(helmet());
   //بورت جماعة الفرونت مشان cors المتصفح
+
   app.enableCors({
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -25,7 +29,6 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
-  app.use('/webhook/stripe', express.raw({ type: 'application/json' }));
 
   //عدنا مرجع انتوا تايهين ما عدكم مرجع
   const swagger = new DocumentBuilder().setVersion('1.0').build();

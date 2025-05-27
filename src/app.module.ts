@@ -91,11 +91,6 @@ import { GlobalCacheModule } from './cache/global/global.module';
     AppService,
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    AppService,
-    {
-      provide: APP_GUARD,
       useClass: ThrottlerProxyGuard,
     },
   ],

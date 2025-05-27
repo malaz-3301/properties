@@ -19,6 +19,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { JwtPayloadType } from '../utils/constants';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @Controller('webhook')
 export class OrdersController {
@@ -26,6 +27,7 @@ export class OrdersController {
 
   @Post()
   @UseGuards(AuthGuard)
+  @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
   create(
     @Body() createOrderDto: CreateOrderDto,
     @CurrentUser() user: JwtPayloadType,
@@ -34,12 +36,13 @@ export class OrdersController {
   }
 
   @Post('/stripe')
+  @SkipThrottle()
   @HttpCode(200)
   async createHook(
     @Req() req: Request,
-    @Res() res: Response,
     @Headers('stripe-signature') signature: string,
   ) {
+    console.log('stripe webhook');
     const body = req.body;
 
     await this.ordersService.createHook(body, signature);

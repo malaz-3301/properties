@@ -88,8 +88,10 @@ export class OrdersService {
         HttpStatus.BAD_REQUEST,
       );
     }
+
     switch (event.type) {
       case 'checkout.session.completed': {
+        console.log(event.type);
         const session = event.data.object as Stripe.Checkout.Session;
         const customerId = session.customer;
         const subscriptionId = session.subscription;
@@ -102,9 +104,8 @@ export class OrdersService {
         await this.setOrder(userId, planId);
         break;
       }
-
       default:
-        console.log(`ℹ️ حدث غير مدعوم: ${event.type}`);
+        console.log(`${event.type}`);
     }
   }
 

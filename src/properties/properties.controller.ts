@@ -28,7 +28,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
 import { diskStorage } from 'multer';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 //@UseInterceptors(CacheInterceptor)
@@ -160,6 +160,7 @@ export class PropertiesController {
   }
 
   @Get('images/:image')
+  @SkipThrottle()
   @UseInterceptors(CacheInterceptor)
   public showUploadedImage(
     @Param('image') imageName: string,

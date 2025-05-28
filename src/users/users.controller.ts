@@ -28,6 +28,7 @@ import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('user')
 @UseInterceptors(CacheInterceptor)
@@ -95,6 +96,7 @@ export class UsersController {
   }
 
   @Get('images/:image')
+  @SkipThrottle()
   public showUploadedImage(
     @Param('image') image: string,
     @Res() res: Response,

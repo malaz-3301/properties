@@ -48,7 +48,7 @@ export class NotificationsController {
   @Get('all_my_notifications')
   @UseGuards(AuthGuard)
   getMyNotifications(@CurrentUser() user: JwtPayloadType) {
-    return this.notificationsService.getAMyNotifications(user.id);
+    return this.notificationsService.getMyNotifications(user.id);
   }
 
   @Post()

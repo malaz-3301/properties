@@ -109,4 +109,7 @@ export class User {
 
   @OneToMany(()=>Request, (requests)=>requests.user)
   requests : Request[]
+
+  @Column()
+  token : string;
 }

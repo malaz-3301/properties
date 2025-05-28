@@ -11,8 +11,10 @@ export class Notification {
     user : User;
     @Column()
     message : string;
-    @CreateDateColumn({ type: 'timestamp', nullable : true})
-    readAt : Date;
+    @CreateDateColumn({ type: 'timestamp', nullable : true, default : null})
+    readAt : Date|null;
     @ManyToOne(()=>Property, (property)=>property.notifications)
     property : Property;
+    @Column()
+    title : string;
 }

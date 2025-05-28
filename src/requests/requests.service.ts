@@ -95,6 +95,7 @@ export class RequestsService {
       {
         message: 'the owner accept your request',
         propertyId: accept.property.id,
+        title : 'notification'
       },
       accept.user.id,
     );
@@ -146,6 +147,7 @@ export class RequestsService {
       return this.notificationService.create({
         message: 'the owner reject your request',
         propertyId: reject.property.id,
+        title : 'notification'
       },reject.user.id);
     });
 

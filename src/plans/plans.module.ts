@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { User } from '../users/entities/user.entity';
 import { UsersModule } from '../users/users.module';
+import { JwtModule } from '@nestjs/jwt';
+import { UsersGetProvider } from 'src/users/providers/users-get.provider';
 
 @Module({
   imports: [AuthModule, UsersModule, TypeOrmModule.forFeature([Plan])],

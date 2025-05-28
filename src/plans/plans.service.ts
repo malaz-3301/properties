@@ -24,9 +24,12 @@ export class PlansService {
 
   async findAll(userId: number) {
     const user = await this.usersGetProvider.findById(userId);
+    console.log(user);
+    
     //شفلي اذا مستخدم الtrial من قبل
     const where = user.hasUsedTrial ? { id: Not(2) } : {};
-
+    console.log(where);
+    
     return this.planRepository.find({
       where: where,
     });

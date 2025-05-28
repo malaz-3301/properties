@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +16,11 @@ export class ContractsService {
     private readonly userService: UsersService,
   ) {}
 
-  create(userId: number, createContractDto: CreateContractDto) {
+  async create(userId: number, createContractDto: CreateContractDto) {
+    const isActive = await this.contractRepository.findOne({where : {property : {id : createContractDto.propertyId}, expireIn : MoreThan(new Date())}})
+    if (isActive){
+      throw new HttpException('property not avilable now', 404);
+    }
     const validUntil = new Date();
     validUntil.setMonth(validUntil.getMonth() + createContractDto.time);
     console.log(validUntil);
@@ -43,7 +47,7 @@ export class ContractsService {
       const validUntil = new Date();
       validUntil.setMonth(validUntil.getMonth() + updateContractDto.time);
       return this.contractRepository.update(id, {
-        ...updateContractDto,
+        price : updateContractDto.price,
         expireIn: validUntil,
       });
     }
@@ -75,8 +79,8 @@ export class ContractsService {
   }
 
   async getMyContracts(userId: number) {
-    const active = this.getMyActiveContracts(userId);
-    const expired = this.getMyExpiredContracts(userId);
+    const active = await this.getMyActiveContracts(userId);
+    const expired = await this.getMyExpiredContracts(userId);
     return { active: active, expired: expired };
   }
 
@@ -95,7 +99,8 @@ export class ContractsService {
   MyContractsExpiredAfterWeek(userId: number) {
     const today = new Date();
     const afterWeek = new Date();
-    today.setDate(today.getDate() + 7);
+    
+    afterWeek.setDate(today.getDate() + 7);
     return this.contractRepository.find({
       where: {
         expireIn: Between(today, afterWeek),

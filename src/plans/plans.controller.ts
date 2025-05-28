@@ -41,6 +41,7 @@ export class PlansController {
   @Get()
   @UseGuards(AuthGuard)
   findAll(@CurrentUser() user: JwtPayloadType) {
+    console.log(user.id);
     return this.plansService.findAll(user.id);
   }
 }

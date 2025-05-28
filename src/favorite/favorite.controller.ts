@@ -32,27 +32,27 @@ export class FavoriteController {
     return this.favoriteService.getAllFavorites(user.id);
   }
 
-  @Get('isFavorite')
+  @Get('isFavorite/:propertyId')
   @UseGuards(AuthGuard)
   isFavorite(
     @CurrentUser() user: JwtPayloadType,
-    @Body('propertyId', ParseIntPipe) propertyId: number,
+    @Param('propertyId', ParseIntPipe) propertyId: number,
   ) {
     return this.favoriteService.isFavorite(user.id, propertyId);
   }
 
-  @Delete('')
-  @UseGuards(AuthGuard)
-  deleteAll(@CurrentUser() user: JwtPayloadType) {
-    return this.favoriteService.deleteAll(user.id);
-  }
+  // @Delete('')
+  // @UseGuards(AuthGuard)
+  // deleteAll(@CurrentUser() user: JwtPayloadType) {
+  //   return this.favoriteService.deleteAll(user.id);
+  // }
 
-  @Get(':id')
-  @UseGuards(AuthGuard)
-  getFavorite(
-    @CurrentUser() user: JwtPayloadType,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.favoriteService.findFavorite(user.id, id);
-  }
+  // @Get(':id')
+  // @UseGuards(AuthGuard)
+  // getFavorite(
+  //   @CurrentUser() user: JwtPayloadType,
+  //   @Param('id', ParseIntPipe) id: number,
+  // ) {
+  //   return this.favoriteService.findFavorite(user.id, id);
+  // }
 }

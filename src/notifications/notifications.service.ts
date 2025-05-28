@@ -8,9 +8,19 @@ import { Any, FindOperator, IsNull, Not, Repository } from 'typeorm';
 import { ContractsService } from 'src/contracts/contracts.service';
 import { UsersService } from 'src/users/users.service';
 import { IsDate } from 'class-validator';
+import * as admin from 'firebase-admin';
+import { env, title } from 'node:process';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class NotificationsService {
+  onModuleInit() {
+    const configService = new  ConfigService();
+    admin.initializeApp({
+      credential: admin.credential.cert({clientEmail : configService.get('CLIENT_EMAIL'), privateKey : configService.get('PRIVATE_KEY').replace(/\\n/g, '\n'), projectId : configService.get('PROJECT_ID')}),
+    });
+  }
+
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
@@ -35,12 +45,19 @@ export class NotificationsService {
     });
   }
 
-  create(createNotificationDto: CreateNotificationDto, userId: number) {
+  async create(createNotificationDto: CreateNotificationDto, userId: number) {
     const newNotification = this.notificationRepository.create({
       ...createNotificationDto,
       user: { id: userId },
+      readAt: null,
       property: { id: createNotificationDto.propertyId },
     });
+    const user = await this.userService.getUserById(userId);
+     await this.sendNotificationToDevice(
+      user.token,
+      createNotificationDto.title,
+      createNotificationDto.message,
+    );
     return this.notificationRepository.save(newNotification);
   }
 
@@ -99,9 +116,27 @@ export class NotificationsService {
     return notifications;
   }
 
-  getAMyNotifications(userId: number) {
-    const unread = this.getUnreadNotifications(userId);
-    const read = this.getReadNotifications(userId);
+  async getMyNotifications(userId: number) {
+    const unread = await this.getUnreadNotifications(userId);
+    const read = await this.getReadNotifications(userId);
     return { unread: unread, read: read };
+  }
+
+  async sendNotificationToDevice(token: string, title: string, body: string) {
+    const message: admin.messaging.Message = {
+      token,
+      notification: {
+        title,
+        body,
+      },
+    };
+
+    try {
+      const response = await admin.messaging().send(message);
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
 }

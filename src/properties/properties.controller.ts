@@ -47,7 +47,7 @@ export class PropertiesController {
     return this.propertiesService.create(createPropertyDto, user.id);
   }
 
-  @Patch('my:proId')
+  @Patch('my/:proId')
   @UseGuards(AuthGuard)
   updateMyPro(
     @Param('proId', ParseIntPipe) proId: number,

@@ -1,4 +1,5 @@
 import {
+  IsAscii,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -35,4 +36,9 @@ export class RegisterUserDto {
   @IsNumber()
   @Min(16, { message: 'Age must not be less than 16' })
   age?: number;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsAscii()
+  token : string;
 }

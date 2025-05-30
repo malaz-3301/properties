@@ -74,6 +74,9 @@ export abstract class Property extends Estate {
   @Column({ type: 'varchar', nullable: true, default: null })
   propertyImage: string | null;
 
+  @Column({ type: 'varchar', nullable: true, default: null })
+  firstImage: string | null;
+
   @Column('simple-array', { nullable: true })
   propertyImages: string[];
 
@@ -105,6 +108,6 @@ export abstract class Property extends Estate {
   @OneToMany(() => Notification, (notifications) => notifications.property)
   notifications: Notification[];
 
-  @OneToMany(()=>Request, (requests)=>requests.property)
-  requests : Request[];
+  @OneToMany(() => Request, (requests) => requests.property)
+  requests: Request[];
 }

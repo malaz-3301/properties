@@ -115,7 +115,7 @@ export class PropertiesGetProvider {
         bathrooms: true,
         area: true,
         price: true,
-        propertyImages: true,
+        firstImage: true,
         state: true,
         location: {
           country: true,
@@ -136,10 +136,8 @@ export class PropertiesGetProvider {
     const res = properties.map((p) => ({
       ...p,
       propertyImages: null,
-      firstImage:
-        p.propertyImages?.[0] ??
-        'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
     }));
+
     await this.cacheManager.set(
       `properties${word}${minPrice}${maxPrice}${state}`,
       res,

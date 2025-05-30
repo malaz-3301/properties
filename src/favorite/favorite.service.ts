@@ -43,9 +43,31 @@ export class FavoriteService {
     return this.favoriteRepository.delete({ user: { id: userId } });
   }
 
-  getAllFavorites(userId: number) {
-    return this.favoriteRepository.find({
-      where: { user: { id: userId }, }, relations : ['property'],
+  async getAllFavorites(userId: number) {
+    const favo = await this.favoriteRepository.find({
+      where: { user: { id: userId } },
+      relations: { property: true },
+      select: {
+        property: {
+          id: true,
+          rooms: true,
+          bathrooms: true,
+          area: true,
+          price: true,
+          firstImage: true,
+          state: true,
+          location: {
+            country: true,
+            governorate: true,
+            city: true,
+            quarter: true,
+            street: true,
+            lon: true,
+            lat: true,
+          },
+        },
+      },
     });
+    return favo;
   }
 }

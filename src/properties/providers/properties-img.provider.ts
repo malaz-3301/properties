@@ -54,7 +54,12 @@ export class PropertiesImgProvider {
       ? pro.propertyImages.concat(filenames)
       : filenames.concat(); //concat
 
-    await this.propertyRepository.save(pro);
+    await this.propertyRepository.save({
+      firstImage:
+        pro.propertyImages?.[0] ??
+        'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
+      propertyImages: pro.propertyImages,
+    });
     return {
       message: `File uploaded successfully :  ${filenames}`,
     };

@@ -133,15 +133,10 @@ export class PropertiesGetProvider {
       throw new NotFoundException('No estates found');
     }
 
-    const res = properties.map((p) => ({
-      ...p,
-      propertyImages: null,
-    }));
-
     await this.cacheManager.set(
       `properties${word}${minPrice}${maxPrice}${state}`,
-      res,
+      properties,
     );
-    return res;
+    return properties;
   }
 }

@@ -40,7 +40,6 @@ export class PropertiesImgProvider {
   async setMultiImg(id: number, userId: number, filenames: string[]) {
     const pro = await this.MyProperty(id, userId);
     //بقي الحذف لسا
-
     if (pro.propertyImages?.length ?? 0 >= 8) {
       console.log('ddddddddddddddddddddddddddddd');
       const sub = pro.propertyImages.length - 8 || 2;
@@ -55,9 +54,8 @@ export class PropertiesImgProvider {
       : filenames.concat(); //concat
 
     await this.propertyRepository.save({
-      firstImage:
-        pro.propertyImages?.[0] ??
-        'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
+      ...pro,
+      firstImage: pro.propertyImages?.[0],
       propertyImages: pro.propertyImages,
     });
     return {

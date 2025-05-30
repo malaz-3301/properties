@@ -45,6 +45,7 @@ export class PropertiesService {
     );
     const newProperty = this.propertyRepository.create({
       ...createPropertyDto,
+      firstImage: 'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
       location: location,
       user: { id: user.id },
     });

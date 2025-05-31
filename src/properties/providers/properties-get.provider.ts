@@ -117,6 +117,8 @@ export class PropertiesGetProvider {
         price: true,
         firstImage: true,
         state: true,
+        isForRent: true,
+        propertyType: true,
         location: {
           country: true,
           governorate: true,
@@ -126,6 +128,7 @@ export class PropertiesGetProvider {
           lon: true,
           lat: true,
         },
+
         user: { username: true },
       },
     });

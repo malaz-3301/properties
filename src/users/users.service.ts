@@ -66,6 +66,7 @@ export class UsersService {
       ...registerUserDto,
       location,
     });
+
     await this.usersRepository.save(user);
     await this.otpEntityRepository.save({
       otpCode: otpCode,
@@ -74,6 +75,7 @@ export class UsersService {
 
     await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
     await this.usersRepository.save(user);
+
     return {
       message: 'Verify your account',
       userId: user.id,

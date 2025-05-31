@@ -22,7 +22,7 @@ export class OtpEntity {
   @Column({ nullable: true })
   otpCode: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 0 })
   otpTries: number;
 
   @Column({ nullable: true })

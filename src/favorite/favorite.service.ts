@@ -56,6 +56,8 @@ export class FavoriteService {
           price: true,
           firstImage: true,
           state: true,
+          isForRent: true,
+          propertyType: true,
           location: {
             country: true,
             governorate: true,

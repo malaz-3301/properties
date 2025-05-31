@@ -66,6 +66,8 @@ export class UsersOtpProvider {
     //Expire
     const createdAtTimestamp = user.createdAt.getTime();
     const expireInSec = (Date.now() - createdAtTimestamp) / 1000;
+    console.log('Date.now()  : ' + new Date(Date.now()));
+    console.log('createdAt : ' + createdAtTimestamp);
     console.log('expireInSec : ' + expireInSec);
     if (expireInSec > 540) {
       throw new UnauthorizedException({

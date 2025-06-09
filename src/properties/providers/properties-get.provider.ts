@@ -91,20 +91,18 @@ export class PropertiesGetProvider {
     }
 
     // شروط السعر
-    const priceConditions: any = {};
-    if (minPrice !== undefined && maxPrice !== undefined) {
-      priceConditions.price = Between(parseInt(minPrice), parseInt(maxPrice));
-    } else if (minPrice !== undefined) {
-      priceConditions.price = MoreThanOrEqual(parseInt(minPrice));
-    } else if (maxPrice !== undefined) {
-      priceConditions.price = LessThanOrEqual(parseInt(maxPrice));
-    }
+    const priceConditions = { price: this.rangeConditions(minPrice, maxPrice) };
 
     const where =
       filters.length > 0
         ? filters.map((filter) => ({ ...filter, ...priceConditions }))
         : { ...priceConditions };
     //
+
+    /*    const where =
+          filters.length > 0
+            ? filters.map((filter) => ({ ...filter, ...priceConditions }))
+            : { ...priceConditions, ...yearConditions };*/
     const properties: Property[] = await this.propertyRepository.find({
       where,
       relations: { user: true, favorites: true },
@@ -141,5 +139,15 @@ export class PropertiesGetProvider {
       properties,
     );
     return properties;
+  }
+
+  rangeConditions(minRange?: string, maxRange?: string) {
+    if (minRange && maxRange) {
+      return Between(parseInt(minRange), parseInt(maxRange));
+    } else if (minRange) {
+      return MoreThanOrEqual(parseInt(minRange));
+    } else if (maxRange) {
+      return LessThanOrEqual(parseInt(maxRange));
+    }
   }
 }

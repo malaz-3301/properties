@@ -62,10 +62,12 @@ export class PropertiesController {
   }
 
   @Get('all')
+  @UseGuards(AuthGuard)
   getAllAccepted(
     @Query('word') word: string,
     @Query('minPrice') minPrice: string,
     @Query('maxPrice') maxPrice: string,
+    @CurrentUser() user: JwtPayloadType,
   ) {
     return this.propertiesService.getAll(
       word,

@@ -34,6 +34,7 @@ import { ViewsModule } from './views/views.module';
 import { RequestsModule } from './requests/requests.module';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { GlobalCacheModule } from './cache/global/global.module';
+import { dataSourceOptions } from '../db/data-source';
 
 @Module({
   imports: [
@@ -49,7 +50,7 @@ import { GlobalCacheModule } from './cache/global/global.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         return {
-          type: 'mysql',
+          type: 'postgres',
           host: config.get<string>('DB_HOST'),
           port: config.get<number>('DB_PORT'),
           username: config.get<string>('DB_USERNAME'),
@@ -57,7 +58,8 @@ import { GlobalCacheModule } from './cache/global/global.module';
           database: config.get<string>('DB_DATABASE'),
           //entities: [Product, User,
           autoLoadEntities: true,
-          synchronize: process.env.NODE_ENV !== 'production',
+          //synchronize: process.env.NODE_ENV !== 'production', فعلها
+          synchronize: true,
         };
       },
     }),
@@ -102,3 +104,24 @@ export class AppModule implements NestModule {
       .forRoutes({ path: '*', method: RequestMethod.GET });
   }
 }
+
+
+/*
+TypeOrmModule.forRootAsync({
+  inject: [ConfigService],
+  useFactory: (config: ConfigService) => {
+    return {
+      type: 'postgres',
+      host: config.get<string>('DB_HOST'),
+      port: config.get<number>('DB_PORT'),
+      username: config.get<string>('DB_USERNAME'),
+      password: config.get<string>('DB_PASSWORD'),
+      database: config.get<string>('DB_DATABASE'),
+      //entities: [Product, User,
+      autoLoadEntities: true,
+      //synchronize: process.env.NODE_ENV !== 'production', فعلها
+      synchronize: true,
+    };
+  },
+}),*/
+//    TypeOrmModule.forRoot(dataSourceOptions),

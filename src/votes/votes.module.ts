@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { VotesService } from './votes.service';
 import { VotesController } from './votes.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,11 +14,12 @@ import { AuditModule } from '../audit/audit.module';
   imports: [
     AuthModule,
     UsersModule,
-    PropertiesModule,
     AuditModule,
     TypeOrmModule.forFeature([Vote, Property, User]),
+    forwardRef(() => PropertiesModule),
   ],
   controllers: [VotesController],
   providers: [VotesService],
+  exports: [VotesService],
 })
 export class VotesModule {}

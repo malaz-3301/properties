@@ -43,9 +43,9 @@ import { dataSourceOptions } from '../db/data-source';
     AdminModule,
     UploadsModule,
     FavoriteModule,
+    VotesModule,
     PlansModule,
     ContractsModule,
-    NotificationsModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -69,11 +69,6 @@ import { dataSourceOptions } from '../db/data-source';
     }),
     AuthModule,
     GeolocationModule,
-
-    FavoriteModule,
-
-    VotesModule,
-
     OrdersModule,
     ScheduleModule.forRoot(),
     CornModule,

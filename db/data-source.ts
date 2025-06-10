@@ -12,19 +12,18 @@ import { Request } from '../src/requests/entities/request.entity';
 import { Audit } from '../src/audit/entities/audit.entity';
 import { Notification } from '../src/notifications/entities/notification.entity';
 import { config } from 'dotenv';
+import { Contract } from '../src/contracts/entities/contract.entity';
 //dotenv config
 config({ path: '.env' });
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  url: process.env.DATABASE_URL,
+  // url: process.env.DATABASE_URL,
   // ... الإعدادات الأخرى
-  ssl: {
-    rejectUnauthorized: false, // ضروري مع Neon
-  },
-  synchronize: false,
-  logging: true,
+  url: process.env.DATABASE_URL,
+
   entities: [
+    Contract,
     User,
     Audit,
     Notification,
@@ -38,6 +37,11 @@ export const dataSourceOptions: DataSourceOptions = {
     Request,
   ],
   migrations: ['dist/db/migrations/*.js'],
+
+  // Syria Time Zone -configuration
+  extra: {
+    options: '-c timezone=+03',
+  },
 };
 
 const dataSource = new DataSource(dataSourceOptions);

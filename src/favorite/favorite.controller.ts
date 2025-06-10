@@ -32,13 +32,13 @@ export class FavoriteController {
     return this.favoriteService.getAllFavorites(user.id);
   }
 
-  @Get('isFavorite/:propertyId')
+  @Get('isFavorite/:proId')
   @UseGuards(AuthGuard)
   isFavorite(
     @CurrentUser() user: JwtPayloadType,
-    @Param('propertyId', ParseIntPipe) propertyId: number,
+    @Param('prod', ParseIntPipe) proId: number,
   ) {
-    return this.favoriteService.isFavorite(user.id, propertyId);
+    return this.favoriteService.isFavorite(user.id, proId);
   }
 
   // @Delete('')

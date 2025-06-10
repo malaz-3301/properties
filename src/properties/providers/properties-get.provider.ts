@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../entities/property.entity';
 import {
@@ -12,6 +17,9 @@ import {
 } from 'typeorm';
 import { PropertyStatus } from '../../utils/enums';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { FilterPropertyDto } from '../dto/filter-property.dto';
+import { FavoriteService } from '../../favorite/favorite.service';
+import { VotesService } from '../../votes/votes.service';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -19,6 +27,8 @@ export class PropertiesGetProvider {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly favoriteService: FavoriteService,
+    //private readonly votesService: VotesService,
   ) {}
 
   async getByUserId(userId: number) {
@@ -49,9 +59,9 @@ export class PropertiesGetProvider {
     return property;
   }
 
-  async findById(id: number) {
+  async findById(proId: number) {
     const property = await this.propertyRepository.findOne({
-      where: { id: id },
+      where: { id: proId },
       relations: { user: true },
       select: {
         user: { id: true, username: true },
@@ -63,17 +73,34 @@ export class PropertiesGetProvider {
     return property;
   }
 
+  //جلب العقار مع تفاعلاتي عليه
+  async findById_ACT(proId: number, userId: number) {
+    const property = await this.propertyRepository.findOne({
+      where: { id: proId },
+      relations: { user: true },
+      select: {
+        user: { id: true, username: true },
+      },
+    });
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+    const isFavorite = await this.favoriteService.isFavorite(userId, proId);
+    //const voteValue = await this.votesService.isVote(proId, userId);
+    return {
+      ...property,
+      isFavorite,
+      //  voteValue,
+    };
+  }
+
   ////////////////
 
-  async getAll(
-    word?: string,
-    minPrice?: string,
-    maxPrice?: string,
-    state?: PropertyStatus,
-  ) {
+  async getAll(query: FilterPropertyDto) {
+    const { word, minPrice, maxPrice, status } = query;
     const filters: FindOptionsWhere<Property>[] = [];
     const cacheData = await this.cacheManager.get(
-      `properties${word}${minPrice}${maxPrice}${state}`,
+      `properties${word}${minPrice}${maxPrice}${status}`,
     );
     if (cacheData) {
       console.log('Cache data'); //
@@ -88,6 +115,9 @@ export class PropertiesGetProvider {
       }
       filters.push({ title: Like(`%${word}%`) });
       filters.push({ description: Like(`%${word}%`) });
+    }
+    if ('status' in query) {
+      filters.push({ status: status });
     }
 
     // شروط السعر
@@ -114,7 +144,7 @@ export class PropertiesGetProvider {
         area: true,
         price: true,
         firstImage: true,
-        state: true,
+        status: true,
         isForRent: true,
         propertyType: true,
         location: {
@@ -135,7 +165,7 @@ export class PropertiesGetProvider {
     }
 
     await this.cacheManager.set(
-      `properties${word}${minPrice}${maxPrice}${state}`,
+      `properties${word}${minPrice}${maxPrice}${status}`,
       properties,
     );
     return properties;

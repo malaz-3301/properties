@@ -20,6 +20,8 @@ import { PropertyStatus } from '../utils/enums';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ideal, weights } from '../utils/constants';
+import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
+import { FilterPropertyDto } from './dto/filter-property.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -66,26 +68,16 @@ export class PropertiesService {
     );
   }
 
-  async updateProById(id: number, updatePropertyDto: UpdatePropertyDto) {
-    return this.propertiesUpdateProvider.updateProById(id, updatePropertyDto);
+  async updateProById(id: number, updateProAdminDto: UpdateProAdminDto) {
+    return this.propertiesUpdateProvider.updateProById(id, updateProAdminDto);
   }
 
-  getAll(
-    word?: string,
-    minPrice?: string,
-    maxPrice?: string,
-    state?: PropertyStatus,
-  ) {
-    return this.propertiesGetProvider.getAll(
-      word,
-      minPrice,
-      maxPrice,
-      'ACCEPTED' as any,
-    );
+  getAll(query: FilterPropertyDto) {
+    return this.propertiesGetProvider.getAll(query);
   }
 
-  async getOnePro(id: number) {
-    return this.propertiesGetProvider.findById(id);
+  async getOnePro(proId: number, userId: number) {
+    return this.propertiesGetProvider.findById_ACT(proId, userId);
   }
 
   async getByUserId(userId: number) {
@@ -165,10 +157,6 @@ export class PropertiesService {
         voteScore: 'DESC',
       },
       take: limit,
-      select: {
-        id: true,
-        title: true,
-      },
     });
   }
 }

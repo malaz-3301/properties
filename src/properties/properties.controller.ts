@@ -1,35 +1,33 @@
 import {
-  Controller,
-  Get,
-  Post,
+  BadRequestException,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
-  ParseIntPipe,
-  UploadedFile,
-  BadRequestException,
-  UploadedFiles,
-  Res,
-  Query,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
-import { Roles } from '../auth/decorators/user-role.decorator';
-import { UserType } from '../utils/enums';
-import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
+import { PropertyStatus } from '../utils/enums';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayloadType } from '../utils/constants';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
-import { diskStorage } from 'multer';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+import { FilterPropertyDto } from './dto/filter-property.dto';
 
 //@UseInterceptors(CacheInterceptor)
 @Controller('property')
@@ -64,17 +62,11 @@ export class PropertiesController {
   @Get('all')
   @UseGuards(AuthGuard)
   getAllAccepted(
-    @Query('word') word: string,
-    @Query('minPrice') minPrice: string,
-    @Query('maxPrice') maxPrice: string,
+    @Query() query: FilterPropertyDto,
     @CurrentUser() user: JwtPayloadType,
   ) {
-    return this.propertiesService.getAll(
-      word,
-      minPrice,
-      maxPrice,
-      'ACCEPTED' as any,
-    );
+    query.status = PropertyStatus.ACCEPTED;
+    return this.propertiesService.getAll(query);
   }
 
   @Get('my')
@@ -85,10 +77,14 @@ export class PropertiesController {
   }
 
   @Get(':proId')
+  @UseGuards(AuthGuard)
   @UseInterceptors(CacheInterceptor)
   @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
-  getOnePro(@Param('proId', ParseIntPipe) proId: number) {
-    return this.propertiesService.getOnePro(proId);
+  getOnePro(
+    @Param('proId', ParseIntPipe) proId: number,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
+    return this.propertiesService.getOnePro(proId, user.id);
   }
 
   //delete Dto change cwd

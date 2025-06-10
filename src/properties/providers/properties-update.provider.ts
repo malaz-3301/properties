@@ -20,16 +20,16 @@ export class PropertiesUpdateProvider {
     updatePropertyDto: UpdatePropertyDto,
   ) {
     await this.propertiesGetProvider.MyProperty(id, userId);
-    return this.propertyRepository.update(id,updatePropertyDto);
+    return this.propertyRepository.update(id, updatePropertyDto);
   }
 
   async updateProById(id: number, updatePropertyDto: UpdatePropertyDto) {
     await this.propertiesGetProvider.findById(id);
-    return this.propertyRepository.update(id ,updatePropertyDto);
+    return this.propertyRepository.update(id, updatePropertyDto);
   }
 
-    async updateStateProById(id: number, state : PropertyStatus) {
+  async updateStatusProById(id: number, status: PropertyStatus) {
     await this.propertiesGetProvider.findById(id);
-    return this.propertyRepository.update(id ,{state : state});
+    return this.propertyRepository.update(id, { status: status });
   }
 }

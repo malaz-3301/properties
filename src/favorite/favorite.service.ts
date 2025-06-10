@@ -20,8 +20,8 @@ export class FavoriteService {
     });
   }
 
-  async isFavorite(userId: number, propetyId: number) {
-    const isFavorite = await this.findFavorite(userId, propetyId);
+  async isFavorite(userId: number, proId: number) {
+    const isFavorite = await this.findFavorite(userId, proId);
     return Boolean(isFavorite);
   }
 
@@ -55,7 +55,7 @@ export class FavoriteService {
           area: true,
           price: true,
           firstImage: true,
-          state: true,
+          status: true,
           isForRent: true,
           propertyType: true,
           location: {

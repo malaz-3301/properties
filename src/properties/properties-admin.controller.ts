@@ -5,16 +5,18 @@ import {
   Get,
   Param,
   Patch,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { Roles } from '../auth/decorators/user-role.decorator';
-import { UserType } from '../utils/enums';
-import { UpdatePropertyDto } from './dto/update-property.dto';
+import { PropertyStatus, UserType } from '../utils/enums';
 import { AuditInterceptor } from '../utils/interceptors/audit.interceptor';
 import { SkipThrottle } from '@nestjs/throttler';
+import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
+import { FilterPropertyDto } from './dto/filter-property.dto';
 
 @SkipThrottle()
 @Controller('propertyA')
@@ -27,17 +29,26 @@ export class PropertiesAdminController {
   @UseInterceptors(AuditInterceptor)
   updateProById(
     @Param('id') id: string,
-    @Body() updatePropertyDto: UpdatePropertyDto,
+    @Body() updateProAdminDto: UpdateProAdminDto,
   ) {
-    return this.propertiesService.updateProById(+id, updatePropertyDto);
+    return this.propertiesService.updateProById(+id, updateProAdminDto);
   }
 
   @Get()
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
-  getAll() {
-    return this.propertiesService.getAll();
+  getAll(@Query() query: FilterPropertyDto) {
+    return this.propertiesService.getAll(query);
+  }
+
+  @Get('pending')
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+  @UseInterceptors(AuditInterceptor)
+  getAllPending(@Query() query: FilterPropertyDto) {
+    query.status = PropertyStatus.PENDING;
+    return this.propertiesService.getAll(query);
   }
 
   @Delete('delete')

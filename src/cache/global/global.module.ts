@@ -14,10 +14,14 @@ import { ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
         return {
-          ttl: 6 * 1000, //redis
+          ttl: config.get<number>('REDIS_KEY_EXPIRES'), //redis
           stores: [
+            //
             new Keyv({
-              store: new CacheableMemory({ ttl: 4 * 1000, lruSize: 5000 }), //cache
+              store: new CacheableMemory({
+                ttl: config.get<number>('CACHE_KEY_EXPIRES'),
+                lruSize: 5000,
+              }), //cache
             }),
             createKeyv(config.get<string>('REDIS')),
           ],

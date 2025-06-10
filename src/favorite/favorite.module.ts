@@ -10,5 +10,6 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [AuthModule, TypeOrmModule.forFeature([Favorite])],
   providers: [FavoriteService],
   controllers: [FavoriteController],
+  exports: [FavoriteService],
 })
 export class FavoriteModule {}

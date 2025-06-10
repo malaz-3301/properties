@@ -17,9 +17,6 @@ export class VotesService {
     @InjectRepository(Vote) private voteRepository: Repository<Vote>,
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    private readonly usersGetProvider: UsersGetProvider,
     private readonly propertiesGetProvider: PropertiesGetProvider,
     private readonly propertiesVoViProvider: PropertiesVoViProvider,
     private readonly usersVoViProvider: UsersVoViProvider,
@@ -130,5 +127,15 @@ export class VotesService {
       'priorityScore',
       value * 3,
     );
+  }
+
+  async isVote(proId: number, userId: number) {
+    const isVote = await this.voteRepository.findOne({
+      where: {
+        property: { id: proId },
+        user: { id: userId },
+      },
+    });
+    return Boolean(isVote);
   }
 }

@@ -22,16 +22,19 @@ import { PropertiesAdminController } from './properties-admin.controller';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { AuditModule } from '../audit/audit.module';
 import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
-import { CacheModule } from '@nestjs/cache-manager';
-import { GlobalCacheModule } from '../cache/global/global.module';
+import { FavoriteModule } from '../favorite/favorite.module';
+import { VotesModule } from '../votes/votes.module';
+import { VotesService } from '../votes/votes.service';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Property]),
     AuthModule,
     UsersModule,
     GeolocationModule,
     AuditModule,
-    TypeOrmModule.forFeature([Property]),
+    FavoriteModule,
+
     MulterModule.registerAsync({
       imports: [forwardRef(() => PropertiesModule)],
       inject: [PropertiesService],
@@ -79,6 +82,7 @@ import { GlobalCacheModule } from '../cache/global/global.module';
         };
       },
     }),
+    VotesModule,
   ],
   controllers: [PropertiesController, PropertiesAdminController],
   providers: [
@@ -91,9 +95,11 @@ import { GlobalCacheModule } from '../cache/global/global.module';
   ],
   exports: [
     PropertiesService,
+    PropertiesUpdateProvider,
+    PropertiesImgProvider,
+    PropertiesDelProvider,
     PropertiesGetProvider,
     PropertiesVoViProvider,
-    PropertiesUpdateProvider,
   ],
 })
 export class PropertiesModule {}

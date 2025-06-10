@@ -69,7 +69,7 @@ export abstract class Property extends Estate {
     //make it Pending
     default: PropertyStatus.ACCEPTED,
   })
-  state: PropertyStatus;
+  status: PropertyStatus;
 
   @Column({ type: 'varchar', nullable: true, default: null })
   propertyImage: string | null;

@@ -20,8 +20,9 @@ export class RequestsService {
     private readonly requestRepository: Repository<Request>,
     private readonly contractService: ContractsService,
     private readonly notificationService: NotificationsService,
-    private readonly propertiesUpdateProvider: PropertiesUpdateProvider
+    private readonly propertiesUpdateProvider: PropertiesUpdateProvider,
   ) {}
+
   async create(createRequestDto: CreateRequestDto, userId: number) {
     const exists = await this.requestRepository.findOne({
       where: {
@@ -87,7 +88,7 @@ export class RequestsService {
     const newContract = await this.contractService.create(accept.user.id, {
       propertyId: accept.property.id,
       time: accept.time,
-      price : accept.time
+      price: accept.time,
     });
     // console.log(accept.property);
 
@@ -95,7 +96,7 @@ export class RequestsService {
       {
         message: 'the owner accept your request',
         propertyId: accept.property.id,
-        title : 'notification'
+        title: 'notification',
       },
       accept.user.id,
     );
@@ -106,7 +107,10 @@ export class RequestsService {
       userId,
     );
 
-    await this.propertiesUpdateProvider.updateStateProById(accept.property.id, PropertyStatus.HIDDEN );
+    await this.propertiesUpdateProvider.updateStatusProById(
+      accept.property.id,
+      PropertyStatus.HIDDEN,
+    );
     return newContract;
   }
 
@@ -144,11 +148,14 @@ export class RequestsService {
     }
 
     const notifications = rejects.map((reject) => {
-      return this.notificationService.create({
-        message: 'the owner reject your request',
-        propertyId: reject.property.id,
-        title : 'notification'
-      },reject.user.id);
+      return this.notificationService.create(
+        {
+          message: 'the owner reject your request',
+          propertyId: reject.property.id,
+          title: 'notification',
+        },
+        reject.user.id,
+      );
     });
 
     return this.requestRepository.delete(

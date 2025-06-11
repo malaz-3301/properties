@@ -16,7 +16,9 @@ export class UsersGetProvider {
   ) {}
 
   public async findById(id: number) {
-    const user = await this.usersRepository.findOneBy({ id: id });
+    const user = await this.usersRepository.findOne({where : { id: id }, relations : ['property']});
+    console.log('fksdj');
+    
     if (!user) {
       throw new NotFoundException('User Not Found');
     }

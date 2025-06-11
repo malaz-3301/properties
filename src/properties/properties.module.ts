@@ -2,7 +2,6 @@ import {
   BadRequestException,
   forwardRef,
   Module,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
@@ -24,7 +23,6 @@ import { AuditModule } from '../audit/audit.module';
 import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
 import { FavoriteModule } from '../favorite/favorite.module';
 import { VotesModule } from '../votes/votes.module';
-import { VotesService } from '../votes/votes.service';
 
 @Module({
   imports: [
@@ -34,7 +32,7 @@ import { VotesService } from '../votes/votes.service';
     GeolocationModule,
     AuditModule,
     FavoriteModule,
-
+    forwardRef(() => VotesModule),
     MulterModule.registerAsync({
       imports: [forwardRef(() => PropertiesModule)],
       inject: [PropertiesService],
@@ -82,7 +80,6 @@ import { VotesService } from '../votes/votes.service';
         };
       },
     }),
-    VotesModule,
   ],
   controllers: [PropertiesController, PropertiesAdminController],
   providers: [

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,12 +16,14 @@ import { User } from '../users/entities/user.entity';
 import { PropertiesVoViProvider } from '../properties/providers/properties-vo-vi.provider';
 import { UsersVoViProvider } from '../users/providers/users-vo-vi.provider';
 
+//forwardRef(() كسر دائرة الاعتماد
 @Injectable()
 export class VotesService {
   constructor(
     @InjectRepository(Vote) private voteRepository: Repository<Vote>,
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
+    @Inject(forwardRef(() => PropertiesGetProvider))
     private readonly propertiesGetProvider: PropertiesGetProvider,
     private readonly propertiesVoViProvider: PropertiesVoViProvider,
     private readonly usersVoViProvider: UsersVoViProvider,

@@ -37,17 +37,19 @@ export class UsersOtpProvider {
       await this.usersRepository.delete({ id: id });
       throw new BadRequestException('(: (: (:(: hhh');
     }
-    await this.otpTokenTimer(user); //Limiter & Timer
+    await this.otpTokenTimer_Limiter(user); //Limiter & Timer
     //verify
     const isCode = await bcrypt.compare(code, user.otpEntity.otpCode);
     if (!isCode) {
-      console.log('dd : ' + code);
+      //ادخال كود خاطئ
+      console.log('Code : ' + code);
       user.otpEntity.otpTries += 1;
       await this.usersRepository.save(user);
       throw new UnauthorizedException('Code is incorrect');
     }
-    user.isAccountVerified = true;
-    user.otpEntity.otpTries = 0;
+    //اذا الكود صحيح
+    user.isAccountVerified = true; // الحساب محقق
+    await this.otpEntityRepository.delete(user.id); //حذفه للسطر
     user.otpEntity.passChangeAccess = true; //مو دائما بحاجتها resetAccount
 
     await this.usersRepository.save(user);
@@ -61,10 +63,13 @@ export class UsersOtpProvider {
     };
   }
 
-  async otpTokenTimer(user: User) {
+  /*
+   عملية ضمن otpVerify للتأكد من صلاحية وقت التوكين و منع القوة الغاشمة
+   */
+  async otpTokenTimer_Limiter(user: User) {
     //createAt for Expire
     //Expire
-    const createdAtTimestamp = user.createdAt.getTime();
+    const createdAtTimestamp = user.otpEntity.createdAt.getTime();
     const expireInSec = (Date.now() - createdAtTimestamp) / 1000;
     console.log('Date.now()  : ' + new Date(Date.now()));
     console.log('createdAt : ' + createdAtTimestamp);
@@ -85,32 +90,39 @@ export class UsersOtpProvider {
     }
   }
 
-  async otpReSend(id: number) {
-    const user = await this.usersGetProvider.findByIdOtp(id);
-    if (user.isAccountVerified) {
+  /*
+  -جبلي المستخدم مع علاقة بالotp
+  -شفلي اذا المستخدم موجود
+  -شفلي اذا الحساب محقق من قبل
+  -شفلي اخر وقت طلب فيه الكود updatedAt
+  -ولد كود وصفر المحاولات الخاطئة
+  createdAt حدث اخر وقت لطلب كود updatedAt وحدث وقت صلاحية الكود-
+   */
+  async otpReSend(userId: number, DontSkip: boolean = true) {
+    const user = await this.usersGetProvider.findByIdOtp(userId); //otp select
+    if (user.isAccountVerified && DontSkip) {
       throw new BadRequestException('Your account has been verified');
     }
+
     //اختبار  وقت اخر طلب كود
-    const updateAtTimestamp = user.updatedAt.getTime();
+    const updateAtTimestamp = user.otpEntity.updatedAt.getTime();
     const LastReqInSec = (Date.now() - updateAtTimestamp) / 1000;
     console.log('LastReqInSec : ' + LastReqInSec);
-    //660
-    if (LastReqInSec < 120) {
+    //240
+    if (LastReqInSec < 240) {
+      console.log('UnauthorizedException Time');
       throw new UnauthorizedException(`${await this.otpTimer(user.id)}`);
     }
     //مر خمس دقائق خود كود
     //OTP
     const code = Math.floor(10000 + Math.random() * 90000).toString();
-    const otpCode = await this.hashCode(code);
-    const otpTries = 0; //تصفير المحاولات
-    user.createdAt = new Date(); // وقتت جديد للتوكين
-    user.updatedAt = new Date(); // وقت جديد لامكانية الطلب
+    user.otpEntity.otpCode = await this.hashCode(code);
+    user.otpEntity.otpTries = 0; //تصفير المحاولات الخاطئة
+    user.otpEntity.createdAt = new Date(); // verify وقتت جديد للتوكين
+    user.otpEntity.updatedAt = new Date(); // وقت جديد لامكانية الطلب
     await this.usersRepository.save(user);
-    await this.otpEntityRepository.update(user.id, {
-      otpTries: otpTries,
-      otpCode,
-    });
-    await this.sendSms('0930983492', `Your Key is ${code}`);
+
+    await this.sendSms(user.phone, `Your Key is ${code}`);
     return {
       message: 'Check your phone messages',
       signUpButton: true,
@@ -167,5 +179,12 @@ export class UsersOtpProvider {
       console.log('Failed to send message');
       throw new HttpException('Failed to send message', HttpStatus.BAD_GATEWAY);
     }
+  }
+
+  async otpCreate(userId: number) {
+    await this.otpEntityRepository.save({
+      user: { id: userId },
+    });
+    return await this.otpReSend(userId, false);
   }
 }

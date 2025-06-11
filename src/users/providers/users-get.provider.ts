@@ -35,7 +35,7 @@ export class UsersGetProvider {
       },
     });
     if (!user) {
-      throw new NotFoundException('User Not Found');
+      throw new NotFoundException('User or otp Not Found');
     }
     /*    if (user.userType === UserType.SUPER_ADMIN) {
           throw new UnauthorizedException("You Can't");

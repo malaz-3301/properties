@@ -52,7 +52,9 @@ export class User {
   @Column({ type: 'boolean', default: false })
   isAccountVerified: boolean;
 
-  @OneToOne(() => OtpEntity, (otpEntity) => otpEntity.user)
+  @OneToOne(() => OtpEntity, (otpEntity) => otpEntity.user, {
+    cascade: true,
+  })
   otpEntity: OtpEntity;
 
   @OneToMany(() => Property, (property: Property) => property.user)
@@ -107,9 +109,9 @@ export class User {
   @OneToMany(() => View, (view) => view.user, { cascade: true })
   views?: View[];
 
-  @OneToMany(()=>Request, (requests)=>requests.user)
-  requests : Request[]
+  @OneToMany(() => Request, (requests) => requests.user)
+  requests: Request[];
 
   @Column()
-  token : string;
+  token: string;
 }

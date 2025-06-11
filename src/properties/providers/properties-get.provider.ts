@@ -15,7 +15,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
-import { PropertyStatus } from '../../utils/enums';
+
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { FilterPropertyDto } from '../dto/filter-property.dto';
 import { FavoriteService } from '../../favorite/favorite.service';
@@ -28,7 +28,8 @@ export class PropertiesGetProvider {
     private propertyRepository: Repository<Property>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly favoriteService: FavoriteService,
-    //private readonly votesService: VotesService,
+    @Inject(forwardRef(() => VotesService))
+    private readonly votesService: VotesService,
   ) {}
 
   async getByUserId(userId: number) {

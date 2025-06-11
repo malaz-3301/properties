@@ -71,9 +71,10 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-    const code = Math.floor(10000 + Math.random() * 90000).toString();
-    const otpCode = await this.usersOtpProvider.hashCode(code);
-    await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
+    /*   حذف const code = Math.floor(10000 + Math.random() * 90000).toString();
+        const otpCode = await this.usersOtpProvider.hashCode(code);*/
+    return await this.usersOtpProvider.otpCreate(user.id); //لأنك حذفته و ارسال
+
     //otpVerify
   }
 
@@ -83,7 +84,11 @@ export class AuthService {
       resetPasswordDto.password,
     );
     if (user.otpEntity.passChangeAccess) {
-      await this.usersRepository.update(userId, { password: user.password });
+      user.otpEntity.passChangeAccess = false;
+      await this.usersRepository.update(userId, {
+        password: user.password,
+        otpEntity: user.otpEntity,
+      });
     }
   }
 

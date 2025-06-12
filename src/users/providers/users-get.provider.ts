@@ -29,7 +29,7 @@ export class UsersGetProvider {
   public async findUserProById(id: number) {
     const user = await this.usersRepository.findOne({
       where: { id: id },
-      relations: ['property'],
+      relations: { properties: true },
     });
     if (!user) {
       throw new NotFoundException('User Not Found');

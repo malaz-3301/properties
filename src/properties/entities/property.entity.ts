@@ -67,7 +67,7 @@ export abstract class Property extends Estate {
     type: 'enum',
     enum: PropertyStatus,
     //make it Pending
-    default: PropertyStatus.ACCEPTED,
+    default: PropertyStatus.PENDING,
   })
   status: PropertyStatus;
 

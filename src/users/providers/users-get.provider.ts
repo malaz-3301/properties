@@ -16,9 +16,21 @@ export class UsersGetProvider {
   ) {}
 
   public async findById(id: number) {
-    const user = await this.usersRepository.findOne({where : { id: id }, relations : ['property']});
-    console.log('fksdj');
-    
+    const user = await this.usersRepository.findOneBy({ id: id });
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+    /*    if (user.userType === UserType.SUPER_ADMIN) {
+          throw new UnauthorizedException("You Can't");
+        }*/
+    return user;
+  }
+
+  public async findUserProById(id: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      relations: ['property'],
+    });
     if (!user) {
       throw new NotFoundException('User Not Found');
     }

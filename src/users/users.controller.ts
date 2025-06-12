@@ -115,8 +115,8 @@ export class UsersController {
     return this.usersService.setUserPlan(user.id, planId);
   }
 
-  @Get(':id')
-  findUserById(@Param('id', ParseIntPipe) id : number) {
-    return this.usersService.getUserById(id);
+  @Get('pro/:id')
+  findUserProById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findUserProById(id);
   }
 }

@@ -5,5 +5,5 @@ import { IsEnum } from 'class-validator';
 
 export class UpdateProAdminDto extends PartialType(CreatePropertyDto) {
   @IsEnum(PropertyStatus)
-  state: PropertyStatus;
+  status: PropertyStatus;
 }

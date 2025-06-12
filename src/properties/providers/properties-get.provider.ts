@@ -87,11 +87,11 @@ export class PropertiesGetProvider {
       throw new NotFoundException('Property not found');
     }
     const isFavorite = await this.favoriteService.isFavorite(userId, proId);
-    //const voteValue = await this.votesService.isVote(proId, userId);
+    const voteValue = await this.votesService.isVote(proId, userId);
     return {
       ...property,
       isFavorite,
-      //  voteValue,
+      voteValue,
     };
   }
 

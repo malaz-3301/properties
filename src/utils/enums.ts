@@ -32,8 +32,6 @@ export enum HeatingType {
   CENTRAL = 'Central',
   GAS = 'Gas',
   ELECTRIC = 'Electric',
-  UNDERFLOOR = 'Underfloor',
-  WOOD = 'Wood',
   SOLAR = 'Solar',
   NONE = 'None',
 }

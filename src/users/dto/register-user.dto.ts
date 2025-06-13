@@ -40,5 +40,5 @@ export class RegisterUserDto {
   @IsString()
   @IsNotEmpty()
   @IsAscii()
-  token : string;
+  token: string;
 }

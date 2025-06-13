@@ -61,6 +61,7 @@ export class PropertiesController {
 
   @Get('all')
   @UseGuards(AuthGuard)
+  @UseInterceptors(CacheInterceptor)
   getAllAccepted(
     @Query() query: FilterPropertyDto,
     @CurrentUser() user: JwtPayloadType,
@@ -71,7 +72,6 @@ export class PropertiesController {
 
   @Get('my')
   @UseGuards(AuthGuard)
-  @UseInterceptors(CacheInterceptor)
   getMyPro(@CurrentUser() user: JwtPayloadType) {
     return this.propertiesService.getByUserId(user.id);
   }

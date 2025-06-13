@@ -36,7 +36,7 @@ export class FavoriteController {
   @UseGuards(AuthGuard)
   isFavorite(
     @CurrentUser() user: JwtPayloadType,
-    @Param('prod', ParseIntPipe) proId: number,
+    @Param('proId', ParseIntPipe) proId: number,
   ) {
     return this.favoriteService.isFavorite(user.id, proId);
   }

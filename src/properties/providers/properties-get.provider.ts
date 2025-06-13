@@ -33,6 +33,7 @@ export class PropertiesGetProvider {
   ) {}
 
   async getByUserId(userId: number) {
+    console.log('fffffff');
     return this.propertyRepository.find({
       where: { user: { id: userId } },
     });

@@ -17,6 +17,7 @@ import { AuditInterceptor } from '../utils/interceptors/audit.interceptor';
 import { SkipThrottle } from '@nestjs/throttler';
 import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @SkipThrottle()
 @Controller('propertyA')
@@ -38,6 +39,7 @@ export class PropertiesAdminController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
+  @UseInterceptors(CacheInterceptor)
   getAll(@Query() query: FilterPropertyDto) {
     return this.propertiesService.getAll(query);
   }

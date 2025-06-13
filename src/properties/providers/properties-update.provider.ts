@@ -5,6 +5,7 @@ import { Property } from '../entities/property.entity';
 import { Repository } from 'typeorm';
 import { PropertiesGetProvider } from './properties-get.provider';
 import { PropertyStatus } from 'src/utils/enums';
+import { UpdateProAdminDto } from '../dto/update-pro-admin.dto';
 
 @Injectable()
 export class PropertiesUpdateProvider {
@@ -23,9 +24,9 @@ export class PropertiesUpdateProvider {
     return this.propertyRepository.update(id, updatePropertyDto);
   }
 
-  async updateProById(id: number, updatePropertyDto: UpdatePropertyDto) {
+  async updateProById(id: number, updateProAdminDto: UpdateProAdminDto) {
     await this.propertiesGetProvider.findById(id);
-    return this.propertyRepository.update(id, updatePropertyDto);
+    return this.propertyRepository.update(id, updateProAdminDto);
   }
 
   async updateStatusProById(id: number, status: PropertyStatus) {

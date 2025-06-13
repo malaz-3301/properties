@@ -5,6 +5,5 @@ import { IsEmpty, IsEnum } from 'class-validator';
 
 export class UpdatePropertyDto extends PartialType(CreatePropertyDto) {
   @IsEmpty()
-  @IsEnum(PropertyStatus)
-  status: PropertyStatus;
+  status: any;
 }

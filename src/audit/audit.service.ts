@@ -19,8 +19,8 @@ export class AuditService {
     });
   }
 
-  findAll() {
-    return `This action returns all audit`;
+  async findAll() {
+    await this.auditRepository.find();
   }
 
   findOne(id: number) {

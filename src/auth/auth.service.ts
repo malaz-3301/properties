@@ -52,7 +52,10 @@ export class AuthService {
       userType: user.userType,
     });
 
-    return { accessToken };
+    return {
+      accessToken,
+      UserType: user.userType,
+    };
   }
 
   /**

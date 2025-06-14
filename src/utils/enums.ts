@@ -4,11 +4,12 @@ export enum UserType {
   NORMAL_USER = 'normal_user',
 }
 
+//ساويهن احرف كبيرة اول حرف
 export enum PropertyStatus {
   PENDING = 'pending',
   ACCEPTED = 'accepted',
-  Rejected = 'rejected',
-  HIDDEN = 'hidden',
+  Rejected = 'Rejected',
+  HIDDEN = 'Hidden',
 }
 
 export enum VehicleCondition {
@@ -64,4 +65,25 @@ export enum PlanType {
   BASIC = 'Basic',
   Platinum = 'Platinum',
   VIP = 'Vip',
+}
+
+export enum Title {
+  T1 = 'Unauthorized deletion of property by admin',
+  T2 = 'Disable notifications for a specific property',
+  T3 = 'Request a refund of the subscription fee',
+  Other = 'Other',
+}
+
+export enum Reason {
+  T1R1 = 'Too many notifications about this property',
+  T1R2 = 'No longer interested in this property',
+  T3R1 = 'Didn’t receive the advertised features',
+  T3R2 = 'Unintended auto-renewal of subscription',
+  T3R3 = 'Payment error (e.g., double charge)',
+  Other = 'Other',
+}
+
+export enum ReportStatus {
+  PENDING = 'Pending',
+  HIDDEN = 'Hidden',
 }

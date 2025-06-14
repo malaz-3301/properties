@@ -35,6 +35,7 @@ import { RequestsModule } from './requests/requests.module';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { GlobalCacheModule } from './cache/global/global.module';
 import { dataSourceOptions } from '../db/data-source';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { dataSourceOptions } from '../db/data-source';
     }),
     ViewsModule,
     RequestsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [

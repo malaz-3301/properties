@@ -7,7 +7,7 @@ export class LoginUserDto {
   @Length(9, 12)
   phone?: string;
 
-  @ValidateIf((dto) => dto.phone === null)
+  @ValidateIf((dto: LoginUserDto) => dto.phone === null)
   @IsNotEmpty()
   @IsString()
   @Length(3, 18)

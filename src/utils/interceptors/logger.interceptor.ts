@@ -5,6 +5,9 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable, tap, map } from 'rxjs';
+import { config } from 'dotenv';
+
+config({ path: '.env' });
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
@@ -13,6 +16,7 @@ export class LoggerInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     console.log('start..');
+    console.log(`Running on APP ${process.env.APP_NAME}`);
     const now = Date.now();
     return next
       .handle()

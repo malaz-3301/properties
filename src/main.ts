@@ -34,7 +34,6 @@ async function bootstrap() {
   const swagger = new DocumentBuilder().setVersion('1.0').build();
   const documentation = SwaggerModule.createDocument(app, swagger);
   SwaggerModule.setup('property-doc', app, documentation);
-
   await app.listen(process.env.PORT ?? 3000); //
 }
 

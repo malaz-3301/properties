@@ -29,6 +29,7 @@ import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { SkipThrottle } from '@nestjs/throttler';
+import { AuditInterceptor } from '../utils/interceptors/audit.interceptor';
 
 @Controller('user')
 @UseInterceptors(CacheInterceptor)
@@ -115,8 +116,15 @@ export class UsersController {
     return this.usersService.setUserPlan(user.id, planId);
   }
 
+  @Get(':id')
+  @UseGuards(AuthRolesGuard)
+  getUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getUserById(id);
+  }
+
   @Get('pro/:id')
-  findUserProById(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findUserProById(id);
+  @UseGuards(AuthGuard)
+  getUserProsById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getUserProsById(id);
   }
 }

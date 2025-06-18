@@ -22,6 +22,7 @@ import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ideal, weights } from '../utils/constants';
 import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { RejectProAdminDto } from './dto/reject-pro-admin.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -70,6 +71,10 @@ export class PropertiesService {
 
   async updateProById(id: number, updateProAdminDto: UpdateProAdminDto) {
     return this.propertiesUpdateProvider.updateProById(id, updateProAdminDto);
+  }
+
+  async rejectProById(id: number, rejectProAdminDto: RejectProAdminDto) {
+    await this.propertiesUpdateProvider.updateProById(id, rejectProAdminDto);
   }
 
   getAll(query: FilterPropertyDto) {

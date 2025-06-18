@@ -15,18 +15,19 @@ export class UsersGetProvider {
     private readonly usersRepository: Repository<User>,
   ) {}
 
+  // لاعد تسجل otp
   public async findById(id: number) {
     const user = await this.usersRepository.findOneBy({ id: id });
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-    /*    if (user.userType === UserType.SUPER_ADMIN) {
-          throw new UnauthorizedException("You Can't");
-        }*/
+    if (user.userType === (UserType.ADMIN || UserType.SUPER_ADMIN)) {
+      throw new UnauthorizedException("You Can't");
+    }
     return user;
   }
 
-  public async findUserProById(id: number) {
+  public async getUserProsById(id: number) {
     const user = await this.usersRepository.findOne({
       where: { id: id },
       relations: { properties: true },
@@ -55,5 +56,12 @@ export class UsersGetProvider {
           throw new UnauthorizedException("You Can't");
         }*/
     return user;
+  }
+
+  async getAdminById(adminId: number) {
+    return this.usersRepository.findOne({
+      where: { id: adminId },
+      relations: { audits: true },
+    });
   }
 }

@@ -1,13 +1,13 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
+  Get,
   HttpCode,
   HttpStatus,
-  Get,
-  UseGuards,
   Param,
   ParseIntPipe,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -17,6 +17,10 @@ import { JwtPayloadType } from '../utils/constants';
 import { Throttle } from '@nestjs/throttler';
 import { ResetAccountDto } from './dto/reset-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthRolesGuard } from './guards/auth-roles.guard';
+import { Roles } from './decorators/user-role.decorator';
+import { UserType } from '../utils/enums';
+import { AddAdminDto } from './dto/add-admin.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,6 +53,13 @@ export class AuthController {
   @UseGuards(AuthGuard)
   tokenTime(@CurrentUser() payload: JwtPayloadType) {
     return this.authService.tokenTime(payload);
+  }
+
+  @Post('addAdmin')
+  @Roles(UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
+  addAdmin(@Body() addAdminDto: AddAdminDto) {
+    return this.authService.addAdmin(addAdminDto);
   }
 
   @Get('me')

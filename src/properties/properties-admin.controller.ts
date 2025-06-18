@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Query,
   UseGuards,
@@ -18,6 +19,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { RejectProAdminDto } from './dto/reject-pro-admin.dto';
 
 @SkipThrottle()
 @Controller('propertyA')
@@ -29,10 +31,21 @@ export class PropertiesAdminController {
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
   updateProById(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateProAdminDto: UpdateProAdminDto,
   ) {
-    return this.propertiesService.updateProById(+id, updateProAdminDto);
+    return this.propertiesService.updateProById(id, updateProAdminDto);
+  }
+
+  @Patch('rej/:id')
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+  @UseInterceptors(AuditInterceptor)
+  rejectProById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() rejectProAdminDto: RejectProAdminDto,
+  ) {
+    return this.propertiesService.rejectProById(id, rejectProAdminDto);
   }
 
   @Get()

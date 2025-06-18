@@ -36,12 +36,11 @@ export class UsersAdminController {
     return this.usersService.updateUserById(+id, updateUserByAdminDto);
   }
 
-  @Get(':id')
+  @Get(':adminId')
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
-  @UseInterceptors(AuditInterceptor)
   @UseGuards(AuthRolesGuard)
-  getUserById(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.getUserById(id);
+  getAdminById(@Param('adminId', ParseIntPipe) adminId: number) {
+    return this.usersService.getAdminById(adminId);
   }
 
   @Delete(':id')

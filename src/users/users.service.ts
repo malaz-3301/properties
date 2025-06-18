@@ -111,8 +111,12 @@ export class UsersService {
     return this.usersGetProvider.findById(id);
   }
 
-  public async findUserProById(id: number) {
-    return this.usersGetProvider.findUserProById(id);
+  async getUserProsById(id: number) {
+    return this.usersGetProvider.getUserProsById(id);
+  }
+
+  async getAdminById(adminId: number) {
+    return this.usersGetProvider.getAdminById(adminId);
   }
 
   async deleteMe(id: number, password: string) {

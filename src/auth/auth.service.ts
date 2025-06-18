@@ -15,6 +15,7 @@ import { ResetAccountDto } from './dto/reset-account.dto';
 import { UsersOtpProvider } from '../users/providers/users-otp.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AddAdminDto } from './dto/add-admin.dto';
 
 @Injectable()
 export class AuthService {
@@ -111,5 +112,10 @@ export class AuthService {
       throw new NotFoundException('User Not Found');
     }
     return user;
+  }
+
+  async addAdmin(addAdminDto: AddAdminDto) {
+    addAdminDto['isAccountVerified'] = true;
+    await this.usersRepository.save(addAdminDto);
   }
 }

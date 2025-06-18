@@ -23,8 +23,8 @@ export class AuditService {
     await this.auditRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} audit`;
+  async findOne(id: number) {
+    await this.auditRepository.findOneBy({ id: id });
   }
 
   update(id: number, updateAuditDto: UpdateAuditDto) {

@@ -9,6 +9,7 @@ import { Property } from '../entities/property.entity';
 import { Repository } from 'typeorm';
 import { PropertiesService } from '../properties.service';
 import { PropertiesGetProvider } from './properties-get.provider';
+import { UsersVoViProvider } from '../../users/providers/users-vo-vi.provider';
 
 @Injectable()
 export class PropertiesDelProvider {
@@ -16,6 +17,7 @@ export class PropertiesDelProvider {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private readonly propertiesGetProvider: PropertiesGetProvider,
+    private readonly usersVoViProvider: UsersVoViProvider,
   ) {}
 
   async deleteMyPro(proId: number, userId: number, password: string) {
@@ -32,6 +34,7 @@ export class PropertiesDelProvider {
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');
     }
+    await this.usersVoViProvider.incrementTotalProperties(userId, -1);
     return this.propertyRepository.delete({ id: proId });
   }
 

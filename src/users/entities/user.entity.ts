@@ -24,6 +24,7 @@ import { Notification } from 'src/notifications/entities/notification.entity';
 import { Audit } from '../../audit/entities/audit.entity';
 import { View } from '../../views/entities/view.entity';
 import { Request } from 'src/requests/entities/request.entity';
+import { Statistics } from './statistics.entity';
 
 @Entity('users')
 export class User {
@@ -57,17 +58,16 @@ export class User {
   })
   otpEntity: OtpEntity;
 
+  @OneToOne(() => Statistics, (statistics) => statistics.user, {
+    cascade: true,
+  })
+  statistics?: Statistics;
+
   @OneToMany(() => Property, (property: Property) => property.user)
   properties?: Property[];
 
   @OneToMany(() => Vote, (vote: Vote) => vote.user)
   votes?: Vote[];
-
-  @Column({ default: 0 })
-  totalVoteScore: number;
-
-  @Column({ default: 0 })
-  totalViewCount: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;

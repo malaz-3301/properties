@@ -26,10 +26,11 @@ import { OtpEntity } from './entities/otp.entity';
 import { AuditModule } from '../audit/audit.module';
 import { UsersVoViProvider } from './providers/users-vo-vi.provider';
 import { GlobalCacheModule } from '../cache/global/global.module';
+import { Statistics } from './entities/statistics.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Plan, Order, OtpEntity]),
+    TypeOrmModule.forFeature([User, Plan, Order, OtpEntity, Statistics]),
     AuthModule,
     HttpModule,
     GeolocationModule,

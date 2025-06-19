@@ -23,6 +23,7 @@ import { ideal, weights } from '../utils/constants';
 import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { RejectProAdminDto } from './dto/reject-pro-admin.dto';
+import { UsersVoViProvider } from '../users/providers/users-vo-vi.provider';
 
 @Injectable()
 export class PropertiesService {
@@ -30,6 +31,7 @@ export class PropertiesService {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private readonly usersOtpProvider: UsersOtpProvider,
+    private readonly usersVoViProvider: UsersVoViProvider,
     private readonly geolocationService: GeolocationService,
     private readonly usersGetProvider: UsersGetProvider,
     private readonly propertiesUpdateProvider: PropertiesUpdateProvider,
@@ -50,10 +52,13 @@ export class PropertiesService {
       ...createPropertyDto,
       firstImage: 'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
       location: location,
-      user: { id: user.id },
+      user: {
+        id: user.id,
+      },
     });
     await this.propertyRepository.save(newProperty);
     await this.computePropertySuitability(newProperty);
+    await this.usersVoViProvider.incrementTotalProperties(user.id, 1);
     return newProperty.id;
   }
 

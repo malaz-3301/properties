@@ -36,6 +36,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 import { GlobalCacheModule } from './cache/global/global.module';
 import { dataSourceOptions } from '../db/data-source';
 import { ReportsModule } from './reports/reports.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { ReportsModule } from './reports/reports.module';
     ViewsModule,
     RequestsModule,
     ReportsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

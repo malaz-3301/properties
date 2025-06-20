@@ -46,6 +46,7 @@ export class PropertiesGetProvider {
     if (!property) {
       throw new NotFoundException('property not found!');
     }
+
     return property;
   }
 
@@ -53,7 +54,7 @@ export class PropertiesGetProvider {
     const property = await this.propertyRepository.findOne({
       where: { id: proId },
       relations: { user: true },
-      select: { user: { id: true } },
+      select: { user: { id: true, phone: true } },
     });
     if (!property) {
       throw new NotFoundException('Property not found');

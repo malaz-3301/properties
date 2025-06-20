@@ -119,6 +119,10 @@ export class UsersService {
     return this.usersGetProvider.getAdminById(adminId);
   }
 
+  async getAllAdmins() {
+    return this.usersGetProvider.getAllAdmins();
+  }
+
   async deleteMe(id: number, password: string) {
     return this.usersDelProvider.deleteMe(id, password);
   }

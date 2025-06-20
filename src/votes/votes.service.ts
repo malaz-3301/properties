@@ -129,11 +129,21 @@ export class VotesService {
 
   //نقاط الظهور %30
   async priorityScore(proId: number, value: number) {
-    return this.propertyRepository.increment(
-      { id: proId },
-      'priorityScore',
-      value * 3,
-    );
+    const property = await this.propertiesGetProvider.findById(proId);
+    const safeScore = Math.max(property.voteScore, 0); // يمنع السالب
+    const weight = Math.log10(safeScore + 1) * (30 / Math.log10(1000 + 1));
+    const max = Math.min(weight, 30);
+    console.log('max', max);
+    //شيل القديمة وحط الجديدة
+
+    const priorityScoreRate =
+      property.priorityScoreRate -
+      property.priorityScoreEntity.voteScoreRate +
+      max;
+    return await this.propertyRepository.update(proId, {
+      priorityScoreEntity: { voteScoreRate: max },
+      priorityScoreRate: priorityScoreRate,
+    });
   }
 
   async isVote(proId: number, userId: number) {

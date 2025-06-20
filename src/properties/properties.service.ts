@@ -24,6 +24,7 @@ import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { RejectProAdminDto } from './dto/reject-pro-admin.dto';
 import { UsersVoViProvider } from '../users/providers/users-vo-vi.provider';
+import { AcceptProAdminDto } from './dto/accept-pro-admin.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -74,12 +75,19 @@ export class PropertiesService {
     );
   }
 
-  async updateProById(id: number, updateProAdminDto: UpdateProAdminDto) {
-    return this.propertiesUpdateProvider.updateProById(id, updateProAdminDto);
+  async updateProById(ProId: number, updateProAdminDto: UpdateProAdminDto) {
+    return this.propertiesUpdateProvider.updateProById(
+      ProId,
+      updateProAdminDto,
+    );
   }
 
-  async rejectProById(id: number, rejectProAdminDto: RejectProAdminDto) {
-    await this.propertiesUpdateProvider.updateProById(id, rejectProAdminDto);
+  async acceptProById(ProId: number, acceptProAdminDto: AcceptProAdminDto) {
+    await this.propertiesUpdateProvider.acceptProById(ProId, acceptProAdminDto);
+  }
+
+  async rejectProById(ProId: number, rejectProAdminDto: RejectProAdminDto) {
+    await this.propertiesUpdateProvider.rejectProById(ProId, rejectProAdminDto);
   }
 
   getAll(query: FilterPropertyDto) {
@@ -94,8 +102,8 @@ export class PropertiesService {
     return this.propertiesGetProvider.getByUserId(userId);
   }
 
-  async MyProperty(id: number, userId: number) {
-    return this.propertiesImgProvider.MyProperty(id, userId);
+  async MyProperty(ProId: number, userId: number) {
+    return this.propertiesImgProvider.MyProperty(ProId, userId);
   }
 
   async deleteMyPro(proId: number, userId: number, password: string) {
@@ -154,11 +162,10 @@ export class PropertiesService {
     priceScore = Math.max(0, Math.min(1, priceScore));
     score += weights.price * priceScore;
     // ideal score = 100
-    return await this.propertyRepository.increment(
-      { id: property.id },
-      'priorityScore',
-      score / 2,
-    );
+    property.priorityScoreEntity.suitabilityScoreRate = score / 2;
+    property.priorityScoreRate += score / 2;
+    console.log('computeeee');
+    return await this.propertyRepository.save(property);
   }
 
   getTopScorePro(limit: number) {

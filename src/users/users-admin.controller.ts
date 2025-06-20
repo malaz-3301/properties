@@ -37,10 +37,17 @@ export class UsersAdminController {
   }
 
   @Get(':adminId')
-  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+  @Roles(UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
   getAdminById(@Param('adminId', ParseIntPipe) adminId: number) {
     return this.usersService.getAdminById(adminId);
+  }
+
+  @Get('getAdmins')
+  @Roles(UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
+  getAllAdmins() {
+    return this.usersService.getAllAdmins();
   }
 
   @Delete(':id')

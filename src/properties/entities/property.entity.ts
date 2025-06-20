@@ -26,6 +26,7 @@ import { Vote } from '../../votes/entities/vote.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { View } from '../../views/entities/view.entity';
 import { Request } from 'src/requests/entities/request.entity';
+import { PriorityScoreEntity } from './priority-score.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -60,8 +61,20 @@ export abstract class Property extends Estate {
   @Column(() => Location) //embedded
   location: Location;
 
+  @Column(() => PriorityScoreEntity) //embedded
+  priorityScoreEntity: PriorityScoreEntity;
+
+  @Column({ type: 'float', default: 0 })
+  priorityScoreRate: number;
+
   @Column({ default: false })
   isForRent: boolean;
+
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  acceptCount: number;
 
   @Column({
     type: 'enum',
@@ -88,9 +101,6 @@ export abstract class Property extends Estate {
 
   @Column({ default: 0 })
   viewCount: number;
-
-  @Column({ default: 0 })
-  priorityScore: number;
 
   @Column()
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })

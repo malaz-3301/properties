@@ -20,6 +20,7 @@ import { UpdateProAdminDto } from './dto/update-pro-admin.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { RejectProAdminDto } from './dto/reject-pro-admin.dto';
+import { AcceptProAdminDto } from './dto/accept-pro-admin.dto';
 
 @SkipThrottle()
 @Controller('propertyA')
@@ -35,6 +36,17 @@ export class PropertiesAdminController {
     @Body() updateProAdminDto: UpdateProAdminDto,
   ) {
     return this.propertiesService.updateProById(id, updateProAdminDto);
+  }
+
+  @Patch('acc/:proId')
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+  @UseInterceptors(AuditInterceptor)
+  acceptProById(
+    @Param('proId', ParseIntPipe) proId: number,
+    @Body() acceptProAdminDto: AcceptProAdminDto,
+  ) {
+    return this.propertiesService.acceptProById(proId, acceptProAdminDto);
   }
 
   @Patch('rej/:id')

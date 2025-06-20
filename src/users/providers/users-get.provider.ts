@@ -64,4 +64,16 @@ export class UsersGetProvider {
       relations: { audits: true },
     });
   }
+
+  async getAllUsers() {
+    return this.usersRepository.find();
+  }
+
+  async getAllAdmins() {
+    return this.usersRepository.find({
+      where: {
+        userType: UserType.ADMIN,
+      },
+    });
+  }
 }

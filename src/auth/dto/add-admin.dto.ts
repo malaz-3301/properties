@@ -27,18 +27,8 @@ export class AddAdminDto {
   @Length(14, 20)
   password: string;
 
-  @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => PointsDto)
-  pointsDto: PointsDto;
-
   @IsOptional()
   @IsNumber()
   @Min(16, { message: 'Age must not be less than 16' })
   age?: number;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsAscii()
-  token: string;
 }

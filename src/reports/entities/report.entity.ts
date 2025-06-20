@@ -1,5 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ReportStatus, Title } from '../../utils/enums';
+import { CURRENT_TIMESTAMP } from '../../utils/constants';
 
 @Entity()
 export class Report {
@@ -20,4 +26,7 @@ export class Report {
 
   @Column({ type: 'enum', enum: ReportStatus, default: ReportStatus.PENDING })
   reportStatus: ReportStatus;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
+  createdAt: Date;
 }

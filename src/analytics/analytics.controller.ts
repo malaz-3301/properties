@@ -1,7 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { CreateAnalyticsDto } from './dto/create-analytics.dto';
 import { UpdateAnalyticsDto } from './dto/update-analytics.dto';
+import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
+import { Roles } from '../auth/decorators/user-role.decorator';
+import { UserType } from '../utils/enums';
 
 @Controller('analytics')
 export class AnalyticsController {
@@ -13,6 +25,8 @@ export class AnalyticsController {
   }
 
   @Get()
+  @Roles(UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
   findAll() {
     return this.analyticsService.findAll();
   }
@@ -23,7 +37,10 @@ export class AnalyticsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAnalyticsDto: UpdateAnalyticsDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateAnalyticsDto: UpdateAnalyticsDto,
+  ) {
     return this.analyticsService.update(+id, updateAnalyticsDto);
   }
 

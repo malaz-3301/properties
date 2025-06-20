@@ -123,15 +123,17 @@ export class VotesService {
   //انتبه ownerId
   async changeVoteValues(proId: number, value: number, ownerId: number) {
     await this.usersVoViProvider.incrementTotalVotes(ownerId, value);
-    await this.priorityScore(proId, value);
-    return await this.propertiesVoViProvider.incrementVote(proId, value);
+    await this.propertiesVoViProvider.incrementVote(proId, value);
+    return await this.priorityScore(proId, value);
   }
 
   //نقاط الظهور %30
   async priorityScore(proId: number, value: number) {
     const property = await this.propertiesGetProvider.findById(proId);
-    const safeScore = Math.max(property.voteScore, 0); // يمنع السالب
-    const weight = Math.log10(safeScore + 1) * (30 / Math.log10(1000 + 1));
+    const safeScore = Math.max(property.voteScore + value, 0); // يمنع السالب
+    const k = 10;
+    //عامل تأخير للنمو
+    const weight = Math.log10(safeScore + k) * (30 / Math.log10(1000 + 1));
     const max = Math.min(weight, 30);
     console.log('max', max);
     //شيل القديمة وحط الجديدة

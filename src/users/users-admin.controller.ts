@@ -25,6 +25,20 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('getAdmins')
+  @Roles(UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
+  getAllAdmins() {
+    return this.usersService.getAllAdmins();
+  }
+
+  @Get('/getUsers')
+  @Roles(UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
+  getAllAUsers() {
+    return this.usersService.getAllUsers();
+  }
+
   @Patch(':id')
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
@@ -41,13 +55,6 @@ export class UsersAdminController {
   @UseGuards(AuthRolesGuard)
   getAdminById(@Param('adminId', ParseIntPipe) adminId: number) {
     return this.usersService.getAdminById(adminId);
-  }
-
-  @Get('getAdmins')
-  @Roles(UserType.SUPER_ADMIN)
-  @UseGuards(AuthRolesGuard)
-  getAllAdmins() {
-    return this.usersService.getAllAdmins();
   }
 
   @Delete(':id')

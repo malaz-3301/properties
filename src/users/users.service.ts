@@ -123,6 +123,10 @@ export class UsersService {
     return this.usersGetProvider.getAllAdmins();
   }
 
+  async getAllUsers() {
+    return this.usersGetProvider.getAllUsers();
+  }
+
   async deleteMe(id: number, password: string) {
     return this.usersDelProvider.deleteMe(id, password);
   }

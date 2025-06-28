@@ -44,13 +44,17 @@ export class UsersImgProvider {
   async upgrade(userId: number, filenames: string[]) {
     const user = await this.usersGetProvider.findById(userId);
     //بقي الحذف لسا
-    length = user.docImages?.length + filenames.length;
+    const length = user.docImages?.length + filenames.length;
+
     if (length > 2) {
+      console.log(filenames.length);
+      console.log(user.docImages?.length);
+      console.log(length);
       console.log('docImages');
       const sub = length - 2;
       const forDelete = user.docImages.splice(0, sub); //حذف + عرفت الاسماء
       for (const photo of forDelete) {
-        unlinkSync(join(process.cwd(), `./images/users/docs/${photo}`)); //file path
+        unlinkSync(join(process.cwd(), `./images/users/${photo}`)); //file path
       }
     }
 

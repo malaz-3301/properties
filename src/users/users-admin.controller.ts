@@ -39,7 +39,7 @@ export class UsersAdminController {
     return this.usersService.getAllUsers();
   }
 
-  @Get(':adminId')
+  @Get('/pending')
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
   @UseInterceptors(AuditInterceptor)

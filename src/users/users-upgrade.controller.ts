@@ -21,9 +21,9 @@ import { JwtPayloadType } from '../utils/constants';
 export class UsersUpgradeController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('upload-multiple-img')
+  @Post('upgrade')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FilesInterceptor('property-images', 2))
+  @UseInterceptors(FilesInterceptor('user-images', 2))
   //function
   upgrade(
     @UploadedFiles()

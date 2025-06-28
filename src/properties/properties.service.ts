@@ -65,6 +65,9 @@ export class PropertiesService {
         owner: { id: owner.id },
         agency: { id: agency.id },
       });
+      if (owner.id === agency.id) {
+        newProperty.status = PropertyStatus.ACCEPTED;
+      }
       await manger.save(Property, newProperty);
       await this.computePropertySuitability(newProperty, manger);
       await this.usersVoViProvider.incrementTotalProperties(

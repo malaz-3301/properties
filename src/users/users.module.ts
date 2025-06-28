@@ -27,6 +27,7 @@ import { AuditModule } from '../audit/audit.module';
 import { UsersVoViProvider } from './providers/users-vo-vi.provider';
 import { GlobalCacheModule } from '../cache/global/global.module';
 import { Statistics } from './entities/statistics.entity';
+import { UsersUpgradeController } from './users-upgrade.controller';
 
 @Module({
   imports: [
@@ -44,7 +45,10 @@ import { Statistics } from './entities/statistics.entity';
           callback: (error: Error | null, filename: string) => void,
         ) {
           const prefix = `${Date.now()}-${Math.round(Math.random() * 10000)}`;
-          const filename = `${prefix}-${file.originalname}`;
+          const filename = `${prefix}-${file.originalname}`.replace(
+            /[\s,]/g,
+            '',
+          );
           callback(null, filename);
         },
       }),
@@ -60,7 +64,7 @@ import { Statistics } from './entities/statistics.entity';
       limits: { fileSize: 1024 * 1024 * 2 },
     }),
   ],
-  controllers: [UsersController, UsersAdminController],
+  controllers: [UsersController, UsersAdminController, UsersUpgradeController],
   providers: [
     UsersService,
     UsersOtpProvider,

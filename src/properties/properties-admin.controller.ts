@@ -31,33 +31,11 @@ export class PropertiesAdminController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
-  updateProById(
+  updateAdminPro(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProAdminDto: UpdateProAdminDto,
   ) {
-    return this.propertiesService.updateProById(id, updateProAdminDto);
-  }
-
-  @Patch('acc/:proId')
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
-  @UseInterceptors(AuditInterceptor)
-  acceptProById(
-    @Param('proId', ParseIntPipe) proId: number,
-    @Body() acceptProAdminDto: AcceptProAdminDto,
-  ) {
-    return this.propertiesService.acceptProById(proId, acceptProAdminDto);
-  }
-
-  @Patch('rej/:id')
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
-  @UseInterceptors(AuditInterceptor)
-  rejectProById(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() rejectProAdminDto: RejectProAdminDto,
-  ) {
-    return this.propertiesService.rejectProById(id, rejectProAdminDto);
+    return this.propertiesService.updateAdminPro(id, updateProAdminDto);
   }
 
   @Get()
@@ -82,7 +60,29 @@ export class PropertiesAdminController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
-  deleteProById(@Param('id') id: string) {
+  deleteAdminPro(@Param('id') id: string) {
     return this.propertiesService.deleteProById(+id);
   }
+
+  /*  @Patch('acc/:proId')
+    @UseGuards(AuthRolesGuard)
+    @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+    @UseInterceptors(AuditInterceptor)
+    acceptProById(
+      @Param('proId', ParseIntPipe) proId: number,
+      @Body() acceptProAdminDto: AcceptProAdminDto,
+    ) {
+      return this.propertiesService.acceptPro(proId, acceptProAdminDto);
+    }
+  
+    @Patch('rej/:id')
+    @UseGuards(AuthRolesGuard)
+    @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+    @UseInterceptors(AuditInterceptor)
+    rejectProById(
+      @Param('id', ParseIntPipe) id: number,
+      @Body() rejectProAdminDto: RejectProAdminDto,
+    ) {
+      return this.propertiesService.rejectPro(id, rejectProAdminDto);
+    }*/
 }

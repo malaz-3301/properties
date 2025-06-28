@@ -20,6 +20,9 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { JwtPayloadType } from '../utils/constants';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
+import { Roles } from 'src/auth/decorators/user-role.decorator';
+import { UserType } from '../utils/enums';
 
 @Controller('webhook')
 export class OrdersController {

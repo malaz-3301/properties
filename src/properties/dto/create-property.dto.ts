@@ -15,6 +15,10 @@ import { PropertyType, FlooringType, HeatingType } from '../../utils/enums';
 //غير لازم
 export class CreatePropertyDto {
   @IsNotEmpty()
+  @IsNumber()
+  agencyId: number;
+  
+  @IsNotEmpty()
   @IsString()
   @Length(2, 20)
   title: string;

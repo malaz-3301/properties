@@ -36,7 +36,7 @@ export class VotesService {
     }
     //تحقق من وجود العقار و جيب صاحبه
     const property = await this.propertiesGetProvider.getUserIdByProId(proId);
-    const ownerId = property.user.id;
+    const ownerId = property.owner.id;
 
     const vote = await this.voteRepository.findOne({
       where: { property: { id: proId }, user: { id: userId } },
@@ -133,8 +133,9 @@ export class VotesService {
     const safeScore = Math.max(property.voteScore + value, 0); // يمنع السالب
     const k = 10;
     //عامل تأخير للنمو
-    const weight = Math.log10(safeScore + k) * (30 / Math.log10(1000 + 1));
-    const max = Math.min(weight, 30);
+
+    const weight = Math.log10(safeScore + k) * (50 / Math.log10(1000 + 1));
+    const max = Math.min(weight, 50);
     console.log('max', max);
     //شيل القديمة وحط الجديدة
 

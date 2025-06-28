@@ -1,19 +1,17 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Res,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  BadRequestException,
-  Res,
-  ParseIntPipe,
-  Query,
-  ParseFloatPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -27,9 +25,8 @@ import { Response } from 'express';
 import { Roles } from '../auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import { SkipThrottle } from '@nestjs/throttler';
-import { AuditInterceptor } from '../utils/interceptors/audit.interceptor';
 
 @Controller('user')
 @UseInterceptors(CacheInterceptor)
@@ -67,7 +64,7 @@ export class UsersController {
 
   //Normal
   @Delete('')
-  @Roles(UserType.NORMAL_USER)
+  @Roles(UserType.Owner, UserType.AGENCY)
   @UseGuards(AuthRolesGuard)
   deleteMe(
     @CurrentUser() payload: JwtPayloadType,

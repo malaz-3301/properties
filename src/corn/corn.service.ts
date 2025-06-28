@@ -45,7 +45,6 @@ export class CornService {
       });
       await this.userRepository.update(order.user.id, {
         plan: { id: 1 },
-        planId: 1,
       });
     }
   }

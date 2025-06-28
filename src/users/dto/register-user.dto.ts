@@ -14,7 +14,7 @@ import { PointsDto } from '../../geolocation/dto/points.dto';
 export class RegisterUserDto {
   @IsNotEmpty()
   @IsString()
-  @Length(9, 12)
+  @Length(10, 10)
   phone: string;
 
   @IsNotEmpty()

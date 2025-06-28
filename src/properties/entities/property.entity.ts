@@ -44,10 +44,15 @@ export abstract class Property extends Estate {
   @OneToMany(() => View, (view) => view.property, { cascade: true })
   views?: View[];
 
-  @ManyToOne(() => User, (user: User) => user.properties, {
+  @ManyToOne(() => User, (user: User) => user.ownerProperties, {
     onDelete: 'CASCADE',
   })
-  user: User;
+  owner: User;
+
+  @ManyToOne(() => User, (user: User) => user.agencyProperties, {
+    onDelete: 'CASCADE',
+  })
+  agency: User;
 
   @Column({ type: 'varchar', length: 20 })
   title: string;

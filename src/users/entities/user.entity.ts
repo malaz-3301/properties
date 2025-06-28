@@ -11,7 +11,7 @@ import {
 import { Exclude } from 'class-transformer';
 
 import { CURRENT_TIMESTAMP } from '../../utils/constants';
-import { UserType } from '../../utils/enums';
+import { PropertyStatus, UserType } from '../../utils/enums';
 import { Property } from '../../properties/entities/property.entity';
 import { Location } from '../../geolocation/entities/location.embedded';
 import { Favorite } from 'src/favorite/entites/favorite.entity';
@@ -47,7 +47,7 @@ export class User {
   @Column({ type: 'integer', default: 18 })
   age: number;
 
-  @Column({ type: 'enum', enum: UserType, default: UserType.SUPER_ADMIN })
+  @Column({ type: 'enum', enum: UserType, default: UserType.Owner })
   userType: UserType;
 
   @Column({ type: 'boolean', default: false })
@@ -63,8 +63,11 @@ export class User {
   })
   statistics?: Statistics;
 
-  @OneToMany(() => Property, (property: Property) => property.user)
-  properties?: Property[];
+  @OneToMany(() => Property, (property: Property) => property.owner)
+  ownerProperties?: Property[];
+
+  @OneToMany(() => Property, (property: Property) => property.agency)
+  agencyProperties?: Property[];
 
   @OneToMany(() => Vote, (vote: Vote) => vote.user)
   votes?: Vote[];
@@ -82,17 +85,20 @@ export class User {
   @Column({ type: 'varchar', nullable: true, default: null })
   profileImage: string | null;
 
+  @Column('simple-array', { nullable: true })
+  docImages: string[];
+
   @OneToMany(() => Favorite, (favorite) => favorite.user)
   favorites: Favorite[];
 
   @OneToMany(() => Contract, (contracts) => contracts.user)
   contracts: Contract[];
   ////
-  @ManyToOne(() => Plan, (plan: Plan) => plan.users)
+  @ManyToOne(() => Plan, (plan: Plan) => plan.users, { eager: true })
   plan?: Plan;
 
-  @Column({ type: 'int', nullable: true })
-  planId: number;
+  /*ازلها  @Column({ type: 'int', nullable: true })
+    planId: number;*/
 
   @Column({ default: false })
   hasUsedTrial: boolean;

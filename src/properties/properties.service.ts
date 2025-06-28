@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from './entities/property.entity';
@@ -16,7 +16,7 @@ import * as bcrypt from 'bcryptjs';
 import { PropertiesDelProvider } from './providers/properties-del.provider';
 import { PropertiesGetProvider } from './providers/properties-get.provider';
 
-import { PropertyStatus } from '../utils/enums';
+import { PropertyStatus, UserType } from '../utils/enums';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ideal, weights } from '../utils/constants';
@@ -25,10 +25,12 @@ import { FilterPropertyDto } from './dto/filter-property.dto';
 import { RejectProAdminDto } from './dto/reject-pro-admin.dto';
 import { UsersVoViProvider } from '../users/providers/users-vo-vi.provider';
 import { AcceptProAdminDto } from './dto/accept-pro-admin.dto';
+import { EditProAgencyDto } from './dto/edit-pro-agency.dto';
 
 @Injectable()
 export class PropertiesService {
   constructor(
+    private dataSource: DataSource,
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private readonly usersOtpProvider: UsersOtpProvider,
@@ -42,53 +44,85 @@ export class PropertiesService {
   ) {}
 
   //create from other
-  async create(createPropertyDto: CreatePropertyDto, id: number) {
-    const user = await this.usersGetProvider.findById(id);
+  async create(createPropertyDto: CreatePropertyDto, ownerId: number) {
+    const owner = await this.usersGetProvider.findById(ownerId);
+    if (owner.plan?.id === 1) {
+      throw new UnauthorizedException('Subscripe !');
+    }
+    const agency = await this.usersGetProvider.findById(
+      createPropertyDto.agencyId,
+    );
     const { pointsDto } = createPropertyDto;
     const location = await this.geolocationService.reverse_geocoding(
       pointsDto.lat,
       pointsDto.lon,
     );
-    const newProperty = this.propertyRepository.create({
-      ...createPropertyDto,
-      firstImage: 'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
-      location: location,
-      user: {
-        id: user.id,
-      },
+    const result = await this.dataSource.transaction(async (manger) => {
+      const newProperty = manger.create(Property, {
+        ...createPropertyDto,
+        firstImage: 'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
+        location: location,
+        owner: { id: owner.id },
+        agency: { id: agency.id },
+      });
+      await manger.save(Property, newProperty);
+      await this.computePropertySuitability(newProperty, manger);
+      await this.usersVoViProvider.incrementTotalProperties(
+        agency.id,
+        1,
+        manger,
+      );
+      return newProperty;
     });
-    await this.propertyRepository.save(newProperty);
-    await this.computePropertySuitability(newProperty);
-    await this.usersVoViProvider.incrementTotalProperties(user.id, 1);
-    return newProperty.id;
+    return result.id;
   }
 
-  async updateMyPro(
+  async updateOwnerPro(
     proId: number,
     userId: number,
     updatePropertyDto: UpdatePropertyDto,
   ) {
-    return this.propertiesUpdateProvider.updateMyPro(
+    return this.propertiesUpdateProvider.updateOwnerPro(
       proId,
       userId,
       updatePropertyDto,
     );
   }
 
-  async updateProById(ProId: number, updateProAdminDto: UpdateProAdminDto) {
-    return this.propertiesUpdateProvider.updateProById(
-      ProId,
+  async updateAdminPro(proId: number, updateProAdminDto: UpdateProAdminDto) {
+    return this.propertiesUpdateProvider.updateAdminPro(
+      proId,
       updateProAdminDto,
     );
   }
 
-  async acceptProById(ProId: number, acceptProAdminDto: AcceptProAdminDto) {
-    await this.propertiesUpdateProvider.acceptProById(ProId, acceptProAdminDto);
+  async updateAgencyPro(
+    proId: number,
+    agencyId: number,
+    editProAgencyDto: EditProAgencyDto,
+  ) {
+    return this.propertiesUpdateProvider.updateAgencyPro(
+      proId,
+      agencyId,
+      editProAgencyDto,
+    );
   }
 
-  async rejectProById(ProId: number, rejectProAdminDto: RejectProAdminDto) {
-    await this.propertiesUpdateProvider.rejectProById(ProId, rejectProAdminDto);
+  async acceptAgencyPro(proId: number, agencyId: number) {
+    await this.propertiesUpdateProvider.acceptAgencyPro(proId, agencyId);
   }
+
+  async rejectAgencyPro(proId: number, agencyId: number) {
+    await this.propertiesUpdateProvider.rejectAgencyPro(proId, agencyId);
+  }
+
+  /*  async acceptPro(proId: number, acceptProAdminDto: AcceptProAdminDto) {
+      await this.propertiesUpdateProvider.acceptProById(proId, acceptProAdminDto);
+    }
+  
+    async rejectPro(proId: number, rejectProAdminDto: RejectProAdminDto) {
+      await this.propertiesUpdateProvider.rejectProById(proId, rejectProAdminDto);
+    }*/
 
   getAll(query: FilterPropertyDto) {
     return this.propertiesGetProvider.getAll(query);
@@ -98,16 +132,12 @@ export class PropertiesService {
     return this.propertiesGetProvider.findById_ACT(proId, userId);
   }
 
-  async getByUserId(userId: number) {
-    return this.propertiesGetProvider.getByUserId(userId);
+  async getUserPro(proId: number, userId: number, role: UserType) {
+    return this.propertiesGetProvider.getProByUser(proId, userId, role);
   }
 
-  async MyProperty(ProId: number, userId: number) {
-    return this.propertiesImgProvider.MyProperty(ProId, userId);
-  }
-
-  async deleteMyPro(proId: number, userId: number, password: string) {
-    return this.propertiesDelProvider.deleteMyPro(proId, userId, password);
+  async deleteOwnerPro(proId: number, userId: number, password: string) {
+    return this.propertiesDelProvider.deleteOwnerPro(proId, userId, password);
   }
 
   async deleteProById(id: number) {
@@ -122,23 +152,30 @@ export class PropertiesService {
     return this.propertiesImgProvider.setMultiImg(id, userId, filenames);
   }
 
-  async removeSingleImage(id: number, userId: number) {
-    return this.propertiesImgProvider.removeSingleImage(id, userId);
-  }
+  /*  async removeSingleImage(id: number, userId: number) {
+      return this.propertiesImgProvider.removeSingleImage(id, userId);
+    }*/
 
   async removeAnyImg(id: number, userId: number, imageName: string) {
     return this.propertiesImgProvider.removeAnyImg(id, userId, imageName);
   }
 
-  async computePropertySuitability(property: Property) {
-    const [minPricePro] = await this.propertyRepository.find({
+  async computePropertySuitability(
+    property: Property,
+    manager?: EntityManager,
+  ) {
+    const repository = manager
+      ? manager.getRepository(Property)
+      : this.propertyRepository;
+
+    const [minPricePro] = await repository.find({
       order: {
         price: 'ASC',
       },
       select: { price: true },
       take: 1,
     });
-    const [maxPricePro] = await this.propertyRepository.find({
+    const [maxPricePro] = await repository.find({
       order: {
         price: 'DESC',
       },
@@ -165,7 +202,8 @@ export class PropertiesService {
     property.priorityScoreEntity.suitabilityScoreRate = score / 2;
     property.priorityScoreRate += score / 2;
     console.log('computeeee');
-    return await this.propertyRepository.save(property);
+
+    return await repository.save(property);
   }
 
   getTopScorePro(limit: number) {

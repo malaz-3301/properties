@@ -1,12 +1,6 @@
 // src/items/dto/get-items-query.dto.ts
-import {
-  IsOptional,
-  IsString,
-  IsNumber,
-  IsBoolean,
-  IsEnum,
-} from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsOptional, IsString, IsNumber, IsEnum } from 'class-validator';
+
 import { PropertyStatus } from '../../utils/enums';
 
 export class FilterPropertyDto {
@@ -25,6 +19,14 @@ export class FilterPropertyDto {
   @IsOptional()
   @IsEnum(PropertyStatus)
   status?: PropertyStatus;
+
+  @IsOptional()
+  @IsNumber()
+  ownerId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  agencyId?: number;
 
   /*  @IsOptional()
     @Transform(({ value }) => {

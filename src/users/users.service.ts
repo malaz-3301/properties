@@ -2,15 +2,7 @@ import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import {
-  FindOperator,
-  FindOptionsUtils,
-  IsNull,
-  LessThan,
-  MoreThan,
-  Not,
-  Repository,
-} from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UsersOtpProvider } from './providers/users-otp.provider';
@@ -21,19 +13,15 @@ import { UsersDelProvider } from './providers/users-del.provider';
 import { UsersGetProvider } from './providers/users-get.provider';
 import { UsersImgProvider } from './providers/users-img.provider';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
-import { Plan } from '../plans/entities/plan.entity';
-import { Order, OrderStatus } from '../orders/entities/order.entity';
+
 import { OtpEntity } from './entities/otp.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
+    private dataSource: DataSource,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    @InjectRepository(Plan)
-    private readonly planRepository: Repository<Plan>,
-    @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
     @InjectRepository(OtpEntity)
     private readonly otpEntityRepository: Repository<OtpEntity>,
     private readonly usersOtpProvider: UsersOtpProvider,
@@ -62,23 +50,26 @@ export class UsersService {
       pointsDto.lat,
       pointsDto.lon,
     );
-    const user = this.usersRepository.create({
-      ...registerUserDto,
-      location,
+    //DT
+    const result = await this.dataSource.transaction(async (manger) => {
+      const user = manger.create(User, {
+        ...registerUserDto,
+        location,
+        plan: { id: 1 },
+      });
+
+      await manger.save(User, user);
+      await manger.save(OtpEntity, {
+        otpCode: otpCode,
+        user: { id: user.id },
+      });
+
+      await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
+      return user;
     });
-
-    await this.usersRepository.save(user);
-    await this.otpEntityRepository.save({
-      otpCode: otpCode,
-      user: { id: user.id },
-    });
-
-    await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
-    await this.usersRepository.save(user);
-
     return {
       message: 'Verify your account',
-      userId: user.id,
+      userId: result.id,
     };
   }
 
@@ -107,6 +98,10 @@ export class UsersService {
     return this.usersUpdateProvider.updateUserById(id, updateUserByAdminDto);
   }
 
+  async upgradeUser(userId) {
+    return this.usersUpdateProvider.upgradeUser(userId);
+  }
+
   public async getUserById(id: number) {
     return this.usersGetProvider.findById(id);
   }
@@ -127,6 +122,10 @@ export class UsersService {
     return this.usersGetProvider.getAllUsers();
   }
 
+  async getAllPending() {
+    return this.usersGetProvider.getAllPending();
+  }
+
   async deleteMe(id: number, password: string) {
     return this.usersDelProvider.deleteMe(id, password);
   }
@@ -143,9 +142,13 @@ export class UsersService {
     return this.usersImgProvider.removeProfileImage(id);
   }
 
+  async upgrade(userId: number, filenames: string[]) {
+    return this.usersImgProvider.upgrade(userId, filenames);
+  }
+
   async setUserPlan(userId: number, planId: number) {
     return await this.usersRepository.update(userId, {
-      planId: planId,
+      plan: { id: planId },
     });
   }
 }

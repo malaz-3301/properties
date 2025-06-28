@@ -20,21 +20,21 @@ export class PropertiesDelProvider {
     private readonly usersVoViProvider: UsersVoViProvider,
   ) {}
 
-  async deleteMyPro(proId: number, userId: number, password: string) {
+  async deleteOwnerPro(proId: number, ownerId: number, password: string) {
     const property = await this.propertyRepository.findOne({
       //if it is mine && get password
-      where: { id: proId, user: { id: userId } },
-      relations: { user: true },
-      select: { user: { password: true } },
+      where: { id: proId, owner: { id: ownerId } },
+      relations: { owner: true },
+      select: { owner: { password: true } },
     });
     if (!property) {
       throw new NotFoundException('Removed by Admin Or it is not yours');
     }
-    const isPass = await bcrypt.compare(password, property.user.password);
+    const isPass = await bcrypt.compare(password, property.owner.password);
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');
     }
-    await this.usersVoViProvider.incrementTotalProperties(userId, -1);
+    await this.usersVoViProvider.incrementTotalProperties(ownerId, -1);
     return this.propertyRepository.delete({ id: proId });
   }
 

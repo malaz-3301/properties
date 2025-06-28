@@ -37,6 +37,7 @@ import { GlobalCacheModule } from './cache/global/global.module';
 import { dataSourceOptions } from '../db/data-source';
 import { ReportsModule } from './reports/reports.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ImgProMulterModule } from './properties/img-modules/img-pro-multer.module';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     RequestsModule,
     ReportsModule,
     AnalyticsModule,
+    ImgProMulterModule,
   ],
   controllers: [AppController],
   providers: [

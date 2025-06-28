@@ -15,9 +15,13 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class NotificationsService {
   onModuleInit() {
-    const configService = new  ConfigService();
+    const configService = new ConfigService();
     admin.initializeApp({
-      credential: admin.credential.cert({clientEmail : configService.get('CLIENT_EMAIL'), privateKey : configService.get('PRIVATE_KEY').replace(/\\n/g, '\n'), projectId : configService.get('PROJECT_ID')}),
+      credential: admin.credential.cert({
+        clientEmail: configService.get('CLIENT_EMAIL'),
+        privateKey: configService.get('PRIVATE_KEY').replace(/\\n/g, '\n'),
+        projectId: configService.get('PROJECT_ID'),
+      }),
     });
   }
 
@@ -40,7 +44,7 @@ export class NotificationsService {
         message: `The property lease agreement expires on ${contract.expireIn}`,
       });
       this.notificationRepository.save(notification);
-      notification.user = contract.property.user;
+      notification.user = contract.property.owner;
       this.notificationRepository.save(notification);
     });
   }
@@ -53,7 +57,7 @@ export class NotificationsService {
       property: { id: createNotificationDto.propertyId },
     });
     const user = await this.userService.getUserById(userId);
-     await this.sendNotificationToDevice(
+    await this.sendNotificationToDevice(
       user.token,
       createNotificationDto.title,
       createNotificationDto.message,

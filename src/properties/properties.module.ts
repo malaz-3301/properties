@@ -23,6 +23,10 @@ import { AuditModule } from '../audit/audit.module';
 import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
 import { FavoriteModule } from '../favorite/favorite.module';
 import { VotesModule } from '../votes/votes.module';
+import { UserType } from '../utils/enums';
+import { PropertiesAgencyController } from './properties-agency.controller';
+import { PropertiesOwnerController } from './properties-owner.controller';
+import { ImgProMulterModule } from './img-modules/img-pro-multer.module';
 
 @Module({
   imports: [
@@ -30,58 +34,17 @@ import { VotesModule } from '../votes/votes.module';
     AuthModule,
     UsersModule,
     GeolocationModule,
+    ImgProMulterModule,
     AuditModule,
     FavoriteModule,
     forwardRef(() => VotesModule),
-    MulterModule.registerAsync({
-      imports: [forwardRef(() => PropertiesModule)],
-      inject: [PropertiesService],
-      // closure
-      useFactory: (propertiesService: PropertiesService) => {
-        return {
-          storage: diskStorage({
-            destination: './images/properties',
-            filename(
-              req: e.Request,
-              file: Express.Multer.File,
-              callback: (error: Error | null, filename: string) => void,
-            ) {
-              const prefix = `${Date.now()}-${Math.round(Math.random() * 10000)}`;
-              const filename = `${prefix}-${file.originalname}`.replace(
-                /[\s,]/g,
-                '',
-              );
-              callback(null, filename);
-            },
-          }),
-          async fileFilter(req, file, callback) {
-            if (file.mimetype.startsWith('image')) {
-              callback(null, true);
-            } else {
-              callback(
-                new BadRequestException('Unsupported Media Type'),
-                false,
-              );
-            }
-            //Everyone's uncle - MALAZ
-
-            const id = Number(req.params.id);
-            const userId = Number(req.payload.id);
-            propertiesService.MyProperty(id, userId).catch((err) => {
-              callback(
-                new UnauthorizedException(
-                  'Dont Try Property is not yours Or Not found',
-                ),
-                false,
-              ); //);
-            });
-          },
-          limits: { fileSize: 1024 * 1024 * 2 },
-        };
-      },
-    }),
   ],
-  controllers: [PropertiesController, PropertiesAdminController],
+  controllers: [
+    PropertiesController,
+    PropertiesAdminController,
+    PropertiesOwnerController,
+    PropertiesAgencyController,
+  ],
   providers: [
     PropertiesService,
     PropertiesUpdateProvider,

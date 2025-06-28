@@ -50,7 +50,7 @@ export class OrdersService {
               name: 'EasyRent',
               description: `${plan.description}`,
               images: [
-                'https://cdn-icons-png.flaticon.com/512/1907/1907649.png', // ← هنا رابط الصورة
+                'https://i.postimg.cc/VsG6vRY1/photo.jpg', // ← هنا رابط الصورة
               ],
             },
             unit_amount: plan.planPrice * 100,

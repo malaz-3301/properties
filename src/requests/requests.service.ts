@@ -79,7 +79,7 @@ export class RequestsService {
 
   async accept(id: number, userId: number) {
     const accept = await this.requestRepository.findOne({
-      where: { id, property: { user: { id: userId } } },
+      where: { id, property: { agency: { id: userId } } },
       relations: ['user', 'property'],
     });
     if (!accept) {
@@ -106,12 +106,12 @@ export class RequestsService {
       accept.property.id,
       userId,
     );
-
-    await this.propertiesUpdateProvider.updateStatusProById(
-      accept.property.id,
-      PropertyStatus.HIDDEN,
-    );
-    return newContract;
+    /*
+        await this.propertiesUpdateProvider.updateStatusProById(
+          accept.property.id,
+          PropertyStatus.HIDDEN,
+        );
+        return newContract;*/
   }
 
   getMyRequests(propertyId: number, userId: number) {
@@ -139,7 +139,7 @@ export class RequestsService {
 
   async rejectMyPropertyRequests(propertyId: number, userId: number) {
     const rejects = await this.requestRepository.find({
-      where: { property: { id: propertyId, user: { id: userId } } },
+      where: { property: { id: propertyId, agency: { id: userId } } },
       relations: ['property', 'user'],
     });
 
@@ -167,7 +167,7 @@ export class RequestsService {
 
   getMyPropertyRequests(propertyId: number, userId: number) {
     return this.requestRepository.find({
-      where: { property: { id: propertyId, user: { id: userId } } },
+      where: { property: { id: propertyId, agency: { id: userId } } },
     });
   }
 }

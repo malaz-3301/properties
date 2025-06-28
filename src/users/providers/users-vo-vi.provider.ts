@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Statistics } from '../entities/statistics.entity';
+import { newMangleNameCache } from '@swc/core/binding';
 
 //increment depends on value
 @Injectable()
@@ -22,8 +23,16 @@ export class UsersVoViProvider {
   }
 
   //PropertyCount
-  async incrementTotalProperties(ownerId: number, value: number) {
-    await this.statsRepository.increment(
+  async incrementTotalProperties(
+    ownerId: number,
+    value: number,
+    manager?: EntityManager,
+  ) {
+    const repository = manager
+      ? manager.getRepository(Statistics)
+      : this.statsRepository;
+
+    await repository.increment(
       { user_id: ownerId },
       'totalPropertyCount',
       value,

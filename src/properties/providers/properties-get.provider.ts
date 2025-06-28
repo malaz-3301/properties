@@ -9,17 +9,17 @@ import { Property } from '../entities/property.entity';
 import {
   Between,
   FindOptionsWhere,
-  In,
   LessThanOrEqual,
   Like,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
 
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { FilterPropertyDto } from '../dto/filter-property.dto';
 import { FavoriteService } from '../../favorite/favorite.service';
 import { VotesService } from '../../votes/votes.service';
+import { UserType } from '../../utils/enums';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -32,29 +32,21 @@ export class PropertiesGetProvider {
     private readonly votesService: VotesService,
   ) {}
 
-  async getByUserId(userId: number) {
-    console.log('fffffff');
-    return this.propertyRepository.find({
-      where: { user: { id: userId } },
-    });
-  }
-
-  async MyProperty(id: number, userId: number) {
-    const property = this.propertyRepository.find({
-      where: { id: id, user: { id: userId } },
+  async getProByUser(proId: number, userId: number, role: UserType) {
+    const property = await this.propertyRepository.findOne({
+      where: { id: proId, [role]: { id: userId } },
     });
     if (!property) {
       throw new NotFoundException('property not found!');
     }
-
     return property;
   }
 
   async getUserIdByProId(proId: number) {
     const property = await this.propertyRepository.findOne({
       where: { id: proId },
-      relations: { user: true },
-      select: { user: { id: true, phone: true } },
+      relations: { agency: true },
+      select: { agency: { id: true, phone: true } },
     });
     if (!property) {
       throw new NotFoundException('Property not found');
@@ -65,9 +57,9 @@ export class PropertiesGetProvider {
   async findById(proId: number) {
     const property = await this.propertyRepository.findOne({
       where: { id: proId },
-      relations: { user: true },
+      relations: { agency: true },
       select: {
-        user: { id: true, username: true },
+        agency: { id: true, username: true },
       },
     });
     if (!property) {
@@ -80,9 +72,9 @@ export class PropertiesGetProvider {
   async findById_ACT(proId: number, userId: number) {
     const property = await this.propertyRepository.findOne({
       where: { id: proId },
-      relations: { user: true },
+      relations: { agency: true },
       select: {
-        user: { id: true, username: true },
+        agency: { id: true, username: true },
       },
     });
     if (!property) {
@@ -100,7 +92,7 @@ export class PropertiesGetProvider {
   ////////////////
 
   async getAll(query: FilterPropertyDto) {
-    const { word, minPrice, maxPrice, status } = query;
+    const { word, minPrice, maxPrice, status, agencyId } = query;
     const filters: FindOptionsWhere<Property>[] = [];
     const cacheData = await this.cacheManager.get(
       `properties${word}${minPrice}${maxPrice}${status}`,
@@ -119,11 +111,16 @@ export class PropertiesGetProvider {
       filters.push({ title: Like(`%${word}%`) });
       filters.push({ description: Like(`%${word}%`) });
     }
-    if ('status' in query) {
+    if (status != null) {
       filters.push({ status: status });
+      console.log(status);
+    }
+    if ('agencyId' in query) {
+      filters.push({ agency: { id: agencyId } });
     }
 
     // شروط السعر
+
     const priceConditions = { price: this.rangeConditions(minPrice, maxPrice) };
 
     const where =
@@ -136,9 +133,10 @@ export class PropertiesGetProvider {
           filters.length > 0
             ? filters.map((filter) => ({ ...filter, ...priceConditions }))
             : { ...priceConditions, ...yearConditions };*/
+    console.log(where);
     const properties: Property[] = await this.propertyRepository.find({
       where,
-      relations: { user: true, favorites: true },
+      relations: { agency: true, favorites: true },
       select: {
         favorites: { id: true },
         id: true,
@@ -160,7 +158,7 @@ export class PropertiesGetProvider {
           lat: true,
         },
 
-        user: { username: true },
+        agency: { username: true },
       },
     });
     if (!properties || properties.length === 0) {

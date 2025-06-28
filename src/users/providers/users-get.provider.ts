@@ -30,7 +30,7 @@ export class UsersGetProvider {
   public async getUserProsById(id: number) {
     const user = await this.usersRepository.findOne({
       where: { id: id },
-      relations: { properties: true },
+      relations: { agencyProperties: true },
     });
     if (!user) {
       throw new NotFoundException('User Not Found');
@@ -67,6 +67,12 @@ export class UsersGetProvider {
 
   async getAllUsers() {
     return this.usersRepository.find();
+  }
+
+  async getAllPending() {
+    return this.usersRepository.find({
+      where: { userType: UserType.ADMIN },
+    });
   }
 
   async getAllAdmins() {

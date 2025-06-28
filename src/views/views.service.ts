@@ -22,20 +22,20 @@ export class ViewsService {
     private readonly usersVoViProvider: UsersVoViProvider,
   ) {}
 
-  async create(proId: number, userId: number) {
+  async create(proId: number, agencyId: number) {
     const view = await this.viewRepository.findOne({
-      where: { property: { id: proId }, user: { id: userId } },
+      where: { property: { id: proId }, user: { id: agencyId } },
     });
     if (!view) {
       //تحقق من وجود العقار و جيب صاحبه
       const property = await this.propertiesGetProvider.getUserIdByProId(proId);
-      const ownerId = property.user.id;
+      const agencyId = property.agency.id;
       // if (ownerId === userId) return; make it
       await this.viewRepository.save({
         property: { id: proId },
-        user: { id: userId },
+        user: { id: agencyId },
       });
-      await this.usersVoViProvider.incrementTotalViews(ownerId);
+      await this.usersVoViProvider.incrementTotalViews(agencyId);
       return await this.propertiesVoViProvider.incrementView(proId);
     }
   }

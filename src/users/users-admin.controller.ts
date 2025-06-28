@@ -39,6 +39,22 @@ export class UsersAdminController {
     return this.usersService.getAllUsers();
   }
 
+  @Get(':adminId')
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
+  @UseInterceptors(AuditInterceptor)
+  getAllPending() {
+    return this.usersService.getAllPending();
+  }
+
+  @Patch('upgrade/:userId')
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
+  @UseInterceptors(AuditInterceptor)
+  upgradeUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.usersService.upgradeUser(userId);
+  }
+
   @Patch(':id')
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)

@@ -40,7 +40,7 @@ export class AnalyticsService {
     // Get total counts - only regular users
     const totalUsers = await this.userRepository.count({
       where: {
-        userType: UserType.NORMAL_USER,
+        userType: UserType.Owner,
       },
     });
     const totalProperties = await this.propertyRepository.count();
@@ -48,7 +48,7 @@ export class AnalyticsService {
 
     const [users, properties, complaints] = await Promise.all([
       this.userRepository.find({
-        where: { userType: UserType.NORMAL_USER },
+        where: { userType: UserType.Owner },
         select: ['createdAt'],
       }),
       this.propertyRepository.find({ select: ['createdAt'] }),

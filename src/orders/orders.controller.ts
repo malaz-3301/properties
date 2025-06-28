@@ -1,35 +1,34 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  Res,
-  Req,
+  Get,
   Headers,
   HttpCode,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity';
 import { JwtPayloadType } from '../utils/constants';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
-import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { Roles } from 'src/auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
+import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 
 @Controller('webhook')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
+  @Roles(UserType.AGENCY)
+  @UseGuards(AuthRolesGuard)
   @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
   create(
     @Body() createOrderDto: CreateOrderDto,

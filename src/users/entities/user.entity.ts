@@ -25,6 +25,7 @@ import { Audit } from '../../audit/entities/audit.entity';
 import { View } from '../../views/entities/view.entity';
 import { Request } from 'src/requests/entities/request.entity';
 import { Statistics } from './statistics.entity';
+import { AgencyInfo } from './agency-info.entity';
 
 @Entity('users')
 export class User {
@@ -58,6 +59,11 @@ export class User {
   })
   otpEntity: OtpEntity;
 
+  @OneToOne(() => AgencyInfo, (agencyInfo) => agencyInfo.user, {
+    cascade: true,
+  })
+  agencyInfo: AgencyInfo;
+
   @OneToOne(() => Statistics, (statistics) => statistics.user, {
     cascade: true,
   })
@@ -84,9 +90,6 @@ export class User {
 
   @Column({ type: 'varchar', nullable: true, default: null })
   profileImage: string | null;
-
-  @Column('simple-array', { nullable: true })
-  docImages: string[];
 
   @OneToMany(() => Favorite, (favorite) => favorite.user)
   favorites: Favorite[];

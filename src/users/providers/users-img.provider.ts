@@ -7,12 +7,15 @@ import * as process from 'node:process';
 import { unlinkSync } from 'node:fs';
 import { UsersGetProvider } from './users-get.provider';
 import { UserType } from '../../utils/enums';
+import { AgencyInfo } from '../entities/agency-info.entity';
 
 @Injectable()
 export class UsersImgProvider {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(AgencyInfo)
+    private readonly agencyInfoRepository: Repository<AgencyInfo>,
     private readonly usersGetProvider: UsersGetProvider,
   ) {}
 
@@ -42,30 +45,30 @@ export class UsersImgProvider {
   }
 
   async upgrade(userId: number, filenames: string[]) {
-    const user = await this.usersGetProvider.findById(userId);
+    const agency = await this.usersGetProvider.getOneAgencyInfo(userId);
     //بقي الحذف لسا
-    const length = user.docImages?.length + filenames.length;
+    const length = agency.docImages?.length + filenames.length;
 
     if (length > 2) {
       console.log(filenames.length);
-      console.log(user.docImages?.length);
+      console.log(agency.docImages?.length);
       console.log(length);
       console.log('docImages');
       const sub = length - 2;
-      const forDelete = user.docImages.splice(0, sub); //حذف + عرفت الاسماء
+      const forDelete = agency.docImages.splice(0, sub); //حذف + عرفت الاسماء
       for (const photo of forDelete) {
         unlinkSync(join(process.cwd(), `./images/users/${photo}`)); //file path
       }
     }
 
-    user.docImages = user.docImages
-      ? user.docImages.concat(filenames)
+    agency.docImages = agency.docImages
+      ? agency.docImages.concat(filenames)
       : filenames.concat(); //concat
 
     await this.usersRepository.save({
-      ...user,
+      ...agency,
       userType: UserType.PENDING,
-      docImages: user.docImages,
+      agencyInfo: { docImages: agency.docImages },
     });
 
     return {

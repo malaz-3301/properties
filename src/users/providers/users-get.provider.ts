@@ -19,12 +19,15 @@ import { FilterPropertyDto } from '../../properties/dto/filter-property.dto';
 import { Property } from '../../properties/entities/property.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { FilterUserDto } from '../dto/filter-user.dto';
+import { AgencyInfo } from '../entities/agency-info.entity';
 
 @Injectable()
 export class UsersGetProvider {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(AgencyInfo)
+    private readonly agencyInfoRepository: Repository<AgencyInfo>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -81,6 +84,16 @@ export class UsersGetProvider {
 
   async getOneAgency(agencyId: number) {
     return this.usersRepository.findOneBy({ id: agencyId });
+  }
+
+  async getOneAgencyInfo(agencyId: number) {
+    const agencyInfo = await this.agencyInfoRepository.findOneBy({
+      user_id: agencyId,
+    });
+    if (!agencyInfo) {
+      throw new NotFoundException('User Not Found');
+    }
+    return agencyInfo;
   }
 
   async getAll(query: FilterUserDto) {

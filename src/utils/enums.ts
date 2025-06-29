@@ -20,11 +20,6 @@ export enum OrderDir {
   ASC = 'ASC',
 }
 
-export enum VehicleCondition {
-  NEW = 'new',
-  USED = 'used',
-}
-
 export enum PropertyType {
   HOUSE = 'House',
   APARTMENT = 'Apartment',

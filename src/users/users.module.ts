@@ -28,10 +28,18 @@ import { UsersVoViProvider } from './providers/users-vo-vi.provider';
 import { GlobalCacheModule } from '../cache/global/global.module';
 import { Statistics } from './entities/statistics.entity';
 import { UsersUpgradeController } from './users-upgrade.controller';
+import { AgencyInfo } from './entities/agency-info.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Plan, Order, OtpEntity, Statistics]),
+    TypeOrmModule.forFeature([
+      User,
+      Plan,
+      Order,
+      OtpEntity,
+      Statistics,
+      AgencyInfo,
+    ]),
     AuthModule,
     HttpModule,
     GeolocationModule,

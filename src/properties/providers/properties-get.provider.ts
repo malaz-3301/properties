@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../entities/property.entity';
 import {
   Between,
+  FindOptionsOrder,
   FindOptionsWhere,
   LessThanOrEqual,
   Like,
@@ -92,54 +93,67 @@ export class PropertiesGetProvider {
   ////////////////
 
   async getAll(query: FilterPropertyDto) {
-    const { word, minPrice, maxPrice, status, agencyId } = query;
-    const filters: FindOptionsWhere<Property>[] = [];
-    const cacheData = await this.cacheManager.get(
-      `properties${word}${minPrice}${maxPrice}${status}`,
-    );
-    if (cacheData) {
-      console.log('Cache data'); //
-      return cacheData;
-    }
-    // شرط البحث
+    const {
+      word,
+      minPrice,
+      maxPrice,
+      minArea,
+      maxArea,
+      status,
+      propertyType,
+      heatingType,
+      agencyId,
+      ownerId,
+      rooms,
+      bathrooms,
+      isForRent,
+      hasGarage,
+      isFloor,
+      createdDir,
+      priceDir,
+    } = query;
+
+    const filter: FindOptionsWhere<Property> | undefined = {};
+
+    filter.price = this.rangeConditions(minPrice, maxPrice);
+    filter.area = this.rangeConditions(minArea, maxArea);
+    if (status != null) filter.status = status;
+    if (propertyType != null) filter.propertyType = propertyType;
+    if (heatingType != null) filter.heatingType = heatingType;
+    if (rooms != null) filter.rooms = rooms;
+    if (bathrooms != null) filter.bathrooms = bathrooms;
+    if (isForRent != null) filter.isForRent = isForRent;
+    if (hasGarage != null) filter.hasGarage = hasGarage;
+    if (isFloor != null) filter.isFloor = isFloor;
+    if (agencyId != null) filter.agency = { id: agencyId };
+    if (ownerId != null) filter.owner = { id: ownerId };
+    
+    let where: FindOptionsWhere<Property>[];
     if (word) {
-      const cacheData = await this.cacheManager.get('properties');
-      if (cacheData) {
-        console.log('Cache data'); //
-        return cacheData;
-      }
-      filters.push({ title: Like(`%${word}%`) });
-      filters.push({ description: Like(`%${word}%`) });
+      where = [
+        { ...filter, title: Like(`%${word}%`) },
+        { ...filter, description: Like(`%${word}%`) },
+      ];
+    } else {
+      // إذا ما في كلمة بحث، نستخدم كل الشروط مجتمعة
+      where = [filter];
     }
-    if (status != null) {
-      filters.push({ status: status });
-      console.log(status);
+    //ORDER
+    const order: FindOptionsOrder<Property> | undefined = {};
+    if (createdDir != null) {
+      order.createdAt = createdDir;
     }
-    if ('agencyId' in query) {
-      filters.push({ agency: { id: agencyId } });
+    if (priceDir != null) {
+      order.price = priceDir;
     }
 
-    // شروط السعر
-
-    const priceConditions = { price: this.rangeConditions(minPrice, maxPrice) };
-
-    const where =
-      filters.length > 0
-        ? filters.map((filter) => ({ ...filter, ...priceConditions }))
-        : { ...priceConditions };
-    //
-
-    /*    const where =
-          filters.length > 0
-            ? filters.map((filter) => ({ ...filter, ...priceConditions }))
-            : { ...priceConditions, ...yearConditions };*/
-    console.log(where);
     const properties: Property[] = await this.propertyRepository.find({
       where,
       relations: { agency: true, favorites: true },
       select: {
         favorites: { id: true },
         id: true,
+        title: true,
         rooms: true,
         bathrooms: true,
         area: true,
@@ -160,6 +174,8 @@ export class PropertiesGetProvider {
 
         agency: { username: true },
       },
+
+      order,
     });
     if (!properties || properties.length === 0) {
       throw new NotFoundException('No estates found');

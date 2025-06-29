@@ -52,6 +52,7 @@ export class PropertiesService {
     const agency = await this.usersGetProvider.findById(
       createPropertyDto.agencyId,
     );
+
     const { pointsDto } = createPropertyDto;
     const location = await this.geolocationService.reverse_geocoding(
       pointsDto.lat,

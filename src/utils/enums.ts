@@ -15,6 +15,11 @@ export enum PropertyStatus {
   HIDDEN = 'Hidden',
 }
 
+export enum OrderDir {
+  DESC = 'DESC',
+  ASC = 'ASC',
+}
+
 export enum VehicleCondition {
   NEW = 'new',
   USED = 'used',

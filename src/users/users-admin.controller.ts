@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { AuditInterceptor } from '../utils/interceptors/audit.interceptor';
 import { SkipThrottle } from '@nestjs/throttler';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { FilterUserDto } from './dto/filter-user.dto';
 
 @SkipThrottle() //مؤقتا
 @Controller('userA')
@@ -25,26 +27,28 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('getAdmins')
-  @Roles(UserType.SUPER_ADMIN)
-  @UseGuards(AuthRolesGuard)
-  getAllAdmins() {
-    return this.usersService.getAllAdmins();
-  }
-
   @Get('/getUsers')
-  @Roles(UserType.SUPER_ADMIN)
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
-  getAllAUsers() {
-    return this.usersService.getAllUsers();
+  getAllAUsers(@Query() query: FilterUserDto) {
+    return this.usersService.getAllUsers(query);
   }
 
   @Get('/pending')
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
   @UseInterceptors(AuditInterceptor)
-  getAllPending() {
-    return this.usersService.getAllPending();
+  getAllPending(@Query() query: FilterUserDto) {
+    query.role = UserType.PENDING;
+    return this.usersService.getAllPending(query);
+  }
+
+  @Get('getAdmins')
+  @Roles(UserType.SUPER_ADMIN)
+  @UseGuards(AuthRolesGuard)
+  getAllAdmins(@Query() query: FilterUserDto) {
+    query.role = UserType.ADMIN;
+    return this.usersService.getAllAdmins(query);
   }
 
   @Patch('upgrade/:userId')

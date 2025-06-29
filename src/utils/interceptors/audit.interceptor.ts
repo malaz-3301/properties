@@ -18,12 +18,16 @@ export class AuditInterceptor implements NestInterceptor {
   ): Observable<any> | Promise<Observable<any>> {
     const req = context.switchToHttp().getRequest();
     // Admin NOOOOOOOOOOOOOOOOOOOOOOt Super admin
-    if (req['payload'].userType === UserType.SUPER_ADMIN) {
+    if (req['payload'].userType === UserType.ADMIN) {
       const adminId = req['payload'].id;
+      const className = context.getClass().name;
+      //
+      const msg = `(Admin #${adminId}) requested the method ${context.getHandler().name} to affect the (${className.match(/[A-Z][a-z]*/)?.[0]} #${req.params.id})`;
+      //
       const meta = {
-        method: req.method,
-        url: req.originalUrl,
+        type: req.method,
         params: req.params,
+        msg: msg,
         body: req.body,
         ip: req.ips && req.ips.length ? req.ips[0] : req.ip,
       };

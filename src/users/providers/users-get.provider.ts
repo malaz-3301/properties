@@ -1,18 +1,31 @@
 import {
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  LessThanOrEqual,
+  Like,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { UserType } from '../../utils/enums';
+import { FilterPropertyDto } from '../../properties/dto/filter-property.dto';
+import { Property } from '../../properties/entities/property.entity';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { FilterUserDto } from '../dto/filter-user.dto';
 
 @Injectable()
 export class UsersGetProvider {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   // لاعد تسجل otp
@@ -59,27 +72,50 @@ export class UsersGetProvider {
   }
 
   async getAdminById(adminId: number) {
-    return this.usersRepository.findOne({
+    return await this.usersRepository.findOne({
       where: { id: adminId },
       relations: { audits: true },
     });
   }
 
-  async getAllUsers() {
-    return this.usersRepository.find();
+  async getOneAgency(agencyId: number) {
+    return this.usersRepository.findOneBy({ id: agencyId });
   }
 
-  async getAllPending() {
-    return this.usersRepository.find({
-      where: { userType: UserType.ADMIN },
-    });
-  }
+  async getAll(query: FilterUserDto) {
+    const { word, role } = query;
+    const filters: FindOptionsWhere<User>[] = [];
+    const cacheData = await this.cacheManager.get(`users${word}${role}`);
+    if (cacheData) {
+      console.log('Cache data'); //
+      return cacheData;
+    }
+    // شرط البحث
+    if (word) {
+      const cacheData = await this.cacheManager.get('users');
+      if (cacheData) {
+        console.log('Cache data'); //
+        return cacheData;
+      }
+      filters.push({ username: Like(`%${word}%`) });
+    }
+    if (role != null) {
+      filters.push({ userType: role });
+      console.log(role);
+    }
 
-  async getAllAdmins() {
-    return this.usersRepository.find({
-      where: {
-        userType: UserType.ADMIN,
-      },
+    // شروط السعر
+
+    const where = Object.assign({}, ...filters);
+    console.log(where);
+    const users: User[] = await this.usersRepository.find({
+      where,
     });
+    if (!users || users.length === 0) {
+      throw new NotFoundException('No users found');
+    }
+
+    await this.cacheManager.set(`users${word}${role}`, users);
+    return users;
   }
 }

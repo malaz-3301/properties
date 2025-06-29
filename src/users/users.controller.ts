@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseGuards,
@@ -27,6 +28,7 @@ import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { SkipThrottle } from '@nestjs/throttler';
+import { FilterUserDto } from './dto/filter-user.dto';
 
 @Controller('user')
 @UseInterceptors(CacheInterceptor)
@@ -111,6 +113,19 @@ export class UsersController {
     @CurrentUser() user: JwtPayloadType,
   ) {
     return this.usersService.setUserPlan(user.id, planId);
+  }
+
+  @Get('agency')
+  @UseGuards(AuthGuard)
+  getAllAgency(@Query() query: FilterUserDto) {
+    query.role = UserType.ADMIN;
+    return this.usersService.getAllAgency(query);
+  }
+
+  @Get('agency/:agencyId')
+  @UseGuards(AuthGuard)
+  getOneAgency(@Param('agencyId', ParseIntPipe) agencyId: number) {
+    return this.usersService.getOneAgency(agencyId);
   }
 
   @Get(':id')

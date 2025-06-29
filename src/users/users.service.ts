@@ -15,6 +15,7 @@ import { UsersImgProvider } from './providers/users-img.provider';
 import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 
 import { OtpEntity } from './entities/otp.entity';
+import { FilterUserDto } from './dto/filter-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -110,20 +111,28 @@ export class UsersService {
     return this.usersGetProvider.getUserProsById(id);
   }
 
+  async getAllAgency(query: FilterUserDto) {
+    return this.usersGetProvider.getAll(query);
+  }
+
+  async getOneAgency(agencyId: number) {
+    return this.usersGetProvider.getOneAgency(agencyId);
+  }
+
   async getAdminById(adminId: number) {
     return this.usersGetProvider.getAdminById(adminId);
   }
 
-  async getAllAdmins() {
-    return this.usersGetProvider.getAllAdmins();
+  async getAllUsers(query: FilterUserDto) {
+    return this.usersGetProvider.getAll(query);
   }
 
-  async getAllUsers() {
-    return this.usersGetProvider.getAllUsers();
+  async getAllPending(query: FilterUserDto) {
+    return this.usersGetProvider.getAll(query);
   }
 
-  async getAllPending() {
-    return this.usersGetProvider.getAllPending();
+  async getAllAdmins(query: FilterUserDto) {
+    return this.usersGetProvider.getAll(query);
   }
 
   async deleteMe(id: number, password: string) {

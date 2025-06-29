@@ -92,25 +92,23 @@ export class PropertiesGetProvider {
 
   ////////////////
 
-  async getAll(query: FilterPropertyDto) {
+  async getAll(query: FilterPropertyDto, ownerId?: number, agencyId?: number) {
     const {
-      word,
-      minPrice,
-      maxPrice,
-      minArea,
-      maxArea,
-      status,
-      propertyType,
-      heatingType,
-      agencyId,
-      ownerId,
-      rooms,
-      bathrooms,
-      isForRent,
-      hasGarage,
-      isFloor,
-      createdDir,
-      priceDir,
+      word, //بحث
+      minPrice, //سعر
+      maxPrice, //سعر
+      minArea, //مساحة
+      maxArea, //مساحة
+      status, //حالة العقار
+      propertyType, //نوع العقار
+      heatingType, //نوع التدفئة
+      rooms, //عدد الغرف
+      bathrooms, //عدد الحمامات
+      isForRent, //هل هو للايجار
+      hasGarage, //هل لديه كراج
+      isFloor, //هل طابق ارضي
+      createdDir, //ترتيب التاريخ تصاعدي او تنازلي
+      priceDir, //ترتيب السعر تصاعدي او تنازلي
     } = query;
 
     const filter: FindOptionsWhere<Property> | undefined = {};
@@ -127,7 +125,7 @@ export class PropertiesGetProvider {
     if (isFloor != null) filter.isFloor = isFloor;
     if (agencyId != null) filter.agency = { id: agencyId };
     if (ownerId != null) filter.owner = { id: ownerId };
-    
+
     let where: FindOptionsWhere<Property>[];
     if (word) {
       where = [

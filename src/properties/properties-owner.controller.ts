@@ -50,8 +50,8 @@ export class PropertiesOwnerController {
     @CurrentUser() owner: JwtPayloadType,
     @Query() query: FilterPropertyDto,
   ) {
-    query.ownerId = owner.id;
-    return this.propertiesService.getAll(query);
+    //لا داع للـ undefines لكن للوضوح
+    return this.propertiesService.getAll(query, owner.id, undefined);
   }
 
   @Patch('my/:proId')

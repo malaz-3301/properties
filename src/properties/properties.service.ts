@@ -128,8 +128,8 @@ export class PropertiesService {
       await this.propertiesUpdateProvider.rejectProById(proId, rejectProAdminDto);
     }*/
 
-  getAll(query: FilterPropertyDto) {
-    return this.propertiesGetProvider.getAll(query);
+  getAll(query: FilterPropertyDto, ownerId?: number, agencyId?: number) {
+    return this.propertiesGetProvider.getAll(query, ownerId, agencyId);
   }
 
   async getOnePro(proId: number, userId: number) {

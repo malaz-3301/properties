@@ -42,14 +42,6 @@ export class FilterPropertyDto {
   @IsEnum(OrderDir)
   priceDir?: OrderDir;
 
-  @IsOptional()
-  @IsNumber()
-  ownerId?: number;
-
-  @IsOptional()
-  @IsNumber()
-  agencyId?: number;
-
   ///////////////////////
 
   @IsOptional()

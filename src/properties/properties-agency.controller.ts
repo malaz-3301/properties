@@ -78,8 +78,7 @@ export class PropertiesAgencyController {
     @Query() query: FilterPropertyDto,
     @CurrentUser() agency: JwtPayloadType,
   ) {
-    query.agencyId = agency.id;
-    return this.propertiesService.getAll(query);
+    return this.propertiesService.getAll(query, undefined, agency.id);
   }
 
   @Get('pending')
@@ -91,8 +90,7 @@ export class PropertiesAgencyController {
     @CurrentUser() agency: JwtPayloadType,
   ) {
     query.status = PropertyStatus.PENDING;
-    query.agencyId = agency.id;
-    return this.propertiesService.getAll(query);
+    return this.propertiesService.getAll(query, undefined, agency.id);
   }
 
   @Delete('remove-any-img/:id/:imageName')

@@ -20,17 +20,19 @@ import { PropertiesGetProvider } from './providers/properties-get.provider';
 import { PropertiesAdminController } from './properties-admin.controller';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { AuditModule } from '../audit/audit.module';
-import { PropertiesVoViProvider } from './providers/properties-vo-vi.provider';
+import { PropertiesVoSuViProvider } from './providers/properties-vo-su-vi.provider';
 import { FavoriteModule } from '../favorite/favorite.module';
 import { VotesModule } from '../votes/votes.module';
 import { UserType } from '../utils/enums';
 import { PropertiesAgencyController } from './properties-agency.controller';
 import { PropertiesOwnerController } from './properties-owner.controller';
-import { ImgProMulterModule } from './img-modules/img-pro-multer.module';
+import { ImgProMulterModule } from '../modules-set/img-pro-multer.module';
+import { PropertiesCreateProvider } from './providers/properties-create.provider';
+import { PriorityRatio } from './entities/priority-ratio.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Property]),
+    TypeOrmModule.forFeature([Property, PriorityRatio]),
     AuthModule,
     UsersModule,
     GeolocationModule,
@@ -47,11 +49,12 @@ import { ImgProMulterModule } from './img-modules/img-pro-multer.module';
   ],
   providers: [
     PropertiesService,
+    PropertiesCreateProvider,
     PropertiesUpdateProvider,
     PropertiesImgProvider,
     PropertiesDelProvider,
     PropertiesGetProvider,
-    PropertiesVoViProvider,
+    PropertiesVoSuViProvider,
   ],
   exports: [
     PropertiesService,
@@ -59,7 +62,7 @@ import { ImgProMulterModule } from './img-modules/img-pro-multer.module';
     PropertiesImgProvider,
     PropertiesDelProvider,
     PropertiesGetProvider,
-    PropertiesVoViProvider,
+    PropertiesVoSuViProvider,
   ],
 })
 export class PropertiesModule {}

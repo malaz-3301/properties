@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreatePlanOrderDto } from './dto/create-plan-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -21,6 +21,7 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { Roles } from 'src/auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
+import { CreateCommOrderDto } from './dto/create-comm-order.dto';
 
 @Controller('webhook')
 export class OrdersController {
@@ -30,11 +31,18 @@ export class OrdersController {
   @Roles(UserType.AGENCY)
   @UseGuards(AuthRolesGuard)
   @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
-  create(
-    @Body() createOrderDto: CreateOrderDto,
+  createPlanStripe(
+    @Body() createPlanOrderDto: CreatePlanOrderDto,
     @CurrentUser() user: JwtPayloadType,
   ) {
-    return this.ordersService.create(createOrderDto, user.id);
+    return this.ordersService.createPlanStripe(createPlanOrderDto, user.id);
+  }
+
+  @Post('commission')
+  @UseGuards(AuthGuard)
+  @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
+  createCommissionStripe(@Body() createCommOrderDto: CreateCommOrderDto) {
+    return this.ordersService.createCommissionStrip(createCommOrderDto);
   }
 
   @Post('/stripe')
@@ -48,25 +56,5 @@ export class OrdersController {
     const body = req.body;
 
     await this.ordersService.createHook(body, signature);
-  }
-
-  @Get()
-  findAll() {
-    return this.ordersService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
   }
 }

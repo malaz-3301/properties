@@ -20,6 +20,7 @@ import { Property } from '../../properties/entities/property.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { FilterUserDto } from '../dto/filter-user.dto';
 import { AgencyInfo } from '../entities/agency-info.entity';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class UsersGetProvider {
@@ -99,9 +100,11 @@ export class UsersGetProvider {
   async getAll(query: FilterUserDto) {
     const { word, role } = query;
     const filters: FindOptionsWhere<User>[] = [];
-    const cacheData = await this.cacheManager.get(`users${word}${role}`);
+
+    const key = await this.shortHash(query);
+    const cacheData = await this.cacheManager.get(key);
     if (cacheData) {
-      console.log('Cache data'); //
+      console.log('This is Cache data');
       return cacheData;
     }
     // شرط البحث
@@ -129,7 +132,12 @@ export class UsersGetProvider {
       throw new NotFoundException('No users found');
     }
 
-    await this.cacheManager.set(`users${word}${role}`, users);
+    await this.cacheManager.set(key, users);
     return users;
+  }
+
+  async shortHash(obj: object) {
+    //ينشئ كائن تجزئة باستخدام خوارزمية MD5
+    return createHash('md5').update(JSON.stringify(obj)).digest('hex');
   }
 }

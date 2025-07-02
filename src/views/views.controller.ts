@@ -29,9 +29,4 @@ export class ViewsController {
   ) {
     return this.viewsService.create(proId, user.id);
   }
-
-  @Get()
-  findAll() {
-    return this.viewsService.findAll();
-  }
 }

@@ -33,11 +33,12 @@ import { ThrottlerProxyGuard } from './throttler-proxy.guard';
 import { ViewsModule } from './views/views.module';
 import { RequestsModule } from './requests/requests.module';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { GlobalCacheModule } from './cache/global/global.module';
+import { GlobalCacheModule } from './modules-set/cache-global.module';
 import { dataSourceOptions } from '../db/data-source';
 import { ReportsModule } from './reports/reports.module';
 import { AnalyticsModule } from './analytics/analytics.module';
-import { ImgProMulterModule } from './properties/img-modules/img-pro-multer.module';
+import { ImgProMulterModule } from './modules-set/img-pro-multer.module';
+import { PostgresSetModule } from './modules-set/postgres-set.module';
 
 @Module({
   imports: [
@@ -49,23 +50,7 @@ import { ImgProMulterModule } from './properties/img-modules/img-pro-multer.modu
     VotesModule,
     PlansModule,
     ContractsModule,
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          host: config.get<string>('DB_HOST'),
-          port: config.get<number>('DB_PORT'),
-          username: config.get<string>('DB_USERNAME'),
-          password: config.get<string>('DB_PASSWORD'),
-          database: config.get<string>('DB_DATABASE'),
-          //entities: [Product, User,
-          autoLoadEntities: true,
-          //synchronize: process.env.NODE_ENV !== 'production', فعلها
-          synchronize: true,
-        };
-      },
-    }),
+    PostgresSetModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
@@ -106,23 +91,4 @@ export class AppModule implements NestModule {
   }
 }
 
-
-/*
-TypeOrmModule.forRootAsync({
-  inject: [ConfigService],
-  useFactory: (config: ConfigService) => {
-    return {
-      type: 'postgres',
-      host: config.get<string>('DB_HOST'),
-      port: config.get<number>('DB_PORT'),
-      username: config.get<string>('DB_USERNAME'),
-      password: config.get<string>('DB_PASSWORD'),
-      database: config.get<string>('DB_DATABASE'),
-      //entities: [Product, User,
-      autoLoadEntities: true,
-      //synchronize: process.env.NODE_ENV !== 'production', فعلها
-      synchronize: true,
-    };
-  },
-}),*/
 //    TypeOrmModule.forRoot(dataSourceOptions),

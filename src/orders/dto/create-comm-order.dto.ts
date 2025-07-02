@@ -1,10 +1,10 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateOrderDto {
+export class CreateCommOrderDto {
   @IsNotEmpty()
   @IsString()
-  planId: number;
-
+  proId: number;
+  
   @IsNotEmpty()
   payment_Method_Type: string;
   @IsNotEmpty()

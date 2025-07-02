@@ -11,13 +11,7 @@ export class Statistics {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
-  
-  @Column({ default: 0 })
-  totalPropertyCount: number;
 
   @Column({ default: 0 })
-  totalVoteScore: number;
-
-  @Column({ default: 0 })
-  totalViewCount: number;
+  propertyCount: number;
 }

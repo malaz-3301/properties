@@ -25,9 +25,20 @@ export class AgencyInfo {
   docImages: string[];
 
   //عملتها numeric لان ادق من float بس بتستهلك ذاكرة اكبر
-  @Column({ type: 'numeric', precision: 4, scale: 2, default: 0 })
-  commissionRate: number;
+  @Column({
+    type: 'numeric',
+    precision: 4,
+    scale: 2,
+    default: 1.0,
+  })
+  agencyCommissionRate?: number;
 
+  @Column({ default: 0 })
+  agencyVotes: number;
+
+  @Column({ default: 0 })
+  agencyViews: number;
+  
   @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;
 }

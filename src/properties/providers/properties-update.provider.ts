@@ -81,42 +81,4 @@ export class PropertiesUpdateProvider {
     await this.propertiesGetProvider.findById(proId);
     return this.propertyRepository.update(proId, updateProAdminDto);
   }
-
-  /*
-    async acceptProById(proId: number, acceptProAdminDto: AcceptProAdminDto) {
-      const property = await this.propertiesGetProvider.getUserIdByProId(proId);
-  
-      await this.propertyRepository.increment({ id: proId }, 'acceptCount', 1);
-      const adminsScoreRate =
-        property.priorityScoreEntity.adminsScoreRate + acceptProAdminDto.rating;
-  
-      await this.propertyRepository.update(proId, {
-        priorityScoreEntity: { adminsScoreRate: adminsScoreRate },
-      });
-      //اذا كان اكبر من واحد معناها مقبول من ادمن
-      if (property.acceptCount >= 1) {
-        // حطيت 1 بدل 2 لان انا عم جيب الاوبجيكت قبل ما زيده
-        const priorityScoreRate =
-          property.priorityScoreRate + adminsScoreRate * 2;
-  
-        return this.propertyRepository.update(proId, {
-          priorityScoreEntity: { adminsScoreRate: adminsScoreRate },
-          priorityScoreRate: priorityScoreRate,
-          status: PropertyStatus.ACCEPTED,
-        });
-      }
-    }
-  
-    async rejectProById(proId: number, rejectProAdminDto: RejectProAdminDto) {
-      const property = await this.propertiesGetProvider.getUserIdByProId(proId);
-      await this.propertyRepository.update(proId, {
-        status: PropertyStatus.ACCEPTED,
-      });
-      return this.usersOtpProvider.sendSms(
-        property.owner.phone,
-        rejectProAdminDto.message,
-      );
-    }
-  
-  */
 }

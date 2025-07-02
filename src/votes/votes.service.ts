@@ -13,8 +13,10 @@ import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { PropertiesGetProvider } from '../properties/providers/properties-get.provider';
 import { Vote } from './entities/vote.entity';
 import { User } from '../users/entities/user.entity';
-import { PropertiesVoViProvider } from '../properties/providers/properties-vo-vi.provider';
-import { UsersVoViProvider } from '../users/providers/users-vo-vi.provider';
+import { PropertiesVoSuViProvider } from '../properties/providers/properties-vo-su-vi.provider';
+import { AgenciesVoViProvider } from '../users/providers/agencies-vo-vi.provider';
+import { PriorityRatio } from '../properties/entities/priority-ratio.entity';
+import { VotesGetProvider } from './providers/votes-get.provider';
 
 //forwardRef(() كسر دائرة الاعتماد
 @Injectable()
@@ -25,8 +27,9 @@ export class VotesService {
     private propertyRepository: Repository<Property>,
     @Inject(forwardRef(() => PropertiesGetProvider))
     private readonly propertiesGetProvider: PropertiesGetProvider,
-    private readonly propertiesVoViProvider: PropertiesVoViProvider,
-    private readonly usersVoViProvider: UsersVoViProvider,
+    private readonly propertiesVoViProvider: PropertiesVoSuViProvider,
+    private readonly agenciesVoViProvider: AgenciesVoViProvider,
+    private readonly votesGetProvider: VotesGetProvider,
   ) {}
 
   async changeVoteStatus(proId: number, value: number, userId: number) {
@@ -36,7 +39,7 @@ export class VotesService {
     }
     //تحقق من وجود العقار و جيب صاحبه
     const property = await this.propertiesGetProvider.getUserIdByProId(proId);
-    const ownerId = property.owner.id;
+    const agencyId = property.agency.id;
 
     const vote = await this.voteRepository.findOne({
       where: { property: { id: proId }, user: { id: userId } },
@@ -46,16 +49,17 @@ export class VotesService {
       //Remove
       if (vote.value === value) {
         //موجود وحط نفس القيمة (شاله)
-        await this.changeVoteValues(proId, value, ownerId);
+        await this.changeAllVotes(proId, -value, agencyId);
         return this.voteRepository.delete(vote.id);
+      } else {
+        //Update
+        await this.changeAllVotes(proId, -2 * value, agencyId);
+        return this.voteRepository.update(vote.id, { value: value });
       }
-      //Update
-      await this.changeVoteValues(proId, 2 * value, ownerId);
-      return this.voteRepository.update(vote.id, { value: value });
     }
     //حالة Create
     else {
-      await this.changeVoteValues(proId, value, ownerId);
+      await this.changeAllVotes(proId, value, agencyId);
       return await this.voteRepository.save({
         property: { id: proId },
         user: { id: userId },
@@ -64,91 +68,43 @@ export class VotesService {
     }
   }
 
-  //if not found 0
-  getUsersVotedUp(proId: number) {
-    return this.voteRepository.find({
-      where: { property: { id: proId }, value: 1 },
-      relations: { user: true },
-      select: {
-        user: {
-          username: true,
-          profileImage: true,
-        },
-      },
-    });
-  }
-
-  getUserVotesC(userId: number) {
-    return this.voteRepository.count({
-      where: { user: { id: userId } },
-    });
-  }
-
-  async getUsersSpam() {
-    const votes = await this.voteRepository.find({
-      relations: { user: true },
-      select: {
-        user: {
-          id: true,
-          username: true,
-        },
-        createdAt: true,
-      },
-    });
-    const counts: Record<string, number> = {};
-    const userMap: Record<number, string> = {};
-    for (const vote of votes) {
-      const day = vote.createdAt.toISOString().slice(2, 10); // '2025-05-11'
-      console.log(day);
-      const key = `${vote.user.id}-${day}`;
-      userMap[vote.user.id] = vote.user.username;
-      counts[key] = ++counts[key] || 0;
-    }
-
-    const spammers = new Set<number>();
-    //مصفوفة زوج
-    for (const [key, cnt] of Object.entries(counts)) {
-      if (cnt > 20) {
-        const userId = Number(key.split('-')[0]);
-        spammers.add(userId);
-      }
-    }
-    //json
-    return Array.from(spammers).map((id) => ({
-      id: id,
-      username: userMap[id],
-    }));
-  }
-
   //انتبه ownerId
-  async changeVoteValues(proId: number, value: number, ownerId: number) {
-    await this.usersVoViProvider.incrementTotalVotes(ownerId, value);
-    await this.propertiesVoViProvider.incrementVote(proId, value);
-    return await this.priorityScore(proId, value);
+  async changeAllVotes(proId: number, value: number, agencyId: number) {
+    await this.agenciesVoViProvider.changeVotesNum(agencyId, value); //agency
+    await this.propertiesVoViProvider.changeVotesNum(proId, value); //property
+    return await this.changePrimacy(proId, value);
   }
 
-  //نقاط الظهور %30
-  async priorityScore(proId: number, value: number) {
+  //نقاط الظهور %50
+  async changePrimacy(proId: number, value: number) {
     const property = await this.propertiesGetProvider.findById(proId);
     const safeScore = Math.max(property.voteScore + value, 0); // يمنع السالب
     const k = 10;
     //عامل تأخير للنمو
 
     const weight = Math.log10(safeScore + k) * (50 / Math.log10(1000 + 1));
-    const max = Math.min(weight, 50);
-    console.log('max', max);
+    const newMax = Math.min(weight, 50);
+    console.log('newMax', newMax);
     //شيل القديمة وحط الجديدة
+    const oldMax = property.priorityRatio.voteRatio;
 
-    const priorityScoreRate =
-      property.priorityScoreRate -
-      property.priorityScoreEntity.voteScoreRate +
-      max;
+    const primacy = property.primacy - oldMax + newMax;
     return await this.propertyRepository.update(proId, {
-      priorityScoreEntity: { voteScoreRate: max },
-      priorityScoreRate: priorityScoreRate,
+      priorityRatio: { voteRatio: newMax },
+      primacy: primacy,
     });
   }
 
+  async getVoteSpammers() {
+    return this.votesGetProvider.getVoteSpammers();
+  }
+
+  //if not found 0
+  getUsersVotedUp(proId: number) {
+    return this.votesGetProvider.getUsersVotedUp(proId);
+  }
+
+  //للتحقق من my_act
   async isVote(proId: number, userId: number) {
     const isVote = await this.voteRepository.findOne({
       where: {

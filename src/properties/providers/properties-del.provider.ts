@@ -9,7 +9,7 @@ import { Property } from '../entities/property.entity';
 import { Repository } from 'typeorm';
 import { PropertiesService } from '../properties.service';
 import { PropertiesGetProvider } from './properties-get.provider';
-import { UsersVoViProvider } from '../../users/providers/users-vo-vi.provider';
+import { AgenciesVoViProvider } from '../../users/providers/agencies-vo-vi.provider';
 
 @Injectable()
 export class PropertiesDelProvider {
@@ -17,7 +17,7 @@ export class PropertiesDelProvider {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private readonly propertiesGetProvider: PropertiesGetProvider,
-    private readonly usersVoViProvider: UsersVoViProvider,
+    private readonly agenciesVoViProvider: AgenciesVoViProvider,
   ) {}
 
   async deleteOwnerPro(proId: number, ownerId: number, password: string) {
@@ -34,7 +34,7 @@ export class PropertiesDelProvider {
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');
     }
-    await this.usersVoViProvider.incrementTotalProperties(ownerId, -1);
+    await this.agenciesVoViProvider.chanePropertiesNum(ownerId, -1);
     return this.propertyRepository.delete({ id: proId });
   }
 

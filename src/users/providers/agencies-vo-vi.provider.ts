@@ -7,23 +7,23 @@ import { newMangleNameCache } from '@swc/core/binding';
 
 //increment depends on value
 @Injectable()
-export class UsersVoViProvider {
+export class AgenciesVoViProvider {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Statistics)
     private readonly statsRepository: Repository<Statistics>,
   ) {}
 
-  async incrementTotalVotes(ownerId: number, value: number) {
+  async changeVotesNum(ownerId: number, value: number) {
     await this.statsRepository.increment(
       { user_id: ownerId },
-      'totalVoteScore',
+      'agencyVotes',
       value,
     );
   }
 
   //PropertyCount
-  async incrementTotalProperties(
+  async chanePropertiesNum(
     ownerId: number,
     value: number,
     manager?: EntityManager,
@@ -32,17 +32,13 @@ export class UsersVoViProvider {
       ? manager.getRepository(Statistics)
       : this.statsRepository;
 
-    await repository.increment(
-      { user_id: ownerId },
-      'totalPropertyCount',
-      value,
-    );
+    await repository.increment({ user_id: ownerId }, 'propertyCount', value);
   }
 
   async incrementTotalViews(ownerId: number) {
     await this.statsRepository.increment(
       { user_id: ownerId },
-      'totalViewCount',
+      'agencyViews',
       1,
     );
   }

@@ -27,7 +27,6 @@ export class PropertiesController {
 
   @Get('all')
   @UseGuards(AuthGuard)
-  @UseInterceptors(CacheInterceptor)
   getAllAccepted(
     @Query() query: FilterPropertyDto,
     @CurrentUser() user: JwtPayloadType,

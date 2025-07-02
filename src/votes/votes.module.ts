@@ -9,6 +9,7 @@ import { PropertiesModule } from '../properties/properties.module';
 import { Property } from '../properties/entities/property.entity';
 import { User } from '../users/entities/user.entity';
 import { AuditModule } from '../audit/audit.module';
+import { VotesGetProvider } from './providers/votes-get.provider';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { AuditModule } from '../audit/audit.module';
     forwardRef(() => PropertiesModule),
   ],
   controllers: [VotesController],
-  providers: [VotesService],
+  providers: [VotesService, VotesGetProvider],
   exports: [VotesService],
 })
 export class VotesModule {}

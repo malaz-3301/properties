@@ -21,6 +21,8 @@ import { FilterPropertyDto } from '../dto/filter-property.dto';
 import { FavoriteService } from '../../favorite/favorite.service';
 import { VotesService } from '../../votes/votes.service';
 import { UserType } from '../../utils/enums';
+import { json } from 'express';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -90,6 +92,11 @@ export class PropertiesGetProvider {
     };
   }
 
+  async shortHash(obj: object) {
+    //ينشئ كائن تجزئة باستخدام خوارزمية MD5
+    return createHash('md5').update(JSON.stringify(obj)).digest('hex');
+  }
+
   ////////////////
 
   async getAll(query: FilterPropertyDto, ownerId?: number, agencyId?: number) {
@@ -110,6 +117,13 @@ export class PropertiesGetProvider {
       createdDir, //ترتيب التاريخ تصاعدي او تنازلي
       priceDir, //ترتيب السعر تصاعدي او تنازلي
     } = query;
+    const obj = { ...query, ownerId, agencyId };
+    const key = await this.shortHash(obj);
+    const cacheData = await this.cacheManager.get(key);
+    if (cacheData) {
+      console.log('This is Cache data');
+      return cacheData;
+    }
 
     const filter: FindOptionsWhere<Property> | undefined = {};
 
@@ -178,11 +192,8 @@ export class PropertiesGetProvider {
     if (!properties || properties.length === 0) {
       throw new NotFoundException('No estates found');
     }
-
-    await this.cacheManager.set(
-      `properties${word}${minPrice}${maxPrice}${status}`,
-      properties,
-    );
+    //key , value
+    await this.cacheManager.set(key, properties);
     return properties;
   }
 
@@ -194,5 +205,14 @@ export class PropertiesGetProvider {
     } else if (maxRange) {
       return LessThanOrEqual(parseInt(maxRange));
     }
+  }
+
+  getTopScorePro(limit: number) {
+    return this.propertyRepository.find({
+      order: {
+        voteScore: 'DESC',
+      },
+      take: limit,
+    });
   }
 }

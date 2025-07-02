@@ -24,8 +24,8 @@ import { Plan } from '../plans/entities/plan.entity';
 import { Order } from '../orders/entities/order.entity';
 import { OtpEntity } from './entities/otp.entity';
 import { AuditModule } from '../audit/audit.module';
-import { UsersVoViProvider } from './providers/users-vo-vi.provider';
-import { GlobalCacheModule } from '../cache/global/global.module';
+import { AgenciesVoViProvider } from './providers/agencies-vo-vi.provider';
+import { GlobalCacheModule } from '../modules-set/cache-global.module';
 import { Statistics } from './entities/statistics.entity';
 import { UsersUpgradeController } from './users-upgrade.controller';
 import { AgencyInfo } from './entities/agency-info.entity';
@@ -80,7 +80,7 @@ import { AgencyInfo } from './entities/agency-info.entity';
     UsersImgProvider,
     UsersDelProvider,
     UsersUpdateProvider,
-    UsersVoViProvider,
+    AgenciesVoViProvider,
     //Exclude()
     {
       provide: APP_INTERCEPTOR,
@@ -91,7 +91,7 @@ import { AgencyInfo } from './entities/agency-info.entity';
     UsersService,
     UsersOtpProvider,
     UsersGetProvider,
-    UsersVoViProvider,
+    AgenciesVoViProvider,
   ],
 })
 export class UsersModule {}

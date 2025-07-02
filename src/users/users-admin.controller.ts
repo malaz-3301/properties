@@ -39,7 +39,6 @@ export class UsersAdminController {
   @UseGuards(AuthRolesGuard)
   @UseInterceptors(AuditInterceptor)
   getAllPending(@Query() query: FilterUserDto) {
-    query.role = UserType.PENDING;
     return this.usersService.getAllPending(query);
   }
 
@@ -47,7 +46,6 @@ export class UsersAdminController {
   @Roles(UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
   getAllAdmins(@Query() query: FilterUserDto) {
-    query.role = UserType.ADMIN;
     return this.usersService.getAllAdmins(query);
   }
 

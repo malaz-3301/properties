@@ -42,7 +42,6 @@ export class PropertiesAdminController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
-  @UseInterceptors(CacheInterceptor)
   getAll(@Query() query: FilterPropertyDto) {
     return this.propertiesService.getAll(query);
   }

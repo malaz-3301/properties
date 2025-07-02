@@ -7,8 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../properties/entities/property.entity';
 import { User } from '../users/entities/user.entity';
 import { PropertiesGetProvider } from '../properties/providers/properties-get.provider';
-import { PropertiesVoViProvider } from '../properties/providers/properties-vo-vi.provider';
-import { UsersVoViProvider } from '../users/providers/users-vo-vi.provider';
+import { PropertiesVoSuViProvider } from '../properties/providers/properties-vo-su-vi.provider';
+import { AgenciesVoViProvider } from '../users/providers/agencies-vo-vi.provider';
 
 @Injectable()
 export class ViewsService {
@@ -18,8 +18,8 @@ export class ViewsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly propertiesGetProvider: PropertiesGetProvider,
-    private readonly propertiesVoViProvider: PropertiesVoViProvider,
-    private readonly usersVoViProvider: UsersVoViProvider,
+    private readonly propertiesVoViProvider: PropertiesVoSuViProvider,
+    private readonly agenciesVoViProvider: AgenciesVoViProvider,
   ) {}
 
   async create(proId: number, agencyId: number) {
@@ -35,12 +35,8 @@ export class ViewsService {
         property: { id: proId },
         user: { id: agencyId },
       });
-      await this.usersVoViProvider.incrementTotalViews(agencyId);
-      return await this.propertiesVoViProvider.incrementView(proId);
+      await this.agenciesVoViProvider.incrementTotalViews(agencyId);
+      return await this.propertiesVoViProvider.changeViewsNum(proId);
     }
-  }
-
-  findAll() {
-    return `This action returns all view`;
   }
 }

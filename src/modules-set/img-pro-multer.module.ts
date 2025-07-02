@@ -5,10 +5,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
-import { PropertiesService } from '../properties.service';
+import { PropertiesService } from '../properties/properties.service';
 import { diskStorage } from 'multer';
 import e, { Express } from 'express';
-import { PropertiesModule } from '../properties.module';
+import { PropertiesModule } from '../properties/properties.module';
 
 @Module({
   imports: [
@@ -64,5 +64,6 @@ import { PropertiesModule } from '../properties.module';
     }),
   ],
   exports: [MulterModule],
+  //not isGlobal() for all
 })
 export class ImgProMulterModule {}

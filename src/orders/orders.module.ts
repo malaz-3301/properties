@@ -8,12 +8,14 @@ import { AuthModule } from '../auth/auth.module';
 import Stripe from 'stripe';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from '../users/users.module';
+import { PropertiesModule } from '../properties/properties.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     ConfigModule,
+    PropertiesModule,
     TypeOrmModule.forFeature([Order, Plan]),
   ],
   controllers: [OrdersController],

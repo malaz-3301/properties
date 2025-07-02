@@ -4,20 +4,17 @@ import {
   Inject,
   Injectable,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { CreatePlanOrderDto } from './dto/create-plan-order.dto';
 import Stripe from 'stripe';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Plan } from '../plans/entities/plan.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
-import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
-import { UserType } from '../utils/enums';
-import { Roles } from '../auth/decorators/user-role.decorator';
 import { Order, OrderStatus } from './entities/order.entity';
+import { CreateCommOrderDto } from './dto/create-comm-order.dto';
+import { PropertiesGetProvider } from '../properties/providers/properties-get.provider';
 
 @Injectable()
 export class OrdersService {
@@ -29,11 +26,15 @@ export class OrdersService {
     @Inject('STRIPE_CLIENT') private readonly stripe: Stripe,
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly propertiesGetProvider: PropertiesGetProvider,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto, userId: number) {
+  async createPlanStripe(
+    createPlanOrderDto: CreatePlanOrderDto,
+    userId: number,
+  ) {
     const plan = await this.planRepository.findOneBy({
-      id: createOrderDto.planId,
+      id: createPlanOrderDto.planId,
     });
     if (!plan) {
       throw new UnauthorizedException('Unauthorized');
@@ -50,7 +51,7 @@ export class OrdersService {
               name: 'EasyRent',
               description: `${plan.description}`,
               images: [
-                'https://i.postimg.cc/VsG6vRY1/photo.jpg', // ← هنا رابط الصورة
+                'https://i.postimg.cc/bJ8Sptcm/Chat-GPT-Image-29-2025-10-17-36.png', // ← هنا رابط الصورة
               ],
             },
             unit_amount: plan.planPrice * 100,
@@ -62,8 +63,8 @@ export class OrdersService {
         },
       ],
       mode: 'subscription',
-      success_url: createOrderDto.dataAfterPayment.success_url,
-      cancel_url: createOrderDto.dataAfterPayment.cancel_url,
+      success_url: createPlanOrderDto.dataAfterPayment.success_url,
+      cancel_url: createPlanOrderDto.dataAfterPayment.cancel_url,
       client_reference_id: `${userId}`,
       metadata: {
         planId: String(plan.id),
@@ -72,10 +73,45 @@ export class OrdersService {
     });
   }
 
+  ///////
+  async createCommissionStrip(createCommOrderDto: CreateCommOrderDto) {
+    const property = await this.propertiesGetProvider.findById(
+      createCommOrderDto.proId,
+    );
+    //لان يقيس بالسنت ولا بقل الا عدد صحيح
+    const amount = Math.round((property.propertyCommissionRate ?? 1) * 100);
+    return await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'EasyRent',
+              description: `${property.title}\n${property.description}`,
+              images: [
+                'https://i.postimg.cc/bJ8Sptcm/Chat-GPT-Image-29-2025-10-17-36.png', // ← هنا رابط الصورة
+              ],
+            },
+            unit_amount: amount,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: createCommOrderDto.dataAfterPayment.success_url,
+      cancel_url: createCommOrderDto.dataAfterPayment.cancel_url,
+      metadata: {
+        proId: String(property.id),
+      },
+    });
+  }
+
   async createHook(body: any, signature: any) {
     const webhookSecret =
       this.configService.get<string>('STRIPE_WEBHOOK_SECRET') ?? '';
     let event: Stripe.Event | undefined;
+    //فك تشفير الجلسة
     try {
       event = this.stripe.webhooks.constructEvent(
         body,
@@ -101,7 +137,7 @@ export class OrdersService {
         console.log('اشتراك ناجح');
         console.log('Customer ID:', customerId);
         console.log('Subscription ID:', subscriptionId);
-        await this.setOrder(userId, planId);
+        await this.setPlanExp(userId, planId);
         break;
       }
       default:
@@ -109,33 +145,12 @@ export class OrdersService {
     }
   }
 
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
-  findAll() {
-    return `This action returns all orders`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
-  }
-
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.SUPER_ADMIN)
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.SUPER_ADMIN)
-  remove(id: number) {
-    return `This action removes a #${id} order`;
-  }
-
-  async setOrder(userId: number, planId: number) {
+  async setPlanExp(userId: number, planId: number) {
     const plan = await this.planRepository.findOne({
       where: { id: planId },
       select: { planDuration: true },
     });
+    //مدة صلاحية + الوقت الحالي
     let durationMs: number;
     const [numStr, unit] = plan?.planDuration.split('_') ?? [];
     switch (unit) {
@@ -160,7 +175,6 @@ export class OrdersService {
       planExpiresAt: new Date(Date.now() + durationMs),
     });
     await this.orderRepository.save(order);
-
     return await this.usersService.setUserPlan(userId, planId);
   }
 }

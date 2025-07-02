@@ -44,18 +44,6 @@ export class VotesController {
   }
 
   /**
-   * votes who user did
-   * @param userId
-   */
-  @Get('user/:userId')
-  @UseGuards(AuthRolesGuard)
-  @Roles(UserType.ADMIN, UserType.ADMIN)
-  @UseInterceptors(AuditInterceptor)
-  getUserVotesC(@Param('userId', ParseIntPipe) userId: number) {
-    return this.votesService.getUserVotesC(userId);
-  }
-
-  /**
    * who spam
    *
    */
@@ -63,7 +51,7 @@ export class VotesController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.ADMIN)
   @UseInterceptors(AuditInterceptor)
-  getUsersSpam() {
-    return this.votesService.getUsersSpam();
+  getVoteSpammers() {
+    return this.votesService.getVoteSpammers();
   }
 }

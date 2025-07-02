@@ -26,7 +26,7 @@ import { Vote } from '../../votes/entities/vote.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { View } from '../../views/entities/view.entity';
 import { Request } from 'src/requests/entities/request.entity';
-import { PriorityScoreEntity } from './priority-score.entity';
+import { PriorityRatio } from './priority-ratio.entity';
 
 @Entity('property')
 export abstract class Property extends Estate {
@@ -60,17 +60,17 @@ export abstract class Property extends Estate {
   @Column({ type: 'varchar', length: 180 })
   description: string;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'numeric', precision: 8, scale: 2 })
   price: number;
 
   @Column(() => Location) //embedded
   location: Location;
 
-  @Column(() => PriorityScoreEntity) //embedded
-  priorityScoreEntity: PriorityScoreEntity;
+  @OneToOne(() => PriorityRatio, (priorityRatio) => priorityRatio.property)
+  priorityRatio: PriorityRatio;
 
   @Column({ type: 'float', default: 0 })
-  priorityScoreRate: number;
+  primacy: number;
 
   @Column({ default: false })
   isForRent: boolean;
@@ -116,6 +116,10 @@ export abstract class Property extends Estate {
     onUpdate: CURRENT_TIMESTAMP,
   })
   updatedAt: Date;
+
+  //عملتها numeric لان ادق من float بس بتستهلك ذاكرة اكبر
+  @Column({ type: 'numeric', precision: 4, scale: 2, nullable: true })
+  propertyCommissionRate?: number;
 
   @OneToMany(() => Contract, (contracts) => contracts.property)
   contacts: Contract[];

@@ -16,6 +16,7 @@ import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 
 import { OtpEntity } from './entities/otp.entity';
 import { FilterUserDto } from './dto/filter-user.dto';
+import { UserType } from '../utils/enums';
 
 @Injectable()
 export class UsersService {
@@ -128,10 +129,12 @@ export class UsersService {
   }
 
   async getAllPending(query: FilterUserDto) {
+    query.role = UserType.PENDING;
     return this.usersGetProvider.getAll(query);
   }
 
   async getAllAdmins(query: FilterUserDto) {
+    query.role = UserType.ADMIN;
     return this.usersGetProvider.getAll(query);
   }
 
@@ -158,6 +161,7 @@ export class UsersService {
   async setUserPlan(userId: number, planId: number) {
     return await this.usersRepository.update(userId, {
       plan: { id: planId },
+      ...(planId === 2 ? { hasUsedTrial: true } : {}),
     });
   }
 }

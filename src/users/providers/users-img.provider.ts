@@ -45,30 +45,37 @@ export class UsersImgProvider {
   }
 
   async upgrade(userId: number, filenames: string[]) {
-    const agency = await this.usersGetProvider.getOneAgencyInfo(userId);
+    const agency = await this.usersGetProvider.findById(userId);
+    let agencyInfo = await this.agencyInfoRepository.findOneBy({
+      user_id: userId,
+    });
+    if (!agencyInfo) {
+      agencyInfo = this.agencyInfoRepository.create();
+    }
     //بقي الحذف لسا
-    const length = agency.docImages?.length + filenames.length;
+    console.log('nnnnnnnnnnnnnooo');
+    const length = agencyInfo.docImages?.length + filenames.length;
 
     if (length > 2) {
       console.log(filenames.length);
-      console.log(agency.docImages?.length);
+      console.log(agencyInfo.docImages?.length);
       console.log(length);
       console.log('docImages');
       const sub = length - 2;
-      const forDelete = agency.docImages.splice(0, sub); //حذف + عرفت الاسماء
+      const forDelete = agencyInfo.docImages.splice(0, sub); //حذف + عرفت الاسماء
       for (const photo of forDelete) {
         unlinkSync(join(process.cwd(), `./images/users/${photo}`)); //file path
       }
     }
 
-    agency.docImages = agency.docImages
-      ? agency.docImages.concat(filenames)
+    agencyInfo.docImages = agencyInfo.docImages
+      ? agencyInfo.docImages.concat(filenames)
       : filenames.concat(); //concat
 
     await this.usersRepository.save({
       ...agency,
       userType: UserType.PENDING,
-      agencyInfo: { docImages: agency.docImages },
+      agencyInfo: { docImages: agencyInfo.docImages },
     });
 
     return {

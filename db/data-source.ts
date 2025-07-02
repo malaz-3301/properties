@@ -13,6 +13,8 @@ import { Audit } from '../src/audit/entities/audit.entity';
 import { Notification } from '../src/notifications/entities/notification.entity';
 import { config } from 'dotenv';
 import { Contract } from '../src/contracts/entities/contract.entity';
+import { AgencyInfo } from '../src/users/entities/agency-info.entity';
+import { Statistics } from '../src/users/entities/statistics.entity';
 //dotenv config
 config({ path: '.env' });
 
@@ -20,8 +22,9 @@ export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   // url: process.env.DATABASE_URL,
   // ... الإعدادات الأخرى
-  url: process.env.DATABASE_URL,
 
+  url: process.env.DATABASE_URL,
+  //تاكد من الجداول
   entities: [
     Contract,
     User,
@@ -35,6 +38,8 @@ export const dataSourceOptions: DataSourceOptions = {
     Order,
     View,
     Request,
+    AgencyInfo,
+    Statistics,
   ],
   migrations: ['dist/db/migrations/*.js'],
 

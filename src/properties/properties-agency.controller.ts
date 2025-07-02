@@ -73,7 +73,6 @@ export class PropertiesAgencyController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.AGENCY)
   @UseInterceptors(AuditInterceptor)
-  @UseInterceptors(CacheInterceptor)
   getAgencyPros(
     @Query() query: FilterPropertyDto,
     @CurrentUser() agency: JwtPayloadType,
@@ -89,8 +88,11 @@ export class PropertiesAgencyController {
     @Query() query: FilterPropertyDto,
     @CurrentUser() agency: JwtPayloadType,
   ) {
-    query.status = PropertyStatus.PENDING;
-    return this.propertiesService.getAll(query, undefined, agency.id);
+    return this.propertiesService.getAllPendingAgency(
+      query,
+      undefined,
+      agency.id,
+    );
   }
 
   @Delete('remove-any-img/:id/:imageName')

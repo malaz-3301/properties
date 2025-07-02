@@ -97,7 +97,7 @@ export class User {
   @OneToMany(() => Contract, (contracts) => contracts.user)
   contracts: Contract[];
   ////
-  @ManyToOne(() => Plan, (plan: Plan) => plan.users, { eager: true })
+  @ManyToOne(() => Plan, (plan: Plan) => plan.users)
   plan?: Plan;
 
   /*ازلها  @Column({ type: 'int', nullable: true })

@@ -17,62 +17,23 @@ import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 import { OtpEntity } from './entities/otp.entity';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { UserType } from '../utils/enums';
+import { UsersRegisterProvider } from './providers/users-register-provider';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private dataSource: DataSource,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    @InjectRepository(OtpEntity)
-    private readonly otpEntityRepository: Repository<OtpEntity>,
+    private readonly usersRegisterProvider: UsersRegisterProvider,
     private readonly usersOtpProvider: UsersOtpProvider,
-    private readonly geolocationService: GeolocationService,
     private readonly usersUpdateProvider: UsersUpdateProvider,
     private readonly usersImgProvider: UsersImgProvider,
     private readonly usersGetProvider: UsersGetProvider,
     private readonly usersDelProvider: UsersDelProvider,
   ) {}
 
-  /**
-   *
-   * @param registerUserDto
-   */
   async register(registerUserDto: RegisterUserDto) {
-    const { phone, password, pointsDto } = registerUserDto;
-    if (await this.usersRepository.findOneBy({ phone: phone })) {
-      throw new ConflictException('User already exists');
-    }
-    registerUserDto.password = await this.usersOtpProvider.hashCode(password);
-    //OTP
-    const code = Math.floor(10000 + Math.random() * 90000).toString();
-    const otpCode = await this.usersOtpProvider.hashCode(code);
-    //
-    const location = await this.geolocationService.reverse_geocoding(
-      pointsDto.lat,
-      pointsDto.lon,
-    );
-    //DT
-    const result = await this.dataSource.transaction(async (manger) => {
-      const user = manger.create(User, {
-        ...registerUserDto,
-        location,
-        plan: { id: 1 },
-      });
-
-      await manger.save(User, user);
-      await manger.save(OtpEntity, {
-        otpCode: otpCode,
-        user: { id: user.id },
-      });
-
-      await this.usersOtpProvider.sendSms(user.phone, `Your Key is ${code}`);
-      return user;
-    });
-    return {
-      message: 'Verify your account',
-      userId: result.id,
-    };
+    return this.usersRegisterProvider.register(registerUserDto);
   }
 
   async otpVerify(code: string, id: number) {
@@ -113,6 +74,7 @@ export class UsersService {
   }
 
   async getAllAgency(query: FilterUserDto) {
+    query.role = UserType.AGENCY;
     return this.usersGetProvider.getAll(query);
   }
 

@@ -59,14 +59,6 @@ export class AuthService {
     };
   }
 
-  /**
-   *
-   * @param id
-   */
-  async getCurrentUser(id: number) {
-    return this.findById(id);
-  }
-
   async resetAccount(resetAccountDto: ResetAccountDto) {
     const { phone, username } = resetAccountDto;
     const user = phone //if بطريقة عمك ملاز
@@ -106,8 +98,11 @@ export class AuthService {
     };
   }
 
-  private async findById(id: number) {
-    const user = await this.usersRepository.findOneBy({ id: id });
+  async getCurrentUser(myId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: myId },
+      relations: { plan: true },
+    });
     if (!user) {
       throw new NotFoundException('User Not Found');
     }

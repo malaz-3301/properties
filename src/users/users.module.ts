@@ -29,6 +29,7 @@ import { GlobalCacheModule } from '../modules-set/cache-global.module';
 import { Statistics } from './entities/statistics.entity';
 import { UsersUpgradeController } from './users-upgrade.controller';
 import { AgencyInfo } from './entities/agency-info.entity';
+import { UsersRegisterProvider } from './providers/users-register-provider';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { AgencyInfo } from './entities/agency-info.entity';
   controllers: [UsersController, UsersAdminController, UsersUpgradeController],
   providers: [
     UsersService,
+    UsersRegisterProvider,
     UsersOtpProvider,
     UsersGetProvider,
     UsersImgProvider,

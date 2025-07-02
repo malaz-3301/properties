@@ -118,7 +118,6 @@ export class UsersController {
   @Get('agency')
   @UseGuards(AuthGuard)
   getAllAgency(@Query() query: FilterUserDto) {
-    query.role = UserType.ADMIN;
     return this.usersService.getAllAgency(query);
   }
 

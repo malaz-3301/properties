@@ -152,6 +152,10 @@ export class PropertiesGetProvider {
     }
     //ORDER
     const order: FindOptionsOrder<Property> | undefined = {};
+    //مشان الاولوية تنازلي
+    if (createdDir == null && priceDir == null) {
+      order.primacy = 'DESC';
+    }
     if (createdDir != null) {
       order.createdAt = createdDir;
     }

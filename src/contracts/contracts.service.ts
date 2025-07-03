@@ -1,4 +1,10 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +13,8 @@ import { Between, FindOperator, LessThan, MoreThan, Repository } from 'typeorm';
 import { Cron } from '@nestjs/schedule';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { UsersService } from 'src/users/users.service';
+import { PropertiesService } from 'src/properties/properties.service';
+import { PropertiesGetProvider } from 'src/properties/providers/properties-get.provider';
 
 @Injectable()
 export class ContractsService {
@@ -14,16 +22,26 @@ export class ContractsService {
     @InjectRepository(Contract)
     private readonly contractRepository: Repository<Contract>,
     private readonly userService: UsersService,
+    private readonly notificationsService: NotificationsService,
+    private readonly PropertiesGetProvider: PropertiesGetProvider,
   ) {}
 
   async create(userId: number, createContractDto: CreateContractDto) {
-    const isActive = await this.contractRepository.findOne({where : {property : {id : createContractDto.propertyId}, expireIn : MoreThan(new Date())}})
-    if (isActive){
+    const isActive = await this.contractRepository.findOne({
+      where: {
+        property: { id: createContractDto.propertyId },
+        expireIn: MoreThan(new Date()),
+      },
+    });
+
+    if (isActive) {
       throw new HttpException('property not avilable now', 404);
     }
+
     const validUntil = new Date();
+
     validUntil.setMonth(validUntil.getMonth() + createContractDto.time);
-    console.log(validUntil);
+
 
     const newContract = this.contractRepository.create({
       ...createContractDto,
@@ -31,7 +49,42 @@ export class ContractsService {
       expireIn: validUntil,
       property: { id: createContractDto.propertyId },
     });
-    return this.contractRepository.save(newContract);
+
+    const SavedContract = this.contractRepository.save(newContract);
+
+    await this.notificationsService.create(
+      {
+        message: 'Create Contract Successfully',
+        propertyId: createContractDto.propertyId,
+        title: 'The contract was successfully concluded',
+      },
+      userId,
+    );
+
+    const property = await this.PropertiesGetProvider.getOwnerAndAgency(
+      createContractDto.propertyId,
+    );
+
+    if (!property) {
+      throw new HttpException('Property Not Found', 404);
+    }
+    await this.notificationsService.create(
+      {
+        message: 'Create Contract Successfully',
+        propertyId: createContractDto.propertyId,
+        title: 'The contract was successfully concluded',
+      },
+      property.owner.id,
+    );
+
+    await this.notificationsService.create(
+      {
+        message: 'Create Contract Successfully',
+        propertyId: createContractDto.propertyId,
+        title: 'The contract was successfully concluded',
+      },
+      property.agency.id,
+    );
   }
 
   findAll() {
@@ -47,7 +100,7 @@ export class ContractsService {
       const validUntil = new Date();
       validUntil.setMonth(validUntil.getMonth() + updateContractDto.time);
       return this.contractRepository.update(id, {
-        price : updateContractDto.price,
+        price: updateContractDto.price,
         expireIn: validUntil,
       });
     }
@@ -99,7 +152,7 @@ export class ContractsService {
   MyContractsExpiredAfterWeek(userId: number) {
     const today = new Date();
     const afterWeek = new Date();
-    
+
     afterWeek.setDate(today.getDate() + 7);
     return this.contractRepository.find({
       where: {
@@ -107,6 +160,12 @@ export class ContractsService {
         user: { id: userId },
       },
       relations: ['property'],
+    });
+  }
+
+  getContractsNumber(userId: number) {
+    return this.contractRepository.count({
+      where: { property: { agency: { id: userId } } },
     });
   }
 }

@@ -1,4 +1,10 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Cron } from '@nestjs/schedule';
@@ -28,8 +34,9 @@ export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
-    private readonly contractService: ContractsService,
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => ContractsService))
+    private readonly contractService: ContractsService,
   ) {}
 
   private readonly logger = new Logger(NotificationsService.name);
@@ -56,7 +63,9 @@ export class NotificationsService {
       readAt: null,
       property: { id: createNotificationDto.propertyId },
     });
+
     const user = await this.userService.getUserById(userId);
+
     await this.sendNotificationToDevice(
       user.token,
       createNotificationDto.title,

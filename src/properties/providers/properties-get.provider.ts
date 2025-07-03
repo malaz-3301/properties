@@ -219,4 +219,12 @@ export class PropertiesGetProvider {
       take: limit,
     });
   }
+
+  getOwnerAndAgency(Id: number) {
+    return this.propertyRepository.findOne({
+      where: { id: Id },
+      relations: ['agency', 'owner'],
+      select: { owner: { id: true }, agency: { id: true } },
+    });
+  }
 }

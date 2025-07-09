@@ -4,11 +4,11 @@ import { IsNotEmpty, IsNumber } from 'class-validator';
 export class PointsDto {
   @IsNotEmpty()
   @IsNumber()
-  lat: number;
-  //latitude
+  lon: number;
+  //longitude
 
   @IsNotEmpty()
   @IsNumber()
-  lon: number;
-  //longitude
+  lat: number;
+  //latitude
 }

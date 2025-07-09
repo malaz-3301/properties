@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../entities/property.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { ideal, weights } from '../../utils/constants';
+import { PriorityRatio } from '../entities/priority-ratio.entity';
 
 @Injectable()
 export class PropertiesVoSuViProvider {
   constructor(
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
+    @InjectRepository(PriorityRatio)
+    private priorityRatioRepository: Repository<PriorityRatio>,
   ) {}
 
   //VotesModule
@@ -58,7 +61,10 @@ export class PropertiesVoSuViProvider {
     score += weights.price * priceScore;
     // ideal score = 100
     //عمل النسبة من 50 , و تخزينها
+    console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeee');
+    property.priorityRatio = this.priorityRatioRepository.create();
     property.priorityRatio.suitabilityRatio = score / 2;
+    console.log('fffffffffffffffffffffffffffffff');
     property.primacy += score / 2;
     console.log('compute');
 

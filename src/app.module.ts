@@ -21,7 +21,6 @@ import { PlansModule } from './plans/plans.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { VotesModule } from './votes/votes.module';
 import { OrdersModule } from './orders/orders.module';
-import { CornModule } from './corn/corn.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StripeModule } from './stripe/stripe.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -39,6 +38,7 @@ import { ReportsModule } from './reports/reports.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ImgProMulterModule } from './modules-set/img-pro-multer.module';
 import { PostgresSetModule } from './modules-set/postgres-set.module';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   imports: [
@@ -50,7 +50,7 @@ import { PostgresSetModule } from './modules-set/postgres-set.module';
     VotesModule,
     PlansModule,
     ContractsModule,
-    PostgresSetModule,
+    TypeOrmModule.forRoot(dataSourceOptions),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
@@ -59,7 +59,6 @@ import { PostgresSetModule } from './modules-set/postgres-set.module';
     GeolocationModule,
     OrdersModule,
     ScheduleModule.forRoot(),
-    CornModule,
     NotificationsModule,
     StripeModule,
     AuditModule,
@@ -73,6 +72,7 @@ import { PostgresSetModule } from './modules-set/postgres-set.module';
     ReportsModule,
     AnalyticsModule,
     ImgProMulterModule,
+    CronModule,
   ],
   controllers: [AppController],
   providers: [
@@ -92,3 +92,4 @@ export class AppModule implements NestModule {
 }
 
 //    TypeOrmModule.forRoot(dataSourceOptions),
+//   PostgresSetModule,

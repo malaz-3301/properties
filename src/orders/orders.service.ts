@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { Order, OrderStatus } from './entities/order.entity';
 import { CreateCommOrderDto } from './dto/create-comm-order.dto';
 import { PropertiesGetProvider } from '../properties/providers/properties-get.provider';
+import { PropertiesUpdateProvider } from '../properties/providers/properties-update.provider';
 
 @Injectable()
 export class OrdersService {
@@ -27,6 +28,7 @@ export class OrdersService {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
     private readonly propertiesGetProvider: PropertiesGetProvider,
+    private readonly propertiesUpdateProvider: PropertiesUpdateProvider,
   ) {}
 
   async createPlanStripe(
@@ -129,15 +131,23 @@ export class OrdersService {
       case 'checkout.session.completed': {
         console.log(event.type);
         const session = event.data.object as Stripe.Checkout.Session;
-        const customerId = session.customer;
-        const subscriptionId = session.subscription;
         const metadata = session.metadata ?? {};
-        const userId = parseInt(metadata.userId);
-        const planId = parseInt(metadata.planId);
-        console.log('اشتراك ناجح');
-        console.log('Customer ID:', customerId);
-        console.log('Subscription ID:', subscriptionId);
-        await this.setPlanExp(userId, planId);
+
+        if (session.mode === 'subscription') {
+          const customerId = session.customer;
+          const subscriptionId = session.subscription;
+          const userId = parseInt(metadata.userId);
+          const planId = parseInt(metadata.planId);
+          console.log('اشتراك ناجح');
+          console.log('Customer ID:', customerId);
+          console.log('Subscription ID:', subscriptionId);
+          await this.setPlanExp(userId, planId);
+          //عمولة
+        } else if (session.mode === 'payment') {
+          const proId = parseInt(metadata.proId);
+          console.log(' دفعة عمولة ناجحة للعقار', proId);
+          await this.markCommissionPaid(proId);
+        }
         break;
       }
       default:
@@ -176,5 +186,9 @@ export class OrdersService {
     });
     await this.orderRepository.save(order);
     return await this.usersService.setUserPlan(userId, planId);
+  }
+
+  async markCommissionPaid(proId: number) {
+    return this.propertiesUpdateProvider.markCommissionPaid(proId);
   }
 }

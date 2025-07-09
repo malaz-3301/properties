@@ -27,7 +27,11 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new LoggerInterceptor());
   app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
   );
 
   //عدنا مرجع انتوا تايهين ما عدكم مرجع

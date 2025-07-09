@@ -95,6 +95,49 @@ export class PropertiesImgProvider {
     return this.propertyRepository.save(pro);
   }
 
+  async setMultiPanorama(
+    id: number,
+    userId: number,
+    panoramaNames: string[],
+    filenames: string[],
+  ) {
+    const pro = await this.propertiesGetProvider.getProByUser(
+      id,
+      userId,
+      UserType.Owner,
+    );
+    //مقارنة المفاتيح المتشابهة لحذف القيم
+    const panoramaNamesParse = JSON.parse((pro.panoramaImages as any) || {});
+    const forDelete: string[] = panoramaNames.reduce((acc: string[], name) => {
+      if (panoramaNamesParse.hasOwnProperty(name)) {
+        acc.push(panoramaNamesParse[name]);
+      }
+      return acc;
+    }, []);
+    for (const filename of forDelete) {
+      unlinkSync(join(process.cwd(), `./images/properties/${filename}`));
+    }
+
+    //تهيئة ال record
+    const panoramaImages: Record<string, string> = panoramaNames.reduce(
+      (acc, pN, i) => {
+        acc[pN] = filenames[i];
+        return acc;
+      },
+      {
+        /*قيمة ابتدائية*/
+      },
+    );
+
+    await this.propertyRepository.save({
+      ...pro,
+      panoramaImages: panoramaImages,
+    });
+    return {
+      message: `File uploaded successfully :  ${filenames}`,
+    };
+  }
+
   /*  async removeSingleImage(id: number, userId: number) {
       const pro = await this.propertiesGetProvider.getProByOwner(id, userId);
       if (!pro.propertyImage) {

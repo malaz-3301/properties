@@ -17,6 +17,10 @@ import { Response } from 'express';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { FilterPropertyDto } from './dto/filter-property.dto';
+import { Point } from 'typeorm';
+import { PointsDto } from '../geolocation/dto/points.dto';
+import { NearProDto } from './dto/near-pro.dto';
+import { GeoProDto } from './dto/geo-pro.dto';
 
 //@UseInterceptors(CacheInterceptor)
 @Controller('property')
@@ -26,13 +30,19 @@ export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
 
   @Get('all')
-  @UseGuards(AuthGuard)
-  getAllAccepted(
-    @Query() query: FilterPropertyDto,
-    @CurrentUser() user: JwtPayloadType,
-  ) {
+  getAllAccepted(@Query() query: FilterPropertyDto) {
     query.status = PropertyStatus.ACCEPTED;
     return this.propertiesService.getAll(query);
+  }
+
+  @Get('geo')
+  getProByGeo(@Query() geoProDto: GeoProDto) {
+    return this.propertiesService.getProByGeo(geoProDto);
+  }
+
+  @Get('near')
+  getProNearMe(@Query() nearProDto: NearProDto) {
+    return this.propertiesService.getProNearMe(nearProDto);
   }
 
   @Get('top/:limit')

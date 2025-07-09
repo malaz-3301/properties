@@ -41,6 +41,14 @@ export class PropertiesCreateProvider {
       pointsDto.lat,
       pointsDto.lon,
     );
+    console.log('aaaaaaaaaaaaaaaaaaaaaa');
+    //format
+    location['stringPoints'] = {
+      type: 'Point',
+      coordinates: [pointsDto.lon, pointsDto.lat],
+    };
+
+    console.log('bbbbbbbbbbbbbbbbbbbbbbbbb');
     const propertyCommissionRate =
       createPropertyDto.price * (agencyInfo.agencyCommissionRate ?? 1);
 
@@ -53,10 +61,12 @@ export class PropertiesCreateProvider {
         agency: { id: agency.id },
         propertyCommissionRate: propertyCommissionRate,
       });
+      console.log('cccccccccccccccccccccccccc');
       if (owner.id === agency.id) {
         newProperty.status = PropertyStatus.ACCEPTED;
       }
       await manger.save(Property, newProperty);
+      console.log('ddddddddddddddddddddddddddddddd');
       await this.propertiesVoViProvider.computeSuitabilityRatio(
         newProperty,
         manger,

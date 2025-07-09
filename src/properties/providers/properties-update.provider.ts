@@ -81,4 +81,10 @@ export class PropertiesUpdateProvider {
     await this.propertiesGetProvider.findById(proId);
     return this.propertyRepository.update(proId, updateProAdminDto);
   }
+
+  async markCommissionPaid(proId: number) {
+    return this.propertyRepository.update(proId, {
+      commissionPaid: true,
+    });
+  }
 }

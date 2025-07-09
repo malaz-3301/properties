@@ -15,15 +15,19 @@ import { config } from 'dotenv';
 import { Contract } from '../src/contracts/entities/contract.entity';
 import { AgencyInfo } from '../src/users/entities/agency-info.entity';
 import { Statistics } from '../src/users/entities/statistics.entity';
+import { PriorityRatio } from '../src/properties/entities/priority-ratio.entity';
 //dotenv config
 config({ path: '.env' });
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  // url: process.env.DATABASE_URL,
-  // ... الإعدادات الأخرى
 
-  url: process.env.DATABASE_URL,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT as any, // بورت PostgreSQL الافتراضي
+  username: process.env.DB_USERNAME, // اسم المستخدم عندك
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE, // اسم قاعدة البيانات
+  //url: process.env.DATABASE_URL,
   //تاكد من الجداول
   entities: [
     Contract,
@@ -40,6 +44,7 @@ export const dataSourceOptions: DataSourceOptions = {
     Request,
     AgencyInfo,
     Statistics,
+    PriorityRatio,
   ],
   migrations: ['dist/db/migrations/*.js'],
 

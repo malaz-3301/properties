@@ -36,17 +36,17 @@ export class GeolocationService {
 
       const comp = result.components;
       return {
-        country: comp.country,
-        governorate: comp.state, // المحافظة
-        city: comp.city || comp.town,
+        street: comp.road, //غالبا ما عم تكون\
         quarter: comp.suburb, // حي أو ضاحية
-        street: comp.road, //غالبا ما عم تكون
-        lat: lat,
-        lon: lon,
-        nearestPoint: {
-          lat: result.geometry.lat,
-          lon: result.geometry.lng,
-        },
+        city: comp.city || comp.town,
+        governorate: comp.state, // المحافظة
+        country: comp.country,
+        // lon: lon,
+        //   lat: lat,
+        // nearestPoint: {
+        //  lon: result.geometry.lng,
+        //   lat: result.geometry.lat,
+        //  },
       };
     } catch (err) {
       throw new HttpException(

@@ -123,4 +123,10 @@ export class User {
 
   @Column()
   token: string;
+
+  /*  @Column({ nullable: true })
+    stripeAccountId: string;
+
+    @Column({ nullable: true })
+    onboardingUrl: string;*/
 }

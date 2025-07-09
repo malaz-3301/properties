@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  Query,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -29,6 +30,8 @@ import { EditProAgencyDto } from './dto/edit-pro-agency.dto';
 import { PriorityRatio } from './entities/priority-ratio.entity';
 import { PropertiesVoSuViProvider } from './providers/properties-vo-su-vi.provider';
 import { PropertiesCreateProvider } from './providers/properties-create.provider';
+import { GeoProDto } from './dto/geo-pro.dto';
+import { NearProDto } from './dto/near-pro.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -43,11 +46,11 @@ export class PropertiesService {
   ) {}
 
   //create from other
-  async create(createPropertyDto: CreatePropertyDto, ownerId: number) {
+  create(createPropertyDto: CreatePropertyDto, ownerId: number) {
     return this.propertiesCreateProvider.create(createPropertyDto, ownerId);
   }
 
-  async updateOwnerPro(
+  updateOwnerPro(
     proId: number,
     userId: number,
     updatePropertyDto: UpdatePropertyDto,
@@ -59,14 +62,14 @@ export class PropertiesService {
     );
   }
 
-  async updateAdminPro(proId: number, updateProAdminDto: UpdateProAdminDto) {
+  updateAdminPro(proId: number, updateProAdminDto: UpdateProAdminDto) {
     return this.propertiesUpdateProvider.updateAdminPro(
       proId,
       updateProAdminDto,
     );
   }
 
-  async updateAgencyPro(
+  updateAgencyPro(
     proId: number,
     agencyId: number,
     editProAgencyDto: EditProAgencyDto,
@@ -78,12 +81,12 @@ export class PropertiesService {
     );
   }
 
-  async acceptAgencyPro(proId: number, agencyId: number) {
-    await this.propertiesUpdateProvider.acceptAgencyPro(proId, agencyId);
+  acceptAgencyPro(proId: number, agencyId: number) {
+    return this.propertiesUpdateProvider.acceptAgencyPro(proId, agencyId);
   }
 
   async rejectAgencyPro(proId: number, agencyId: number) {
-    await this.propertiesUpdateProvider.rejectAgencyPro(proId, agencyId);
+    return this.propertiesUpdateProvider.rejectAgencyPro(proId, agencyId);
   }
 
   getAll(query: FilterPropertyDto, ownerId?: number, agencyId?: number) {
@@ -107,6 +110,14 @@ export class PropertiesService {
     return this.propertiesGetProvider.getProByUser(proId, userId, role);
   }
 
+  async getProByGeo(geoProDto: GeoProDto) {
+    return this.propertiesGetProvider.getProByGeo(geoProDto);
+  }
+
+  async getProNearMe(nearProDto: NearProDto) {
+    return this.propertiesGetProvider.getProNearMe(nearProDto);
+  }
+
   async deleteOwnerPro(proId: number, userId: number, password: string) {
     return this.propertiesDelProvider.deleteOwnerPro(proId, userId, password);
   }
@@ -121,6 +132,20 @@ export class PropertiesService {
 
   async setMultiImg(id: number, userId: number, filenames: string[]) {
     return this.propertiesImgProvider.setMultiImg(id, userId, filenames);
+  }
+
+  async setMultiPanorama(
+    id: number,
+    userId: number,
+    panoramaNames: string[],
+    filenames: string[],
+  ) {
+    return this.propertiesImgProvider.setMultiPanorama(
+      id,
+      userId,
+      panoramaNames,
+      filenames,
+    );
   }
 
   /*  async removeSingleImage(id: number, userId: number) {

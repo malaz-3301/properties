@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreatePlanOrderDto } from './dto/create-plan-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayloadType } from '../utils/constants';
@@ -38,12 +37,13 @@ export class OrdersController {
     return this.ordersService.createPlanStripe(createPlanOrderDto, user.id);
   }
 
-  @Post('commission')
-  @UseGuards(AuthGuard)
-  @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
-  createCommissionStripe(@Body() createCommOrderDto: CreateCommOrderDto) {
-    return this.ordersService.createCommissionStrip(createCommOrderDto);
-  }
+  /*
+    @Post('commission')
+    @UseGuards(AuthGuard)
+    @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
+    createCommissionStripe(@Body() createCommOrderDto: CreateCommOrderDto) {
+      return this.ordersService.createCommissionStrip(createCommOrderDto);
+    }*/
 
   @Post('/stripe')
   @SkipThrottle()

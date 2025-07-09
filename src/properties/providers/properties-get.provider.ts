@@ -8,11 +8,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../entities/property.entity';
 import {
   Between,
+  DataSource,
   FindOptionsOrder,
   FindOptionsWhere,
   LessThanOrEqual,
   Like,
   MoreThanOrEqual,
+  Raw,
   Repository,
 } from 'typeorm';
 
@@ -20,9 +22,12 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { FilterPropertyDto } from '../dto/filter-property.dto';
 import { FavoriteService } from '../../favorite/favorite.service';
 import { VotesService } from '../../votes/votes.service';
-import { UserType } from '../../utils/enums';
+import { GeoEnum, UserType } from '../../utils/enums';
 import { json } from 'express';
 import { createHash } from 'crypto';
+import { GeoProDto } from '../dto/geo-pro.dto';
+import { GeolocationService } from '../../geolocation/geolocation.service';
+import { NearProDto } from '../dto/near-pro.dto';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -31,8 +36,10 @@ export class PropertiesGetProvider {
     private propertyRepository: Repository<Property>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly favoriteService: FavoriteService,
-    @Inject(forwardRef(() => VotesService))
+    @Inject(forwardRef(() => VotesService)) //cycle conflict
     private readonly votesService: VotesService,
+    private readonly geolocationService: GeolocationService,
+    private dataSource: DataSource,
   ) {}
 
   async getProByUser(proId: number, userId: number, role: UserType) {
@@ -65,6 +72,7 @@ export class PropertiesGetProvider {
         agency: { id: true, username: true },
       },
     });
+
     if (!property) {
       throw new NotFoundException('Property not found');
     }
@@ -80,13 +88,28 @@ export class PropertiesGetProvider {
         agency: { id: true, username: true },
       },
     });
+
+    console.log(property?.panoramaImages);
     if (!property) {
       throw new NotFoundException('Property not found');
     }
     const isFavorite = await this.favoriteService.isFavorite(userId, proId);
     const voteValue = await this.votesService.isVote(proId, userId);
+    //I don't want fist Image
+    const { panoramaImages, firstImage, ...propertyE } = property;
+    //return from string to obj
+    const panoramaImagesParse: Record<string, string> = JSON.parse(
+      property.panoramaImages as any,
+    );
+    /*    const panoramaYehia = Object.entries(panoramaImagesParse).map(
+          ([title, url]) => ({
+            title,
+            url,
+          }),
+        );*/
     return {
-      ...property,
+      ...propertyE,
+      panoramaImages: panoramaImagesParse,
       isFavorite,
       voteValue,
     };
@@ -95,6 +118,85 @@ export class PropertiesGetProvider {
   async shortHash(obj: object) {
     //ينشئ كائن تجزئة باستخدام خوارزمية MD5
     return createHash('md5').update(JSON.stringify(obj)).digest('hex');
+  }
+
+  async getProByGeo(geoProDto: GeoProDto) {
+    const level = geoProDto.geoLevel;
+    const location = await this.geolocationService.reverse_geocoding(
+      geoProDto.lat,
+      geoProDto.lon,
+    );
+    //نزيل بعدين طلاع
+    const GeoArray = Object.values(GeoEnum); //عملها مصفوفة
+    console.log(location);
+    const key = GeoArray.indexOf(level);
+    let apiGeoLevel;
+    let apiGeoValue;
+
+    if (location[level] != null && location[level] != 'unnamed road') {
+      apiGeoValue = location[`${GeoArray[key]}`];
+    } else {
+      let i = key - 1;
+      while (i >= 0) {
+        console.log('aaa');
+        if (
+          location[GeoArray[i]] != 'unnamed road' &&
+          location[GeoArray[i]] != null
+        ) {
+          apiGeoLevel = GeoArray[i];
+          apiGeoValue = location[GeoArray[i]];
+          console.log(
+            GeoArray[i] + ' : ' + i + ' ' + location[`${GeoArray[i]}`],
+          );
+          break;
+        }
+        i--;
+      }
+      console.log('break');
+      if (apiGeoValue == null) {
+        i = key + 2;
+
+        while (i <= 4) {
+          if (
+            location[GeoArray[i]] != 'unnamed road' &&
+            location[GeoArray[i]] != null
+          ) {
+            apiGeoLevel = GeoArray[i];
+            apiGeoValue = location[GeoArray[i]];
+            console.log(
+              GeoArray[i] + ' : ' + i + ' ' + location[`${GeoArray[i]}`],
+            );
+            break;
+          }
+          i++;
+        }
+      }
+    }
+    console.log('last_level is :' + apiGeoLevel + ' : ' + apiGeoValue);
+    return this.propertyRepository.find({
+      where: { location: { [apiGeoLevel]: apiGeoValue } },
+    });
+  }
+
+  async getProNearMe(nearProDto: NearProDto) {
+    const result = await this.dataSource.query(
+      `
+          SELECT *,
+                 ST_Distance(
+                         "locationStringpoints",
+                         ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
+                 ) AS distance
+          FROM property
+          WHERE ST_DWithin(
+                        "locationStringpoints",
+                        ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
+                        $3
+                )
+          ORDER BY distance ASC;
+      `,
+      [nearProDto.lon, nearProDto.lat, nearProDto.distanceKm],
+    );
+    return result;
   }
 
   ////////////////

@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCornDto } from './dto/create-corn.dto';
-import { UpdateCornDto } from './dto/update-corn.dto';
 import { Cron } from '@nestjs/schedule';
 import { Plan } from '../plans/entities/plan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,7 +8,7 @@ import { Order, OrderStatus } from '../orders/entities/order.entity';
 import { View } from '../views/entities/view.entity';
 
 @Injectable()
-export class CornService {
+export class CronService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,

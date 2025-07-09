@@ -66,7 +66,10 @@ export abstract class Property extends Estate {
   @Column(() => Location) //embedded
   location: Location;
 
-  @OneToOne(() => PriorityRatio, (priorityRatio) => priorityRatio.property)
+  @OneToOne(() => PriorityRatio, (priorityRatio) => priorityRatio.property, {
+    cascade: true,
+    eager: false,
+  })
   priorityRatio: PriorityRatio;
 
   @Column({ type: 'float', default: 0 })
@@ -97,13 +100,17 @@ export abstract class Property extends Estate {
 
   @Column('simple-array', { nullable: true })
   propertyImages: string[];
+  /*  @Column({ type: 'jsonb', nullable: true })
+    propertyImages: string[];*/
 
-  @Column('simple-array', { nullable: true })
-  panoramaImages: string[];
+  //Record هو json مع مفاتيح
+  @Column('jsonb', { nullable: true })
+  panoramaImages: Record<string, string>;
 
   @Column({ default: 0 })
   voteScore: number;
 
+  @Column({ default: 0 })
   @Column({ default: 0 })
   viewCount: number;
 
@@ -119,7 +126,10 @@ export abstract class Property extends Estate {
 
   //عملتها numeric لان ادق من float بس بتستهلك ذاكرة اكبر
   @Column({ type: 'numeric', precision: 4, scale: 2, nullable: true })
-  propertyCommissionRate?: number;
+  propertyCommissionRate: number;
+
+  @Column({ type: 'boolean', default: false })
+  commissionPaid: boolean;
 
   @OneToMany(() => Contract, (contracts) => contracts.property)
   contacts: Contract[];

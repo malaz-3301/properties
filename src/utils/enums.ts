@@ -1,3 +1,5 @@
+import { Column } from 'typeorm';
+
 export enum UserType {
   SUPER_ADMIN = 'super_admin',
   ADMIN = 'admin',
@@ -89,4 +91,13 @@ export enum Reason {
 export enum ReportStatus {
   PENDING = 'Pending',
   HIDDEN = 'Hidden',
+}
+
+// الله يكسرن لاديك لا تترك فراغات بالاسماء
+export enum GeoEnum {
+  STREET = 'street',
+  QUARTER = 'quarter',
+  CITY = 'city',
+  GOVERNORATE = 'governorate',
+  COUNTRY = 'country',
 }

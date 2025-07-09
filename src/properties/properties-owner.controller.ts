@@ -27,6 +27,7 @@ import { Response } from 'express';
 import { DeleteUserDto } from '../users/dto/delete-user.dto';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { diskStorage } from 'multer';
+import { PanoramaPro } from './dto/panorama-pro.dto';
 
 //@UseInterceptors(CacheInterceptor)
 @Controller('propertyN')
@@ -99,6 +100,7 @@ export class PropertiesOwnerController {
     return this.propertiesService.setSingleImg(id, payload.id, file.filename);
   }
 
+  //انتبه على اسم البارام لانك مستخدمه في الموديول
   @Post('upload-multiple-img/:id')
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('property-images', 8))
@@ -117,6 +119,33 @@ export class PropertiesOwnerController {
 
     console.log('File uploaded ', { files });
     return this.propertiesService.setMultiImg(id, payload.id, filenames);
+  }
+
+  @Post('upload-multiple-pan/:id')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FilesInterceptor('property-images', 8))
+  //function
+  uploadMultiPanorama(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() panoramaPro: PanoramaPro,
+    @UploadedFiles()
+    files: Array<Express.Multer.File>,
+    @CurrentUser() payload: JwtPayloadType,
+  ) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No file uploaded');
+    }
+    //من الغرض بس الاسم
+    const panoramaNames: string[] = panoramaPro.panoramaNames;
+    const filenames: string[] = files.map((f) => f.filename);
+
+    console.log('File uploaded ', { files });
+    return this.propertiesService.setMultiPanorama(
+      id,
+      payload.id,
+      panoramaNames,
+      filenames,
+    );
   }
 
   @Delete('remove-any-img/:id/:imageName')

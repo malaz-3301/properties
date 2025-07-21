@@ -28,6 +28,8 @@ import { createHash } from 'crypto';
 import { GeoProDto } from '../dto/geo-pro.dto';
 import { GeolocationService } from '../../geolocation/geolocation.service';
 import { NearProDto } from '../dto/near-pro.dto';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -40,6 +42,7 @@ export class PropertiesGetProvider {
     private readonly votesService: VotesService,
     private readonly geolocationService: GeolocationService,
     private dataSource: DataSource,
+    @Inject('GEO_SERVICE') private readonly client: ClientProxy,
   ) {}
 
   async getProByUser(proId: number, userId: number, role: UserType) {
@@ -122,10 +125,19 @@ export class PropertiesGetProvider {
 
   async getProByGeo(geoProDto: GeoProDto) {
     const level = geoProDto.geoLevel;
-    const location = await this.geolocationService.reverse_geocoding(
-      geoProDto.lat,
-      geoProDto.lon,
+    /*    const location =
+          (await this.geolocationService.reverse_geocoding(
+            geoProDto.lat,
+            geoProDto.lon,
+          )) || {};*/
+    console.log('helooooooooooo');
+    const location = await firstValueFrom(
+      this.client.send('get_property.geo', {
+        lat: geoProDto.lat,
+        lon: geoProDto.lon,
+      }),
     );
+
     //نزيل بعدين طلاع
     const GeoArray = Object.values(GeoEnum); //عملها مصفوفة
     console.log(location);
@@ -134,6 +146,7 @@ export class PropertiesGetProvider {
     let apiGeoValue;
 
     if (location[level] != null && location[level] != 'unnamed road') {
+      apiGeoLevel = level;
       apiGeoValue = location[`${GeoArray[key]}`];
     } else {
       let i = key - 1;

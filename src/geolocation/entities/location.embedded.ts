@@ -2,7 +2,7 @@ import { Column } from 'typeorm';
 import { defaults } from 'axios';
 
 export class Location {
-  @Column({ default: 'syria' })
+  @Column({ default: 'سوريا' })
   country: string; //"سوريا,
 
   @Column({ nullable: true })
@@ -16,12 +16,11 @@ export class Location {
 
   @Column({ nullable: true })
   street: string; //عبد الله بن حذافة
-  //make not nullable
-
-  @Column({ type: 'float', nullable: false })
+  //nullable true first time
+  @Column({ type: 'float', nullable: true })
   lat: number;
 
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'float', nullable: true })
   lon: number;
 
   @Column({

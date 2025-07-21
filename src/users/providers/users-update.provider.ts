@@ -36,13 +36,12 @@ export class UsersUpdateProvider {
     return this.usersGetProvider.findById(id);
   }
 
-  //cant update pass and phone
-  async updateUserById(id: number, updateUserByAdminDto: UpdateUserByAdminDto) {
+  async updateUserById(id: number, update: any) {
     const user = await this.usersGetProvider.findById(id);
     if (user.userType !== UserType.Owner) {
       throw new UnauthorizedException("You Can't Update Admin");
     }
-    await this.usersRepository.update(id, updateUserByAdminDto);
+    await this.usersRepository.update(id, update);
     return this.usersGetProvider.findById(id);
   }
 

@@ -21,6 +21,7 @@ import { Roles } from 'src/auth/decorators/user-role.decorator';
 import { UserType } from '../utils/enums';
 import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { CreateCommOrderDto } from './dto/create-comm-order.dto';
+import { SpaceRemitDto } from './dto/space-remit.dto';
 
 @Controller('webhook')
 export class OrdersController {
@@ -56,5 +57,11 @@ export class OrdersController {
     const body = req.body;
 
     await this.ordersService.createHook(body, signature);
+  }
+
+  //spaceremit
+  @Post('info')
+  info(@Body() spaceRemitDto: SpaceRemitDto) {
+    return this.ordersService.getPaymentInfo(spaceRemitDto);
   }
 }

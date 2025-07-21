@@ -31,6 +31,7 @@ export class PropertiesController {
 
   @Get('all')
   getAllAccepted(@Query() query: FilterPropertyDto) {
+    console.log('📍📍📍');
     query.status = PropertyStatus.ACCEPTED;
     return this.propertiesService.getAll(query);
   }

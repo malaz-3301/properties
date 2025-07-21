@@ -2,14 +2,29 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { LoggerInterceptor } from './utils/interceptors/logger.interceptor';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
 import helmet from 'helmet';
-import { ThrottlerProxyGuard } from './throttler-proxy.guard';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   //لا تعدل على جسم الطلب
+
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    noAck: false,
+    options: {
+      urls: ['amqp://localhost:5672'],
+      queue: 'geo_queue',
+      queueOptions: { durable: true },
+      noAck: false,
+      prefetchCount: 1, // هذا يمنع استقبال أكثر من رسالة في نفس الوقت
+    },
+  });
+
+  await app.startAllMicroservices();
+
   app.use('/webhook/stripe', express.raw({ type: 'application/json' }));
 
   // get X-Forwarded-For when I use proxy  I didn't use true for range limiting

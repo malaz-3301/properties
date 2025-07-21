@@ -30,6 +30,7 @@ import { Statistics } from './entities/statistics.entity';
 import { UsersUpgradeController } from './users-upgrade.controller';
 import { AgencyInfo } from './entities/agency-info.entity';
 import { UsersRegisterProvider } from './providers/users-register-provider';
+import { GeoQueClientModule } from '../modules-set/geo-que-client.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { UsersRegisterProvider } from './providers/users-register-provider';
     HttpModule,
     GeolocationModule,
     AuditModule,
+    GeoQueClientModule,
     MulterModule.register({
       storage: diskStorage({
         destination: './images/users',
@@ -93,6 +95,7 @@ import { UsersRegisterProvider } from './providers/users-register-provider';
     UsersService,
     UsersOtpProvider,
     UsersGetProvider,
+    UsersUpdateProvider,
     AgenciesVoViProvider,
   ],
 })

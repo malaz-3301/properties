@@ -10,10 +10,16 @@ import { NotificationsService } from 'src/notifications/notifications.service';
 import { PropertiesModule } from 'src/properties/properties.module';
 
 @Module({
-  imports : [AuthModule, TypeOrmModule.forFeature([Contract]),
-   UsersModule,forwardRef(() => NotificationsModule), PropertiesModule, UsersModule],
+  imports: [
+    AuthModule,
+    TypeOrmModule.forFeature([Contract]),
+    UsersModule,
+    forwardRef(() => NotificationsModule),
+    PropertiesModule,
+    UsersModule,
+  ],
   controllers: [ContractsController],
   providers: [ContractsService],
-  exports : [ContractsService]
+  exports: [ContractsService],
 })
 export class ContractsModule {}

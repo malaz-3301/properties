@@ -16,6 +16,9 @@ import { Order, OrderStatus } from './entities/order.entity';
 import { CreateCommOrderDto } from './dto/create-comm-order.dto';
 import { PropertiesGetProvider } from '../properties/providers/properties-get.provider';
 import { PropertiesUpdateProvider } from '../properties/providers/properties-update.provider';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import { SpaceRemitDto } from './dto/space-remit.dto';
 
 @Injectable()
 export class OrdersService {
@@ -29,6 +32,7 @@ export class OrdersService {
     private readonly configService: ConfigService,
     private readonly propertiesGetProvider: PropertiesGetProvider,
     private readonly propertiesUpdateProvider: PropertiesUpdateProvider,
+    private httpService: HttpService,
   ) {}
 
   async createPlanStripe(
@@ -190,5 +194,22 @@ export class OrdersService {
 
   async markCommissionPaid(proId: number) {
     return this.propertiesUpdateProvider.markCommissionPaid(proId);
+  }
+
+  private readonly apiUrl1 = 'https://spaceremit.com/api/v2/payment_info/';
+
+  async getPaymentInfo(spaceRemitDto: SpaceRemitDto) {
+    try {
+      const response$ = this.httpService.post(this.apiUrl1, spaceRemitDto, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const { data } = await firstValueFrom(response$);
+      return data;
+    } catch (err) {
+      throw new HttpException(
+        err.response?.data || 'فشل في جلب معلومات الدفع',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }

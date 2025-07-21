@@ -37,8 +37,12 @@ import { dataSourceOptions } from '../db/data-source';
 import { ReportsModule } from './reports/reports.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ImgProMulterModule } from './modules-set/img-pro-multer.module';
-import { PostgresSetModule } from './modules-set/postgres-set.module';
 import { CronModule } from './cron/cron.module';
+import { GeoQueClientModule } from './modules-set/geo-que-client.module';
+import { PropertiesProcessor } from './properties/processors/properties.processor';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'node:path';
+import { UsersProcessor } from './users/processors/users.processor';
 
 @Module({
   imports: [
@@ -48,6 +52,7 @@ import { CronModule } from './cron/cron.module';
     UploadsModule,
     FavoriteModule,
     VotesModule,
+    GeoQueClientModule,
     PlansModule,
     ContractsModule,
     TypeOrmModule.forRoot(dataSourceOptions),
@@ -71,10 +76,13 @@ import { CronModule } from './cron/cron.module';
     RequestsModule,
     ReportsModule,
     AnalyticsModule,
-    ImgProMulterModule,
     CronModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+    }),
   ],
-  controllers: [AppController],
+  //استدعيته هنا لانه في الداخل يستدعى كثيرا,PropertiesProcessor
+  controllers: [AppController, PropertiesProcessor, UsersProcessor],
   providers: [
     AppService,
     {

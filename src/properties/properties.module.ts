@@ -29,6 +29,8 @@ import { PropertiesOwnerController } from './properties-owner.controller';
 import { ImgProMulterModule } from '../modules-set/img-pro-multer.module';
 import { PropertiesCreateProvider } from './providers/properties-create.provider';
 import { PriorityRatio } from './entities/priority-ratio.entity';
+import { GeoQueClientModule } from '../modules-set/geo-que-client.module';
+import { PropertiesProcessor } from './processors/properties.processor';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { PriorityRatio } from './entities/priority-ratio.entity';
     UsersModule,
     GeolocationModule,
     ImgProMulterModule,
+    GeoQueClientModule,
     AuditModule,
     FavoriteModule,
     forwardRef(() => VotesModule),
@@ -65,4 +68,8 @@ import { PriorityRatio } from './entities/priority-ratio.entity';
     PropertiesVoSuViProvider,
   ],
 })
-export class PropertiesModule {}
+export class PropertiesModule {
+  constructor() {
+    console.log('📍📍📍');
+  }
+}

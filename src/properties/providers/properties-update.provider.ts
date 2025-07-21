@@ -17,7 +17,6 @@ export class PropertiesUpdateProvider {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private readonly propertiesGetProvider: PropertiesGetProvider,
-    private readonly usersOtpProvider: UsersOtpProvider,
   ) {}
 
   async updateOwnerPro(
@@ -77,9 +76,9 @@ export class PropertiesUpdateProvider {
         );*/
   }
 
-  async updateAdminPro(proId: number, updateProAdminDto: UpdateProAdminDto) {
+  async updateAdminPro(proId: number, update: any) {
     await this.propertiesGetProvider.findById(proId);
-    return this.propertyRepository.update(proId, updateProAdminDto);
+    return this.propertyRepository.update(proId, update);
   }
 
   async markCommissionPaid(proId: number) {

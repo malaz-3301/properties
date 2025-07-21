@@ -1,4 +1,9 @@
-import { ConflictException, HttpException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -18,6 +23,7 @@ import { OtpEntity } from './entities/otp.entity';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { UserType } from '../utils/enums';
 import { UsersRegisterProvider } from './providers/users-register-provider';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class UsersService {

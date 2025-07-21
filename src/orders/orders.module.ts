@@ -9,6 +9,7 @@ import Stripe from 'stripe';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from '../users/users.module';
 import { PropertiesModule } from '../properties/properties.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PropertiesModule } from '../properties/properties.module';
     UsersModule,
     ConfigModule,
     PropertiesModule,
+    HttpModule,
     TypeOrmModule.forFeature([Order, Plan]),
   ],
   controllers: [OrdersController],

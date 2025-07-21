@@ -17,7 +17,9 @@ import { AgencyInfo } from '../src/users/entities/agency-info.entity';
 import { Statistics } from '../src/users/entities/statistics.entity';
 import { PriorityRatio } from '../src/properties/entities/priority-ratio.entity';
 //dotenv config
-config({ path: '.env' });
+
+config({ path: '.env.development' });
+//config({ path: '.env' });
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',

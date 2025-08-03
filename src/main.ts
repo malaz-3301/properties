@@ -12,14 +12,24 @@ async function bootstrap() {
   //لا تعدل على جسم الطلب
 
   app.connectMicroservice({
-    transport: Transport.RMQ,
-    noAck: false,
+    transport: Transport.RMQ, //AMQP
     options: {
       urls: ['amqp://localhost:5672'],
       queue: 'geo_queue',
       queueOptions: { durable: true },
       noAck: false,
-      prefetchCount: 1, // هذا يمنع استقبال أكثر من رسالة في نفس الوقت
+      prefetchCount: 2, //  لا تضعها واحد مشان الخيط ياخد من الـ stack اثناء تنفيذ الـ event loop
+    },
+  });
+
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://localhost:5672'],
+      queue: 'sms_queue',
+      queueOptions: { durable: true },
+      noAck: false,
+      prefetchCount: 4,
     },
   });
 

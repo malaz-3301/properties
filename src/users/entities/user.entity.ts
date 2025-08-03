@@ -26,6 +26,7 @@ import { View } from '../../views/entities/view.entity';
 import { Request } from 'src/requests/entities/request.entity';
 import { Statistics } from './statistics.entity';
 import { AgencyInfo } from './agency-info.entity';
+import { Banned } from '../../banned/entities/banned.entity';
 
 @Entity('users')
 export class User {
@@ -68,6 +69,11 @@ export class User {
     cascade: true,
   })
   statistics?: Statistics;
+
+  @OneToOne(() => Banned, (banned) => banned.user, {
+    cascade: true,
+  })
+  banned?: Banned;
 
   @OneToMany(() => Property, (property: Property) => property.owner)
   ownerProperties?: Property[];

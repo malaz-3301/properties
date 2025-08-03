@@ -81,14 +81,16 @@ export class VotesService {
     const safeScore = Math.max(property.voteScore + value, 0); // يمنع السالب
     const k = 10;
     //عامل تأخير للنمو
-
     const weight = Math.log10(safeScore + k) * (50 / Math.log10(1000 + 1));
     const newMax = Math.min(weight, 50);
     console.log('newMax', newMax);
     //شيل القديمة وحط الجديدة
     const oldMax = property.priorityRatio.voteRatio;
+    const oldPrimacy =
+      property.priorityRatio.voteRatio +
+      property.priorityRatio.suitabilityRatio; // حسبت ال old primacy مع انها موجودة ولكن قد تكون معدلة
 
-    const primacy = property.primacy - oldMax + newMax;
+    const primacy = oldPrimacy - oldMax + newMax;
     return await this.propertyRepository.update(proId, {
       priorityRatio: { voteRatio: newMax },
       primacy: primacy,

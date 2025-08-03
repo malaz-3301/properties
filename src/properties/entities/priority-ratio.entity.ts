@@ -12,12 +12,12 @@ import { Property } from './property.entity';
 @Entity('priority ratio')
 export class PriorityRatio {
   @PrimaryColumn()
-  user_id: number;
+  pro_id: number;
 
   @OneToOne(() => Property, (property) => property.priorityRatio, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'pro_id' })
   property: Property;
 
   @Column({ type: 'float', default: 0 })

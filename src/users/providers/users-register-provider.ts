@@ -16,7 +16,8 @@ export class UsersRegisterProvider {
     private readonly usersRepository: Repository<User>,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly geolocationService: GeolocationService,
-    @Inject('GEO_SERVICE') private readonly client: ClientProxy,
+    @Inject('GEO_SERVICE') private readonly client1: ClientProxy,
+    @Inject('SMS_SERVICE') private readonly client2: ClientProxy,
   ) {}
 
   /**
@@ -45,7 +46,7 @@ export class UsersRegisterProvider {
         user: { id: user.id },
       });
       //que
-      this.client.emit(
+      this.client1.emit(
         'create_user.geo',
         new RmqRecordBuilder({
           userId: user.id,
@@ -56,7 +57,7 @@ export class UsersRegisterProvider {
           .build(),
       );
 
-      this.client.emit(
+      this.client2.emit(
         'create_user.sms',
         new RmqRecordBuilder({
           phone: user.phone,

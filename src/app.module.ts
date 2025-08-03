@@ -43,16 +43,20 @@ import { PropertiesProcessor } from './properties/processors/properties.processo
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { UsersProcessor } from './users/processors/users.processor';
+import { BannedModule } from './banned/banned.module';
+import { SmsQueClientModule } from './modules-set/sms-que-client.module';
 
 @Module({
   imports: [
     UsersModule,
     PropertiesModule,
     AdminModule,
+    BannedModule,
     UploadsModule,
     FavoriteModule,
     VotesModule,
     GeoQueClientModule,
+    SmsQueClientModule,
     PlansModule,
     ContractsModule,
     TypeOrmModule.forRoot(dataSourceOptions),

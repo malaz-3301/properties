@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ClassSerializerInterceptor,
+  forwardRef,
   Module,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -31,6 +32,7 @@ import { UsersUpgradeController } from './users-upgrade.controller';
 import { AgencyInfo } from './entities/agency-info.entity';
 import { UsersRegisterProvider } from './providers/users-register-provider';
 import { GeoQueClientModule } from '../modules-set/geo-que-client.module';
+import { SmsQueClientModule } from '../modules-set/sms-que-client.module';
 
 @Module({
   imports: [
@@ -46,7 +48,8 @@ import { GeoQueClientModule } from '../modules-set/geo-que-client.module';
     HttpModule,
     GeolocationModule,
     AuditModule,
-    GeoQueClientModule,
+    GeoQueClientModule, // طلبته ضمن الـ provider
+    SmsQueClientModule, // طلبته ضمن الـ provider
     MulterModule.register({
       storage: diskStorage({
         destination: './images/users',

@@ -19,7 +19,8 @@ export class UsersProcessor {
     private readonly geolocationService: GeolocationService,
     private readonly usersUpdateProvider: UsersUpdateProvider,
     private readonly usersOtpProvider: UsersOtpProvider,
-    @Inject('GEO_SERVICE') private readonly client: ClientProxy,
+    @Inject('GEO_SERVICE') private readonly client1: ClientProxy,
+    @Inject('SMS_SERVICE') private readonly client2: ClientProxy,
   ) {}
 
   @EventPattern('create_user.geo')
@@ -44,7 +45,7 @@ export class UsersProcessor {
     } catch (err) {
       if (retryCount < 2) {
         channel.ack(msg); // لازم ACK قبل ما ترسل نسخة جديدة
-        this.client.emit(
+        this.client1.emit(
           'create_user.geo',
           new RmqRecordBuilder({
             ...data,
@@ -77,7 +78,7 @@ export class UsersProcessor {
     } catch (err) {
       if (retryCount < 2) {
         channel.ack(msg);
-        this.client.emit(
+        this.client2.emit(
           'create_user.sms',
           new RmqRecordBuilder({
             ...data,

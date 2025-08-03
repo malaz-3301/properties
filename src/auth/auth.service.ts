@@ -8,7 +8,7 @@ import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from './dto/login-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateUserDto } from '../users/dto/update-user.dto';
 import { ResetAccountDto } from './dto/reset-account.dto';
@@ -16,6 +16,8 @@ import { UsersOtpProvider } from '../users/providers/users-otp.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AddAdminDto } from './dto/add-admin.dto';
+import { Banned } from '../banned/entities/banned.entity';
+import { BannedService } from '../banned/banned.service';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +27,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly usersGetProvider: UsersGetProvider,
+    private readonly bannedService: BannedService,
   ) {}
 
   /**
@@ -40,6 +43,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
+    await this.bannedService.checkBlock(user?.id);
     const isPass = await bcrypt.compare(password, user.password);
     if (!isPass) {
       throw new UnauthorizedException('Password is incorrect');

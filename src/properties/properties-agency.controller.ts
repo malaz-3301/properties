@@ -77,7 +77,7 @@ export class PropertiesAgencyController {
     @Query() query: FilterPropertyDto,
     @CurrentUser() agency: JwtPayloadType,
   ) {
-    return this.propertiesService.getAll(query, undefined, agency.id);
+    return this.propertiesService.getAll(query,agency.id, undefined, agency.id);
   }
 
   @Get('pending')

@@ -22,7 +22,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { FilterPropertyDto } from '../dto/filter-property.dto';
 import { FavoriteService } from '../../favorite/favorite.service';
 import { VotesService } from '../../votes/votes.service';
-import { GeoEnum, UserType } from '../../utils/enums';
+import { GeoEnum, Language, UserType } from '../../utils/enums';
 import { json } from 'express';
 import { createHash } from 'crypto';
 import { GeoProDto } from '../dto/geo-pro.dto';
@@ -30,6 +30,8 @@ import { GeolocationService } from '../../geolocation/geolocation.service';
 import { NearProDto } from '../dto/near-pro.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -42,15 +44,27 @@ export class PropertiesGetProvider {
     private readonly votesService: VotesService,
     private readonly geolocationService: GeolocationService,
     private dataSource: DataSource,
+    private readonly configService: ConfigService,
     @Inject('GEO_SERVICE') private readonly client: ClientProxy,
+    private usersService: UsersService,
   ) {}
 
   async getProByUser(proId: number, userId: number, role: UserType) {
     const property = await this.propertyRepository.findOne({
       where: { id: proId, [role]: { id: userId } },
     });
+
     if (!property) {
       throw new NotFoundException('property not found!');
+    }
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    if (user.language == Language.ARABIC) {
+      property['description'] = property.ar_description;
+    } else {
+      property['description'] = property.en_description;
     }
     return property;
   }
@@ -96,6 +110,15 @@ export class PropertiesGetProvider {
     if (!property) {
       throw new NotFoundException('Property not found');
     }
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    if (user.language == Language.ARABIC) {
+      property['description'] = property.ar_description;
+    } else {
+      property['description'] = property.en_description;
+    }
     const isFavorite = await this.favoriteService.isFavorite(userId, proId);
     const voteValue = await this.votesService.isVote(proId, userId);
     //I don't want fist Image
@@ -110,6 +133,7 @@ export class PropertiesGetProvider {
             url,
           }),
         );*/
+
     return {
       ...propertyE,
       panoramaImages: panoramaImagesParse,
@@ -214,7 +238,12 @@ export class PropertiesGetProvider {
 
   ////////////////
 
-  async getAll(query: FilterPropertyDto, ownerId?: number, agencyId?: number) {
+  async getAll(
+    query: FilterPropertyDto,
+    userId?: number,
+    ownerId?: number,
+    agencyId?: number,
+  ) {
     const {
       word, //بحث
       minPrice, //سعر
@@ -259,7 +288,8 @@ export class PropertiesGetProvider {
     if (word) {
       where = [
         { ...filter, title: Like(`%${word}%`) },
-        { ...filter, description: Like(`%${word}%`) },
+        { ...filter, ar_description: Like(`%${word}%`) },
+        { ...filter, en_description: Like(`%${word}%`) },
       ];
     } else {
       // إذا ما في كلمة بحث، نستخدم كل الشروط مجتمعة
@@ -308,6 +338,21 @@ export class PropertiesGetProvider {
 
       order,
     });
+    if (userId) {
+      const user = await this.usersService.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException();
+      }
+      if (user.language == Language.ARABIC) {
+        properties.forEach(function (property) {
+          property['description'] = property.ar_description;
+        });
+      } else {
+        properties.forEach(function (property) {
+          property['description'] = property.en_description;
+        });
+      }
+    }
     if (!properties || properties.length === 0) {
       throw new NotFoundException('No estates found');
     }
@@ -341,5 +386,24 @@ export class PropertiesGetProvider {
       relations: ['agency', 'owner'],
       select: { owner: { id: true }, agency: { id: true } },
     });
+  }
+
+  async translate(targetLang: Language, text: string) {
+    const Url = this.configService.get<string>('TRANSLATE');
+    const sourceLang = Language.ARABIC;
+    const Url1 =
+      Url +
+      `?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+    let translatedText;
+    await fetch(Url1)
+      .then((response) => response.json())
+      .then((data) => {
+        translatedText = data[0][0][0];
+      })
+      .catch((error) => {
+        console.error('حدث خطأ:', error);
+        console.log(Url1);
+      });
+    return translatedText;
   }
 }

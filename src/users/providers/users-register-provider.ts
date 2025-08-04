@@ -56,7 +56,7 @@ export class UsersRegisterProvider {
           .setOptions({ persistent: true })
           .build(),
       );
-
+console.log(code)
       this.client2.emit(
         'create_user.sms',
         new RmqRecordBuilder({

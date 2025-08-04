@@ -58,7 +58,11 @@ export abstract class Property extends Estate {
   title: string;
 
   @Column({ type: 'varchar', length: 180 })
-  description: string;
+  ar_description: string;
+
+  
+  @Column({ type: 'varchar', length: 180 })
+  en_description: string;
 
   @Column({ type: 'numeric', precision: 8, scale: 2 })
   price: number;

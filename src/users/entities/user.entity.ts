@@ -11,7 +11,7 @@ import {
 import { Exclude } from 'class-transformer';
 
 import { CURRENT_TIMESTAMP } from '../../utils/constants';
-import { PropertyStatus, UserType } from '../../utils/enums';
+import { Language, PropertyStatus, UserType } from '../../utils/enums';
 import { Property } from '../../properties/entities/property.entity';
 import { Location } from '../../geolocation/entities/location.embedded';
 import { Favorite } from 'src/favorite/entites/favorite.entity';
@@ -130,6 +130,8 @@ export class User {
   @Column()
   token: string;
 
+  @Column({ type: 'enum', enum: Language, default: Language.ARABIC })
+  language : Language
   /*  @Column({ nullable: true })
     stripeAccountId: string;
 

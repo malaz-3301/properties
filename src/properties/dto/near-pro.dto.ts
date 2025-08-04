@@ -10,7 +10,7 @@ import { PointsDto } from '../../geolocation/dto/points.dto';
 export class NearProDto {
   //لازم string لان كويري
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   lon: number;
   //longitude
 

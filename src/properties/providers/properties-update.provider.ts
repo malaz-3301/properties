@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UpdatePropertyDto } from '../dto/update-property.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../entities/property.entity';
 import { Repository } from 'typeorm';
 import { PropertiesGetProvider } from './properties-get.provider';
-import { PropertyStatus, UserType } from 'src/utils/enums';
+import { Language, PropertyStatus, UserType } from 'src/utils/enums';
 import { UpdateProAdminDto } from '../dto/update-pro-admin.dto';
 import { RejectProAdminDto } from '../dto/reject-pro-admin.dto';
 import { UsersOtpProvider } from '../../users/providers/users-otp.provider';
@@ -17,6 +17,7 @@ export class PropertiesUpdateProvider {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private readonly propertiesGetProvider: PropertiesGetProvider,
+    
   ) {}
 
   async updateOwnerPro(
@@ -34,7 +35,16 @@ export class PropertiesUpdateProvider {
         "You can't update the property has been published",
       );
     }
-    return this.propertyRepository.update(proId, updatePropertyDto);
+  if (!property){
+    throw new NotFoundException()
+  }
+     if (updatePropertyDto.description){
+      property.ar_description = updatePropertyDto.description
+      property.en_description = await this.propertiesGetProvider.translate(Language.ENGLISH, updatePropertyDto.description)
+    }
+    
+    this.propertyRepository.save(property)
+
   }
 
   async updateAgencyPro(
@@ -42,12 +52,16 @@ export class PropertiesUpdateProvider {
     agencyId: number,
     editProAgencyDto: EditProAgencyDto,
   ) {
-    await this.propertiesGetProvider.getProByUser(
+    const property = await this.propertiesGetProvider.getProByUser(
       proId,
       agencyId,
       UserType.AGENCY,
     );
-    return this.propertyRepository.update(proId, editProAgencyDto);
+     if (editProAgencyDto.description){
+      property["ar_description"] = editProAgencyDto.description
+      property["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, editProAgencyDto.description)
+    }
+    return this.propertyRepository.save(property);
   }
 
   async acceptAgencyPro(proId: number, agencyId: number) {
@@ -77,8 +91,12 @@ export class PropertiesUpdateProvider {
   }
 
   async updateAdminPro(proId: number, update: any) {
-    await this.propertiesGetProvider.findById(proId);
-    return this.propertyRepository.update(proId, update);
+    const property = await this.propertiesGetProvider.findById(proId);
+     if (update.description){
+      property["ar_description"] = update.description
+      property["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, update.description)
+    }
+    return this.propertyRepository.save(property);
   }
 
   async markCommissionPaid(proId: number) {

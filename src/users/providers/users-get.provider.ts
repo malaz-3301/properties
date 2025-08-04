@@ -38,7 +38,7 @@ export class UsersGetProvider {
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-    console.log(user.userType);
+    console.log(user.userType + "ldksjl");
     if (user.userType === (UserType.ADMIN || UserType.SUPER_ADMIN)) {
       throw new UnauthorizedException("You Can't its not user or agency");
     }

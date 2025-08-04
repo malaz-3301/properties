@@ -19,7 +19,7 @@ import { ResetAccountDto } from './dto/reset-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthRolesGuard } from './guards/auth-roles.guard';
 import { Roles } from './decorators/user-role.decorator';
-import { UserType } from '../utils/enums';
+import { Language, UserType } from '../utils/enums';
 import { AddAdminDto } from './dto/add-admin.dto';
 
 @Controller('auth')
@@ -67,5 +67,12 @@ export class AuthController {
   @Throttle({ default: { ttl: 10000, limit: 8 } }) // منفصل overwrite
   getCurrentUser(@CurrentUser() payload: JwtPayloadType) {
     return this.authService.getCurrentUser(payload.id);
+  }
+
+  @Get('changeLanguage/:Language')
+  @UseGuards(AuthGuard)
+  @Throttle({ default: { ttl: 10000, limit: 8 } }) // منفصل overwrite
+  changeLanguage(@CurrentUser() payload: JwtPayloadType, @Param('Language')Language : Language) {
+    return this.authService.changeLanguage(Language, payload.id);
   }
 }

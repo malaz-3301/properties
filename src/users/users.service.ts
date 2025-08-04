@@ -21,7 +21,7 @@ import { UpdateUserByAdminDto } from './dto/update-user-by-admin.dto';
 
 import { OtpEntity } from './entities/otp.entity';
 import { FilterUserDto } from './dto/filter-user.dto';
-import { UserType } from '../utils/enums';
+import { Language, UserType } from '../utils/enums';
 import { UsersRegisterProvider } from './providers/users-register-provider';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -132,4 +132,6 @@ export class UsersService {
       ...(planId === 2 ? { hasUsedTrial: true } : {}),
     });
   }
+
+
 }

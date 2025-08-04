@@ -84,6 +84,7 @@ export class OrdersService {
     const property = await this.propertiesGetProvider.findById(
       createCommOrderDto.proId,
     );
+    
     //لان يقيس بالسنت ولا بقل الا عدد صحيح
     const amount = Math.round((property.propertyCommissionRate ?? 1) * 100);
     return await this.stripe.checkout.sessions.create({
@@ -94,7 +95,7 @@ export class OrdersService {
             currency: 'usd',
             product_data: {
               name: 'EasyRent',
-              description: `${property.title}\n${property.description}`,
+              description: `${property.title}\n${property.ar_description}`,
               images: [
                 'https://i.postimg.cc/bJ8Sptcm/Chat-GPT-Image-29-2025-10-17-36.png', // ← هنا رابط الصورة
               ],

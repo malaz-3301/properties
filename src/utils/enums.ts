@@ -101,3 +101,8 @@ export enum GeoEnum {
   GOVERNORATE = 'governorate',
   COUNTRY = 'country',
 }
+
+export enum Language {
+  ARABIC = 'ar',
+  ENGLISH = 'en'
+}

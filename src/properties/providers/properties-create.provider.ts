@@ -8,7 +8,7 @@ import { Property } from '../entities/property.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePropertyDto } from '../dto/create-property.dto';
-import { PropertyStatus } from '../../utils/enums';
+import { Language, PropertyStatus } from '../../utils/enums';
 import { PropertiesGetProvider } from './properties-get.provider';
 import { UsersGetProvider } from '../../users/providers/users-get.provider';
 import { GeolocationService } from '../../geolocation/geolocation.service';
@@ -24,6 +24,7 @@ export class PropertiesCreateProvider {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private usersGetProvider: UsersGetProvider,
+    private propertiesGetProvider: PropertiesGetProvider,
     private geolocationService: GeolocationService,
     private readonly propertiesVoViProvider: PropertiesVoSuViProvider,
     private readonly agenciesVoViProvider: AgenciesVoViProvider,
@@ -61,6 +62,11 @@ export class PropertiesCreateProvider {
     const propertyCommissionRate =
       createPropertyDto.price * (agencyInfo.agencyCommissionRate ?? 1);
 
+ if (createPropertyDto.description){
+      createPropertyDto["ar_description"] = createPropertyDto.description
+      createPropertyDto["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, createPropertyDto.description)
+    }
+    console.log(createPropertyDto);
     const result = await this.dataSource.transaction(async (manger) => {
       const newProperty = manger.create(Property, {
         ...createPropertyDto,

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   Query,
@@ -17,7 +18,7 @@ import * as bcrypt from 'bcryptjs';
 import { PropertiesDelProvider } from './providers/properties-del.provider';
 import { PropertiesGetProvider } from './providers/properties-get.provider';
 
-import { PropertyStatus, UserType } from '../utils/enums';
+import { Language, PropertyStatus, UserType } from '../utils/enums';
 import { PropertiesUpdateProvider } from './providers/properties-update.provider';
 import { UsersGetProvider } from '../users/providers/users-get.provider';
 import { ideal, weights } from '../utils/constants';
@@ -32,6 +33,7 @@ import { PropertiesVoSuViProvider } from './providers/properties-vo-su-vi.provid
 import { PropertiesCreateProvider } from './providers/properties-create.provider';
 import { GeoProDto } from './dto/geo-pro.dto';
 import { NearProDto } from './dto/near-pro.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PropertiesService {
@@ -43,6 +45,7 @@ export class PropertiesService {
     private readonly propertiesDelProvider: PropertiesDelProvider,
     private readonly propertiesGetProvider: PropertiesGetProvider,
     private readonly propertiesCreateProvider: PropertiesCreateProvider,
+    private readonly configService: ConfigService,
   ) {}
 
   //create from other
@@ -89,8 +92,8 @@ export class PropertiesService {
     return this.propertiesUpdateProvider.rejectAgencyPro(proId, agencyId);
   }
 
-  getAll(query: FilterPropertyDto, ownerId?: number, agencyId?: number) {
-    return this.propertiesGetProvider.getAll(query, ownerId, agencyId);
+  getAll(query: FilterPropertyDto,userId? : number,  ownerId?: number, agencyId?: number) {
+    return this.propertiesGetProvider.getAll(query, userId, ownerId, agencyId);
   }
 
   getAllPendingAgency(
@@ -169,4 +172,5 @@ export class PropertiesService {
   getTopScorePro(limit: number) {
     return this.propertiesGetProvider.getTopScorePro(limit);
   }
+
 }

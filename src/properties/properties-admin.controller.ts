@@ -21,6 +21,8 @@ import { FilterPropertyDto } from './dto/filter-property.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { RejectProAdminDto } from './dto/reject-pro-admin.dto';
 import { AcceptProAdminDto } from './dto/accept-pro-admin.dto';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { JwtPayloadType } from 'src/utils/constants';
 
 @SkipThrottle()
 @Controller('propertyA')
@@ -42,17 +44,17 @@ export class PropertiesAdminController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
-  getAll(@Query() query: FilterPropertyDto) {
-    return this.propertiesService.getAll(query);
+  getAll(@Query() query: FilterPropertyDto, @CurrentUser() payload: JwtPayloadType) {
+    return this.propertiesService.getAll(query, payload.id);
   }
 
   @Get('pending')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseInterceptors(AuditInterceptor)
-  getAllPending(@Query() query: FilterPropertyDto) {
+  getAllPending(@Query() query: FilterPropertyDto, @CurrentUser() payload: JwtPayloadType,) {
     query.status = PropertyStatus.PENDING;
-    return this.propertiesService.getAll(query);
+    return this.propertiesService.getAll(query, payload.id);
   }
 
   @Delete('delete')

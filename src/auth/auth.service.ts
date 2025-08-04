@@ -18,6 +18,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AddAdminDto } from './dto/add-admin.dto';
 import { Banned } from '../banned/entities/banned.entity';
 import { BannedService } from '../banned/banned.service';
+import { Language } from 'src/utils/enums';
 
 @Injectable()
 export class AuthService {
@@ -116,5 +117,9 @@ export class AuthService {
   async addAdmin(addAdminDto: AddAdminDto) {
     addAdminDto['isAccountVerified'] = true;
     await this.usersRepository.save(addAdminDto);
+  }
+
+    changeLanguage(Language : Language, userId : number) {
+    this.usersRepository.update({id : userId}, {language : Language});
   }
 }

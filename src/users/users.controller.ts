@@ -29,14 +29,16 @@ import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { SkipThrottle } from '@nestjs/throttler';
 import { FilterUserDto } from './dto/filter-user.dto';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Controller('user')
 @UseInterceptors(CacheInterceptor)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService,private httpService : HttpService) {}
 
   @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto) {
+  async register(@Body() registerUserDto: RegisterUserDto) {
     return this.usersService.register(registerUserDto);
   }
 
@@ -138,4 +140,5 @@ export class UsersController {
   getUserProsById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.getUserProsById(id);
   }
+
 }

@@ -12,7 +12,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
           queue: 'geo_queue',
           queueOptions: { durable: true },
           // خطأ تضعها هنا noAck: false,
-          prefetchCount: 1, // هذا يمنع استقبال أكثر من رسالة في نفس الوقت
+          //   prefetchCount: 1, // هذا يمنع استقبال أكثر من رسالة في نفس الوقت
         },
       },
     ]),

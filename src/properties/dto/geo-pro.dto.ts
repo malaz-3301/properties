@@ -11,13 +11,11 @@ import { GeoEnum } from '../../utils/enums';
 
 export class GeoProDto {
   @IsNotEmpty()
-  @IsNumber()
   @Type(() => Number)
   lon: number;
   //longitude
 
   @IsNotEmpty()
-  @IsNumber()
   @Type(() => Number)
   lat: number;
 

@@ -30,8 +30,11 @@ export class PropertiesProcessor {
 
   // يا راجل الـ message before event
   @MessagePattern('get_property.geo')
-  async handleProV1(@Payload() data: any) {
+  async handleProV1(@Payload() data: any, @Ctx() ctx: RmqContext) {
+    const channel = ctx.getChannelRef();
+    const msg: Record<string, any> = ctx.getMessage();
     this.logger.log(`🚀`);
+    channel.ack(msg);
     return this.geolocationService.reverse_geocoding(data.lat, data.lon);
   }
 

@@ -126,8 +126,8 @@ export class PropertiesService {
     return this.propertiesDelProvider.deleteProById(id);
   }
 
-  async setSingleImg(id: number, userId: number, filename: string) {
-    return this.propertiesImgProvider.setSingleImg(id, userId, filename);
+  async setSingleImg(id: number, userId: number, file: Express.Multer.File) {
+    return this.propertiesImgProvider.setSingleImg(id, userId, file);
   }
 
   async setMultiImg(id: number, userId: number, filenames: string[]) {

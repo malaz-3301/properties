@@ -37,6 +37,7 @@ export class PropertiesCreateProvider {
     if (owner.plan?.id === 1) {
       throw new UnauthorizedException('Subscripe !');
     }
+
     const agency = await this.usersGetProvider.findById(
       createPropertyDto.agencyId,
     );

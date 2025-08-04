@@ -25,6 +25,9 @@ export class BannedService {
       case 'month':
         durationMs = parseInt(numStr) * 30 * 24 * 60 * 60 * 1000;
         break;
+      case 'year':
+        durationMs = parseInt(numStr) * 12 * 30 * 24 * 60 * 60 * 1000;
+        break;
       default:
         throw new Error(`Unsupported time unit: ${unit}`);
     }

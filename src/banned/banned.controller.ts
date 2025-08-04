@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { BannedService } from './banned.service';
 import { CreateBannedDto } from './dto/create-banned.dto';
@@ -40,7 +41,7 @@ export class BannedController {
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)
   @UseInterceptors(AuditInterceptor)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.bannedService.remove(+id);
   }
 }

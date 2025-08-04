@@ -12,6 +12,10 @@ import * as process from 'node:process';
 import { Property } from '../entities/property.entity';
 import { PropertiesGetProvider } from './properties-get.provider';
 import { UserType } from '../../utils/enums'; //important
+import * as sharp from 'sharp';
+import * as jpeg from 'jpeg-js';
+import * as fs from 'node:fs';
+import * as fileType from 'file-type';
 
 @Injectable()
 export class PropertiesImgProvider {
@@ -21,31 +25,99 @@ export class PropertiesImgProvider {
     private readonly propertiesGetProvider: PropertiesGetProvider,
   ) {}
 
+  async analyzeImage(buffer: Buffer): Promise<Buffer> {
+    try {
+      // تحويل الصورة إلى JPEG أولًا
+      buffer = await sharp(buffer).jpeg().toBuffer();
+
+      // التحقق من التنسيق
+      const metadata = await sharp(buffer).metadata();
+      if (metadata.format !== 'jpeg') {
+        throw new Error('الصورة يجب أن تكون JPEG');
+      }
+
+      // إعادة الضغط بجودة منخفضة (50%)
+      const compressedImage = await sharp(buffer)
+        .jpeg({ quality: 50 })
+        .toBuffer();
+
+      // الحصول على بيانات البكسل للصورتين
+      const originalPixels = await this.getPixelData(buffer);
+      const compressedPixels = await this.getPixelData(compressedImage);
+
+      // حساب الفروق بين البكسلات
+      const diff = new Uint8ClampedArray(originalPixels.length);
+      for (let i = 0; i < originalPixels.length; i += 3) {
+        diff[i] = Math.abs(originalPixels[i] - compressedPixels[i]);
+        diff[i + 1] = Math.abs(originalPixels[i + 1] - compressedPixels[i + 1]);
+        diff[i + 2] = Math.abs(originalPixels[i + 2] - compressedPixels[i + 2]);
+      }
+
+      // إنشاء صورة ELA الناتجة
+      const elaImage = await sharp(diff, {
+        raw: {
+          width: metadata.width,
+          height: metadata.height,
+          channels: 3,
+        },
+      })
+        .png()
+        .toBuffer();
+
+      return elaImage;
+    } catch (error) {
+      throw new Error(`فشل في التحليل: ${error.message}`);
+    }
+  }
+
+  private async getPixelData(buffer: Buffer): Promise<Uint8ClampedArray> {
+    const { data, info } = await sharp(buffer)
+      .raw() // لا نضيف قناة Alpha
+      .toBuffer({ resolveWithObject: true });
+    return new Uint8ClampedArray(data.buffer);
+  }
+
   /**
    *  Remove Profile Image
    * @param id
    * @param userId
-   * @param filename
+   * @param file
    */
-  async setSingleImg(id: number, userId: number, filename: string) {
+
+  async setSingleImg(id: number, userId: number, file: Express.Multer.File) {
     const pro = await this.propertiesGetProvider.getProByUser(
       id,
       userId,
       UserType.Owner,
     );
 
-    if (pro.propertyImage) {
-      try {
-        unlinkSync(
-          join(process.cwd(), `./images/properties/${pro.propertyImage}`),
-        ); //file path
-      } catch (err) {
-        console.log(err);
+    try {
+      // قراءة الملف من القرص
+      const buffer = fs.readFileSync(file.path);
+      const elaBuffer = await this.analyzeImage(buffer);
+      const elaImageBase64 = elaBuffer.toString('base64');
+      console.log({ elaImage: elaBuffer.toString('base64') });
+
+      if (pro.propertyImage) {
+        try {
+          unlinkSync(
+            join(process.cwd(), `./images/properties/${pro.propertyImage}`),
+          ); //file path
+        } catch (err) {
+          console.log(err);
+        }
       }
+      pro.propertyImage = file.filename;
+      await this.propertyRepository.save(pro);
+      //   return { message: `File uploaded successfully :  ${file.filename}` };
+      return {
+        message: 'File uploaded successfully',
+        elaImage: `data:image/png;base64,${elaBuffer.toString('base64')}`,
+        filename: file.filename,
+      };
+    } catch (error) {
+      console.log(error);
     }
-    pro.propertyImage = filename;
-    await this.propertyRepository.save(pro);
-    return { message: `File uploaded successfully :  ${filename}` };
   }
 
   async setMultiImg(id: number, userId: number, filenames: string[]) {

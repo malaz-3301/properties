@@ -97,7 +97,7 @@ export class PropertiesOwnerController {
       throw new BadRequestException('No file uploaded');
     }
     console.log('File uploaded ', { file });
-    return this.propertiesService.setSingleImg(id, payload.id, file.filename);
+    return this.propertiesService.setSingleImg(id, payload.id, file);
   }
 
   //انتبه على اسم البارام لانك مستخدمه في الموديول

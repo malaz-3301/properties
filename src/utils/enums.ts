@@ -7,6 +7,7 @@ export enum UserType {
   Owner = 'owner', //Owner === NORMAL_USER
   //  NORMAL_USER = 'normal_user',
   PENDING = 'pending',
+  Financial = 'financial',
 }
 
 //ساويهن احرف كبيرة اول حرف
@@ -72,7 +73,7 @@ export enum PlanType {
   VIP = 'Vip',
 }
 
-export enum Title {
+export enum ReportTitle {
   T1 = 'Unauthorized deletion of property by admin',
   T2 = 'Disable notifications for a specific property',
   T3 = 'Request a refund of the subscription fee',
@@ -88,9 +89,15 @@ export enum Reason {
   Other = 'Other',
 }
 
+export enum OrderStatus {
+  ACTIVE = 'Active',
+  EXPIRED = 'Expired',
+}
+
 export enum ReportStatus {
   PENDING = 'Pending',
-  HIDDEN = 'Hidden',
+  FIXED = 'Fixed',
+  Rejected = 'rejected',
 }
 
 // الله يكسرن لاديك لا تترك فراغات بالاسماء
@@ -104,5 +111,5 @@ export enum GeoEnum {
 
 export enum Language {
   ARABIC = 'ar',
-  ENGLISH = 'en'
+  ENGLISH = 'en',
 }

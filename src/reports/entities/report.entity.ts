@@ -4,7 +4,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ReportStatus, Title } from '../../utils/enums';
+import { ReportStatus, ReportTitle } from '../../utils/enums';
 import { CURRENT_TIMESTAMP } from '../../utils/constants';
 
 @Entity()
@@ -12,8 +12,8 @@ export class Report {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'enum', enum: Title })
-  title: Title;
+  @Column({ type: 'enum', enum: ReportTitle })
+  title: ReportTitle;
 
   @Column({ length: 60, nullable: true })
   reason: string; //string

@@ -6,12 +6,12 @@ import {
   Length,
   ValidateIf,
 } from 'class-validator';
-import { Reason, Title } from '../../utils/enums';
+import { Reason, ReportTitle } from '../../utils/enums';
 
 export class CreateReportDto {
   @IsNotEmpty()
-  @IsEnum(Title)
-  title: Title;
+  @IsEnum(ReportTitle)
+  title: ReportTitle;
 
   @IsOptional() // عند الفرونت بقرر
   @IsEnum(Reason)

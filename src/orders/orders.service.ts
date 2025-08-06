@@ -12,13 +12,14 @@ import { Plan } from '../plans/entities/plan.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
-import { Order, OrderStatus } from './entities/order.entity';
+import { Order } from './entities/order.entity';
 import { CreateCommOrderDto } from './dto/create-comm-order.dto';
 import { PropertiesGetProvider } from '../properties/providers/properties-get.provider';
 import { PropertiesUpdateProvider } from '../properties/providers/properties-update.provider';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { SpaceRemitDto } from './dto/space-remit.dto';
+import { OrderStatus } from '../utils/enums';
 
 @Injectable()
 export class OrdersService {
@@ -84,7 +85,7 @@ export class OrdersService {
     const property = await this.propertiesGetProvider.findById(
       createCommOrderDto.proId,
     );
-    
+
     //لان يقيس بالسنت ولا بقل الا عدد صحيح
     const amount = Math.round((property.propertyCommissionRate ?? 1) * 100);
     return await this.stripe.checkout.sessions.create({

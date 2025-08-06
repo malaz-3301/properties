@@ -4,11 +4,12 @@ import { Plan } from '../plans/entities/plan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, LessThan, MoreThan, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
-import { Order, OrderStatus } from '../orders/entities/order.entity';
+import { Order } from '../orders/entities/order.entity';
 import { View } from '../views/entities/view.entity';
 import { Vote } from '../votes/entities/vote.entity';
 import { PriorityRatio } from '../properties/entities/priority-ratio.entity';
 import { Property } from '../properties/entities/property.entity';
+import { OrderStatus, PropertyStatus } from '../utils/enums';
 
 @Injectable()
 export class CronService {
@@ -19,6 +20,8 @@ export class CronService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Plan)
     private readonly planRepository: Repository<Plan>,
+    @InjectRepository(Property)
+    private readonly propertyRepository: Repository<Property>,
     @InjectRepository(View)
     private readonly viewRepository: Repository<View>,
     private dataSource: DataSource,
@@ -28,32 +31,47 @@ export class CronService {
   @Cron('0 0 * * *')
   async checkExpiredPlans() {
     //جبلي كلشي اوردرات مفعلة وخالص تاريخها
-    const orders = await this.orderRepository.find({
-      where: {
-        planStatus: OrderStatus.ACTIVE,
-        planExpiresAt: LessThan(new Date()),
-      },
-      relations: { user: true },
-      select: { user: { id: true } },
-    });
-    if (orders.length === 0) {
-      return 'No expired subscriptions found this day.';
-    }
+    //عملت اثنين WITH CTE
+    const action = await this.dataSource.query(
+      `WITH expired_orders AS ( -- تحديث الاشتراكات المنتهية 
+          UPDATE orders o
+              SET "planStatus" = $1
+              WHERE o."planStatus" = $2
+                  AND o."planExpiresAt" < $3
+              RETURNING o."userId"),
+            updated_users AS ( --ارجاع الخطة المجانية للمستخدمين  
+                UPDATE users u
+                    SET "planId" = $4
+                    FROM expired_orders eo
+                    WHERE u.id = eo."userId"
+                    RETURNING u.id)
+       UPDATE property up --اخفاء العقارات للمستخدمين المنتهية خططهم
+       SET "status" = $5
+       FROM updated_users uu
+       WHERE up."agencyId" = uu.id
+       RETURNING up.id; -- لمعرفة كم حدوية تم تعديلها action
 
-    //حدث حالة الطلبات وربط المستخدمين مع الخطة
-    for (const order of orders) {
-      await this.orderRepository.update(order.id, {
-        planStatus: OrderStatus.EXPIRED,
-      });
-      await this.userRepository.update(order.user.id, {
-        plan: { id: 1 },
-      });
-    }
+      `,
+      [
+        OrderStatus.EXPIRED,
+        OrderStatus.ACTIVE,
+        new Date(),
+        1,
+        PropertyStatus.HIDDEN,
+      ],
+    );
+
+    if (action.length === 0) {
+      return 'No expired subscriptions found this day.';
+    } else return action.length;
   }
 
-  @Cron('0 0 1 */3 *') //every three month
+  @Cron('0 0 1 */3 *') // كل 3 شهور
   async deleteViewEntity() {
-    await this.viewRepository.clear();
+    //truncate clear  & reseeding id
+    await this.dataSource.query(`
+    TRUNCATE TABLE "views" RESTART IDENTITY CASCADE;
+  `);
   }
 
   //تقليل اولوية التصويت

@@ -35,11 +35,19 @@ import { firstValueFrom } from 'rxjs';
 @Controller('user')
 @UseInterceptors(CacheInterceptor)
 export class UsersController {
-  constructor(private readonly usersService: UsersService,private httpService : HttpService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private httpService: HttpService,
+  ) {}
 
   @Post('register')
   async register(@Body() registerUserDto: RegisterUserDto) {
     return this.usersService.register(registerUserDto);
+  }
+
+  @Post('back')
+  async register_back_users() {
+    return this.usersService.register_back_users();
   }
 
   @Post('verify/:id')
@@ -140,5 +148,4 @@ export class UsersController {
   getUserProsById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.getUserProsById(id);
   }
-
 }

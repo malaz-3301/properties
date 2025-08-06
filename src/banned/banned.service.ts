@@ -32,6 +32,7 @@ export class BannedService {
         throw new Error(`Unsupported time unit: ${unit}`);
     }
     return this.bannedRepository.save({
+      reason: createBannedDto.reason,
       banExpiresAt: new Date(Date.now() + durationMs),
     });
   }
@@ -45,7 +46,10 @@ export class BannedService {
       if (block.banExpiresAt! < new Date()) {
         await this.bannedRepository.delete(userId);
       } else {
-        throw new UnauthorizedException('You was Banned!');
+        throw new UnauthorizedException(
+          `You was Banned to ${block.banExpiresAt}  ! حسابك مقيد لتاريخ 
+           ${block.reason}`,
+        );
       }
     }
   }

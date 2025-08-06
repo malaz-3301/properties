@@ -25,4 +25,8 @@ export class CreatePlanDto {
   @IsNotEmpty()
   @IsNumber()
   planPrice: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  limit: number;
 }

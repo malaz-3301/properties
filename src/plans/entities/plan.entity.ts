@@ -13,12 +13,9 @@ import { Order } from '../../orders/entities/order.entity';
 export class Plan {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({
-    type: 'enum',
-    enum: PlanDuration,
-    default: PlanDuration.ONE_DAY,
-  })
-  planDuration: PlanDuration;
+
+  @Column({ type: 'varchar', length: 14 })
+  planDuration: string;
 
   @Column({ type: 'varchar', length: 140 })
   description: string;
@@ -30,8 +27,11 @@ export class Plan {
   })
   planType: PlanType;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'numeric', precision: 4, scale: 2 })
   planPrice: number;
+
+  @Column({ type: 'integer', default: 1 })
+  limit: number;
 
   @OneToMany(() => Order, (order: Order) => order.plan)
   orders: Order[];

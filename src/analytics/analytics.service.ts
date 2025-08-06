@@ -4,10 +4,15 @@ import { UpdateAnalyticsDto } from './dto/update-analytics.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Property } from '../properties/entities/property.entity';
 import { User } from '../users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { create } from 'axios';
 import { Report } from '../reports/entities/report.entity';
-import { UserType } from '../utils/enums';
+import {
+  OrderStatus,
+  ReportStatus,
+  ReportTitle,
+  UserType,
+} from '../utils/enums';
 
 @Injectable()
 export class AnalyticsService {
@@ -18,6 +23,7 @@ export class AnalyticsService {
     private readonly propertyRepository: Repository<Property>,
     @InjectRepository(Report)
     private readonly reportRepository: Repository<Report>,
+    private dataSource: DataSource,
   ) {}
 
   create(createAnalyticsDto: CreateAnalyticsDto) {
@@ -28,74 +34,100 @@ export class AnalyticsService {
     return `This action returns a #${id} analytics`;
   }
 
-  update(id: number, updateAnalyticsDto: UpdateAnalyticsDto) {
-    return `This action updates a #${id} analytics`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} analytics`;
-  }
-
+  /*
+  
+  Statistics
+  
+  
+   */
   async findAll() {
-    // Get total counts - only regular users
-    const totalUsers = await this.userRepository.count({
-      where: {
-        userType: UserType.Owner,
-      },
-    });
-    const totalProperties = await this.propertyRepository.count();
-    const totalComplaints = await this.reportRepository.count();
+    const [result1] = await this.dataSource.query(
+      `
+          SELECT COUNT(*) FILTER (WHERE u."userType" = $1)                 AS "Users",
+                 COUNT(*) FILTER (WHERE u."userType" = $2)                 AS "Agencies", --للاختصار 
+                 (SELECT COUNT(*) FROM property p)                         AS "Properties",
+                 (SELECT COUNT(*) FROM votes v)                            AS "Voting interactions",
+                 (SELECT COUNT(*) FROM orders o)                           AS "All Subscriptions",
+                 (SELECT AVG(p."propertyCommissionRate") FROM property p)  AS "AVG of commissions rate",
+                 (SELECT COUNT(*) FROM orders o WHERE o."planStatus" = $3) AS "Active Subscriptions",
+                 (SELECT COUNT(*) FROM report r)                           AS "Complaints",
+                 (SELECT COUNT(*)
+                  FROM report r
+                  WHERE r.title = $4
+                    AND r."reportStatus" = $5)                             AS "Fixed Refund Complaints"
 
-    const [users, properties, complaints] = await Promise.all([
-      this.userRepository.find({
-        where: { userType: UserType.Owner },
-        select: ['createdAt'],
-      }),
-      this.propertyRepository.find({ select: ['createdAt'] }),
-      this.reportRepository.find({ select: ['createdAt'] }),
-    ]);
+          FROM users u; --للاختصار 
+      `,
+      [
+        UserType.Owner,
+        UserType.AGENCY,
+        OrderStatus.ACTIVE,
+        ReportTitle.T3,
+        ReportStatus.FIXED,
+      ],
+    );
 
-    // 2) دالة مساعدة لتحويل قائمة تواريخ إلى خريطة monthIndex ➔ count
-    const countByMonth = (dates: Date[]) =>
-      dates.reduce<Record<number, number>>((acc, dt) => {
-        const m = dt.getMonth(); // 0 = Jan, 11 = Dec
-        acc[m] = (acc[m] || 0) + 1;
-        return acc;
-      }, {});
-
-    // نبني مصفوفة شهور لكل كيان
-    const usersCount = countByMonth(users.map((u) => u.createdAt));
-    const propsCount = countByMonth(properties.map((p) => p.createdAt));
-    const complaintsCount = countByMonth(complaints.map((r) => r.createdAt));
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    // 3) إنشاء المصفوفة النهائية وملؤها
-    const monthlyStats = monthNames.map((name, idx) => ({
-      name,
-      users: usersCount[idx] || 0,
-      properties: propsCount[idx] || 0,
-      complaints: complaintsCount[idx] || 0,
-    }));
-
+    const result2 = await this.dataSource.query(
+      `
+          SELECT m.name                                            AS "Month",
+                 (SELECT COUNT(*)
+                  FROM users u
+                  WHERE u."userType" = $1
+                    AND EXTRACT(MONTH FROM u."createdAt") = m.mon) AS "Users",
+                 --
+                 (SELECT COUNT(*)
+                  FROM users u
+                  WHERE u."userType" = $2
+                    AND EXTRACT(MONTH FROM u."createdAt") = m.mon) AS "Agencies",
+                 --
+                 (SELECT COUNT(*)
+                  FROM property p
+                  WHERE EXTRACT(MONTH FROM p."createdAt") = m.mon) AS "Properties",
+                 --
+                 (SELECT COUNT(*)
+                  FROM votes v
+                  WHERE EXTRACT(MONTH FROM v."createdAt") = m.mon) AS "Voting interactions",
+                 --
+                 (SELECT COUNT(*)
+                  FROM orders o
+                  WHERE EXTRACT(MONTH FROM o."createdAt") = m.mon) AS "All Subscriptions",
+                 --
+                 (SELECT COUNT(*)
+                  FROM orders o
+                  WHERE o."planStatus" = $3
+                    AND EXTRACT(MONTH FROM o."createdAt") = m.mon) AS "Active Subscriptions",
+                 --
+                 (SELECT COUNT(*)
+                  FROM report r
+                  WHERE EXTRACT(MONTH FROM r."createdAt") = m.mon) AS "Complaints",
+                 --
+                 (SELECT COUNT(*)
+                  FROM report r
+                  WHERE r.title = $4
+                    AND r."reportStatus" = $5
+                    AND EXTRACT(MONTH FROM r."createdAt") = m.mon) AS "Fixed Refund Complaints"
+          --
+          FROM unnest(
+                       ARRAY [
+                           'January','February','March','April','May','June',
+                           'July','August','September','October','November','December'
+                           ]
+               ) WITH ORDINALITY AS m(name, mon) --ترقيم يصبح عمودين واحد قيم والثاني ترقيم  
+          ORDER BY m.mon;
+      `,
+      [
+        UserType.Owner,
+        UserType.AGENCY,
+        OrderStatus.ACTIVE,
+        ReportTitle.T3,
+        ReportStatus.FIXED,
+      ],
+    );
+    //unnest(ARRAY[...])
+    // كل عنصر في المصفوفة يصبح صفًّا واحدًا في الناتج
     return {
-      totalCounts: {
-        users: totalUsers,
-        properties: totalProperties,
-        complaints: totalComplaints,
-      },
-      monthlyStats,
+      TotalCounts: result1,
+      MonthlyStats: result2,
     };
   }
 }

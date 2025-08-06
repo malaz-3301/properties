@@ -44,7 +44,11 @@ export class UsersImgProvider {
     return this.usersRepository.save(user);
   }
 
-  async upgrade(userId: number, filenames: string[]) {
+  async upgrade(
+    userId: number,
+    filenames: string[],
+    agencyCommissionRate: number,
+  ) {
     const agency = await this.usersGetProvider.findById(userId);
     let agencyInfo = await this.agencyInfoRepository.findOneBy({
       user_id: userId,
@@ -75,7 +79,10 @@ export class UsersImgProvider {
     await this.usersRepository.save({
       ...agency,
       userType: UserType.PENDING,
-      agencyInfo: { docImages: agencyInfo.docImages },
+      agencyInfo: {
+        docImages: agencyInfo.docImages,
+        agencyCommissionRate: agencyCommissionRate,
+      },
     });
 
     return {

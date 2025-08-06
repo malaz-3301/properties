@@ -26,14 +26,19 @@ export class PlansController {
 
   @Post()
   @UseGuards(AuthRolesGuard)
-  @Roles(UserType.SUPER_ADMIN)
+  @Roles(UserType.SUPER_ADMIN, UserType.Financial)
   create(@Body() createPlanDto: CreatePlanDto) {
     return this.plansService.create(createPlanDto);
   }
 
+  @Post('back')
+  create_back_planes() {
+    return this.plansService.create_back_planes();
+  }
+
   @Patch(':id')
   @UseGuards(AuthRolesGuard)
-  @Roles(UserType.SUPER_ADMIN)
+  @Roles(UserType.SUPER_ADMIN, UserType.Financial)
   update(@Param('id') id: string, @Body() updatePlanDto: UpdatePlanDto) {
     return this.plansService.update(+id, updatePlanDto);
   }
@@ -41,7 +46,6 @@ export class PlansController {
   @Get()
   @UseGuards(AuthGuard)
   findAll(@CurrentUser() user: JwtPayloadType) {
-    console.log(user.id);
     return this.plansService.findAll(user.id);
   }
 }

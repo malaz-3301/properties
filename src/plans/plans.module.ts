@@ -8,9 +8,14 @@ import { User } from '../users/entities/user.entity';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersGetProvider } from 'src/users/providers/users-get.provider';
+import { Property } from '../properties/entities/property.entity';
 
 @Module({
-  imports: [AuthModule, UsersModule, TypeOrmModule.forFeature([Plan])],
+  imports: [
+    AuthModule,
+    UsersModule,
+    TypeOrmModule.forFeature([Plan, Property]),
+  ],
   controllers: [PlansController],
   providers: [PlansService],
 })

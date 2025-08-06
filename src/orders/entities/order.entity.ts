@@ -12,11 +12,7 @@ import { User } from '../../users/entities/user.entity';
 import { Plan } from '../../plans/entities/plan.entity';
 import { CURRENT_TIMESTAMP } from '../../utils/constants';
 import { extensionRegex } from 'ts-loader/dist/constants';
-
-export enum OrderStatus {
-  ACTIVE = 'Active',
-  EXPIRED = 'Expired',
-}
+import { OrderStatus } from '../../utils/enums';
 
 @Entity('orders')
 export class Order {

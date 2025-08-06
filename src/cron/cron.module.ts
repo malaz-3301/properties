@@ -7,9 +7,12 @@ import { View } from '../views/entities/view.entity';
 import { CronController } from './cron.controller';
 import { CronService } from './cron.service';
 import { Cron } from './entities/cron.entity';
+import { Property } from '../properties/entities/property.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cron, Order, User, Plan, View])],
+  imports: [
+    TypeOrmModule.forFeature([Cron, Order, User, Plan, View, Property]),
+  ],
   controllers: [CronController],
   providers: [CronService],
 })

@@ -20,6 +20,9 @@ export class Banned {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @Column({ type: 'varchar', length: 80 })
+  reason: string;
+
   @Column({ type: 'timestamp', nullable: true })
   banExpiresAt?: Date;
 

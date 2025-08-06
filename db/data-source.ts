@@ -16,7 +16,9 @@ import { Contract } from '../src/contracts/entities/contract.entity';
 import { AgencyInfo } from '../src/users/entities/agency-info.entity';
 import { Statistics } from '../src/users/entities/statistics.entity';
 import { PriorityRatio } from '../src/properties/entities/priority-ratio.entity';
-import { Banned } from 'src/banned/entities/banned.entity';
+import { Banned } from '../src/banned/entities/banned.entity';
+import { Analytics } from '../src/analytics/entities/analytics.entity';
+import { Report } from '../src/reports/entities/report.entity';
 //dotenv config
 
 config({ path: '.env.development' });
@@ -36,6 +38,7 @@ export const dataSourceOptions: DataSourceOptions = {
     Contract,
     User,
     Audit,
+    Analytics,
     Notification,
     Property,
     OtpEntity,
@@ -45,10 +48,11 @@ export const dataSourceOptions: DataSourceOptions = {
     Order,
     View,
     Request,
+    Report,
     AgencyInfo,
     Statistics,
     PriorityRatio,
-    Banned
+    Banned,
   ],
   migrations: ['dist/db/migrations/*.js'],
 

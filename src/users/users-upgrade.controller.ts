@@ -21,7 +21,7 @@ import { JwtPayloadType } from '../utils/constants';
 export class UsersUpgradeController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('upgrade')
+  @Post('upgrade/:cR')
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('user-images', 2))
   //function
@@ -29,13 +29,23 @@ export class UsersUpgradeController {
     @UploadedFiles()
     files: Array<Express.Multer.File>,
     @CurrentUser() payload: JwtPayloadType,
+    @Param('cR', ParseIntPipe) agencyCommissionRate: number,
   ) {
+    //بدل dto
+    if (agencyCommissionRate < 0 || agencyCommissionRate > 10) {
+      throw new BadRequestException('Commission rate must be between 0 and 10');
+    }
     if (!files || files.length === 0) {
       throw new BadRequestException('No file uploaded');
     }
+
     //من الغرض بس الاسم
     const filenames: string[] = files.map((f) => f.filename);
     console.log('File uploaded ', { files });
-    return this.usersService.upgrade(payload.id, filenames);
+    return this.usersService.upgrade(
+      payload.id,
+      filenames,
+      agencyCommissionRate,
+    );
   }
 }

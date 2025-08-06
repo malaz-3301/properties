@@ -7,6 +7,7 @@ import { DataSource, Repository } from 'typeorm';
 import { GeolocationService } from '../../geolocation/geolocation.service';
 import { UsersOtpProvider } from './users-otp.provider';
 import { ClientProxy, RmqRecordBuilder } from '@nestjs/microservices';
+import { UserType } from '../../utils/enums';
 
 @Injectable()
 export class UsersRegisterProvider {
@@ -56,7 +57,6 @@ export class UsersRegisterProvider {
           .setOptions({ persistent: true })
           .build(),
       );
-console.log(code)
       this.client2.emit(
         'create_user.sms',
         new RmqRecordBuilder({
@@ -72,5 +72,72 @@ console.log(code)
       message: 'Verify your account',
       userId: result.id,
     };
+  }
+
+  async register_back_users() {
+    await this.dataSource.query(`
+    TRUNCATE TABLE "users" RESTART IDENTITY CASCADE;
+  `);
+    const pass = await this.usersOtpProvider.hashCode('lim1234');
+    const users = [
+      {
+        phone: '0953266666',
+        username: 'normal_user_owner',
+        password: pass,
+        pointsDto: {
+          lat: 33.53680665392176,
+          lon: 36.198938818542835,
+        },
+        userType: UserType.Owner,
+        plan: { id: 1 },
+        isAccountVerified: true,
+        token:
+          'eqqB3fMARmZEA3c8Qm2iri:APA91bG0VJ7TN6zIPBXO_4nNANeU2YSVKUXMVvuOHUG1y6bBLmJDEoLXv-IHJN2AZyDcRLmVKQS7VXlCGvRxQtW7I3MHelgo9IMdxZ2sxu5K9eaAEs_YWow',
+      },
+      {
+        phone: '0953266661',
+        username: 'agency',
+        password: pass,
+        pointsDto: {
+          lat: 33.53680665392176,
+          lon: 36.198938818542835,
+        },
+        userType: UserType.AGENCY,
+        agencyInfo: {},
+        plan: { id: 1 },
+        isAccountVerified: true,
+        token:
+          'eqqB3fMARmZEA3c8Qm2iri:APA91bG0VJ7TN6zIPBXO_4nNANeU2YSVKUXMVvuOHUG1y6bBLmJDEoLXv-IHJN2AZyDcRLmVKQS7VXlCGvRxQtW7I3MHelgo9IMdxZ2sxu5K9eaAEs_YWow',
+      },
+      {
+        phone: '0953266662',
+        username: 'admin',
+        password: pass,
+        pointsDto: {
+          lat: 33.53680665392176,
+          lon: 36.198938818542835,
+        },
+        userType: UserType.ADMIN,
+        isAccountVerified: true,
+        plan: { id: 1 },
+        token:
+          'eqqB3fMARmZEA3c8Qm2iri:APA91bG0VJ7TN6zIPBXO_4nNANeU2YSVKUXMVvuOHUG1y6bBLmJDEoLXv-IHJN2AZyDcRLmVKQS7VXlCGvRxQtW7I3MHelgo9IMdxZ2sxu5K9eaAEs_YWow',
+      },
+      {
+        phone: '0953266663',
+        username: 'super_admin',
+        password: pass,
+        pointsDto: {
+          lat: 33.53680665392176,
+          lon: 36.198938818542835,
+        },
+        userType: UserType.SUPER_ADMIN,
+        plan: { id: 1 },
+        isAccountVerified: true,
+        token:
+          'eqqB3fMARmZEA3c8Qm2iri:APA91bG0VJ7TN6zIPBXO_4nNANeU2YSVKUXMVvuOHUG1y6bBLmJDEoLXv-IHJN2AZyDcRLmVKQS7VXlCGvRxQtW7I3MHelgo9IMdxZ2sxu5K9eaAEs_YWow',
+      },
+    ];
+    await this.usersRepository.save(users);
   }
 }

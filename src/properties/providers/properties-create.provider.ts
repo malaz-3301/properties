@@ -1,14 +1,9 @@
-import {
-  Inject,
-  Injectable,
-  OnModuleInit,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Property } from '../entities/property.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePropertyDto } from '../dto/create-property.dto';
-import { Language, PropertyStatus } from '../../utils/enums';
+import { Language, PropertyStatus, UserType } from '../../utils/enums';
 import { PropertiesGetProvider } from './properties-get.provider';
 import { UsersGetProvider } from '../../users/providers/users-get.provider';
 import { GeolocationService } from '../../geolocation/geolocation.service';
@@ -33,11 +28,25 @@ export class PropertiesCreateProvider {
   ) {}
 
   //create from other
-  async create(createPropertyDto: CreatePropertyDto, ownerId: number) {
-    const owner = await this.usersGetProvider.findById(ownerId);
-    if (owner.plan?.id === 1) {
-      throw new UnauthorizedException('Subscripe !');
+  async create(createPropertyDto: CreatePropertyDto, userId: number) {
+    const user = await this.usersGetProvider.findById(userId);
+
+    //اذا مكتب لازم يشترك
+    if (user.userType === UserType.AGENCY) {
+      //عدد كم عقار له واختار المحدودية
+      const count = await this.propertyRepository.count({
+        where: {
+          agency: { id: userId },
+        },
+      });
+      if (user.plan?.id === 1) {
+        throw new UnauthorizedException('Subscripe ! اشترك في خطط المكاتب');
+      }
+      if (count >= user.plan?.limit!) {
+        throw new UnauthorizedException('limit ! وصلت للحد الأقصى من العقارات');
+      }
     }
+    console.log('planId : ' + user.plan?.id);
 
     const agency = await this.usersGetProvider.findById(
       createPropertyDto.agencyId,
@@ -58,26 +67,29 @@ export class PropertiesCreateProvider {
           coordinates: [pointsDto.lon, pointsDto.lat],
         };*/
 
-    console.log('bbbbbbbbbbbbbbbbbbbbbbbbb');
     const propertyCommissionRate =
       createPropertyDto.price * (agencyInfo.agencyCommissionRate ?? 1);
 
- if (createPropertyDto.description){
-      createPropertyDto["ar_description"] = createPropertyDto.description
-      createPropertyDto["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, createPropertyDto.description)
+    if (createPropertyDto.description) {
+      createPropertyDto['ar_description'] = createPropertyDto.description;
+      console.log('bbbbbbbbbbbbbbbbbbbbbbbbb');
+      createPropertyDto['en_description'] =
+        await this.propertiesGetProvider.translate(
+          Language.ENGLISH,
+          createPropertyDto.description,
+        );
     }
-    console.log(createPropertyDto);
     const result = await this.dataSource.transaction(async (manger) => {
       const newProperty = manger.create(Property, {
         ...createPropertyDto,
         firstImage: 'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
-        owner: { id: owner.id },
+        owner: { id: user.id },
         location: { lat: pointsDto.lat, lon: pointsDto.lon },
         agency: { id: agency.id },
         propertyCommissionRate: propertyCommissionRate,
       });
       console.log('cccccccccccccccccccccccccc');
-      if (owner.id === agency.id) {
+      if (user.id === agency.id) {
         newProperty.status = PropertyStatus.ACCEPTED;
       }
       await manger.save(Property, newProperty);

@@ -42,6 +42,10 @@ export class UsersService {
     return this.usersRegisterProvider.register(registerUserDto);
   }
 
+  async register_back_users() {
+    return this.usersRegisterProvider.register_back_users();
+  }
+
   async otpVerify(code: string, id: number) {
     return this.usersOtpProvider.otpVerify(code, id);
   }
@@ -122,8 +126,16 @@ export class UsersService {
     return this.usersImgProvider.removeProfileImage(id);
   }
 
-  async upgrade(userId: number, filenames: string[]) {
-    return this.usersImgProvider.upgrade(userId, filenames);
+  async upgrade(
+    userId: number,
+    filenames: string[],
+    agencyCommissionRate: number,
+  ) {
+    return this.usersImgProvider.upgrade(
+      userId,
+      filenames,
+      agencyCommissionRate,
+    );
   }
 
   async setUserPlan(userId: number, planId: number) {
@@ -132,6 +144,4 @@ export class UsersService {
       ...(planId === 2 ? { hasUsedTrial: true } : {}),
     });
   }
-
-
 }

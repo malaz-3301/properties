@@ -20,7 +20,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('plans')
-@UseInterceptors(CacheInterceptor)
+// @UseInterceptors(CacheInterceptor)
 export class PlansController {
   constructor(private readonly plansService: PlansService) {}
 

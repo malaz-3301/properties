@@ -54,7 +54,7 @@ export class PropertiesController {
 
   @Get(':proId')
   @UseGuards(AuthGuard)
-  @UseInterceptors(CacheInterceptor)
+  // @UseInterceptors(CacheInterceptor)
   @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
   getOnePro(
     @Param('proId', ParseIntPipe) proId: number,

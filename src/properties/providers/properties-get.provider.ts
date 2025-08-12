@@ -32,6 +32,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
+import { I18n, I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class PropertiesGetProvider {
@@ -47,6 +48,7 @@ export class PropertiesGetProvider {
     private readonly configService: ConfigService,
     @Inject('GEO_SERVICE') private readonly client: ClientProxy,
     private usersService: UsersService,
+    private readonly i18n: I18nService
   ) {}
 
   async getProByUser(proId: number, userId: number, role: UserType) {
@@ -63,9 +65,12 @@ export class PropertiesGetProvider {
     }
     if (user.language == Language.ARABIC) {
       property['description'] = property.ar_description;
+      property['title'] = property.ar_title;
     } else {
       property['description'] = property.en_description;
+      property['title'] = property.en_title
     }
+    
     return property;
   }
 
@@ -116,9 +121,15 @@ export class PropertiesGetProvider {
     }
     if (user.language == Language.ARABIC) {
       property['description'] = property.ar_description;
+      property['title'] = property.ar_title;
     } else {
       property['description'] = property.en_description;
+      property['title'] = property.en_title
     }
+
+    console.log(I18nContext.current()?.lang)
+    property.propertyType = await this.i18n.t(`transolation.${property.propertyType}`, {lang : I18nContext.current()?.lang})
+    console.log(property.propertyType)
     const isFavorite = await this.favoriteService.isFavorite(userId, proId);
     const voteValue = await this.votesService.isVote(proId, userId);
     //I don't want fist Image
@@ -287,7 +298,8 @@ export class PropertiesGetProvider {
     let where: FindOptionsWhere<Property>[];
     if (word) {
       where = [
-        { ...filter, title: Like(`%${word}%`) },
+        { ...filter, ar_title: Like(`%${word}%`) },
+        { ...filter, en_title: Like(`%${word}%`) },
         { ...filter, ar_description: Like(`%${word}%`) },
         { ...filter, en_description: Like(`%${word}%`) },
       ];
@@ -314,7 +326,8 @@ export class PropertiesGetProvider {
       select: {
         favorites: { id: true },
         id: true,
-        title: true,
+        ar_title: true,
+        en_title: true,
         rooms: true,
         bathrooms: true,
         area: true,
@@ -345,11 +358,11 @@ export class PropertiesGetProvider {
       }
       if (user.language == Language.ARABIC) {
         properties.forEach(function (property) {
-          property['description'] = property.ar_description;
+          property['title'] = property.ar_title;
         });
       } else {
         properties.forEach(function (property) {
-          property['description'] = property.en_description;
+          property['title'] = property.en_title;
         });
       }
     }
@@ -406,4 +419,6 @@ export class PropertiesGetProvider {
       });
     return translatedText;
   }
+
+  
 }

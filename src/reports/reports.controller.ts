@@ -46,8 +46,8 @@ export class ReportsController {
   @Get(':reportId')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.SUPER_ADMIN, UserType.Financial)
-  getOne(@Param('reportId', ParseIntPipe) reportId: number) {
-    return this.reportsService.getOne(reportId);
+  getOne(@Param('reportId', ParseIntPipe) reportId: number, @CurrentUser() payload: JwtPayloadType) {
+    return this.reportsService.getOne(reportId, payload.id);
   }
 
   @Patch(':reportId')
@@ -57,6 +57,6 @@ export class ReportsController {
     @Param('reportId', ParseIntPipe) reportId: number,
     @Query('action', ParseBoolPipe) action: boolean,
   ) {
-    return this.reportsService.update(reportId, action);
+    return this.reportsService.hide(reportId);
   }
 }

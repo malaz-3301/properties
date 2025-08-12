@@ -42,8 +42,13 @@ export class PropertiesUpdateProvider {
       property.ar_description = updatePropertyDto.description
       property.en_description = await this.propertiesGetProvider.translate(Language.ENGLISH, updatePropertyDto.description)
     }
+    if (updatePropertyDto.title){
+      property["ar_title"] = updatePropertyDto.title
+      property["en_title"] = await this.propertiesGetProvider.translate(Language.ENGLISH, updatePropertyDto.title)
+    }
+    const temp = {...property, ...updatePropertyDto}
     
-    this.propertyRepository.save(property)
+    return this.propertyRepository.save(temp)
 
   }
 
@@ -61,7 +66,12 @@ export class PropertiesUpdateProvider {
       property["ar_description"] = editProAgencyDto.description
       property["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, editProAgencyDto.description)
     }
-    return this.propertyRepository.save(property);
+    if (editProAgencyDto.title){
+      property["ar_title"] = editProAgencyDto.title
+      property["en_title"] = await this.propertiesGetProvider.translate(Language.ENGLISH, editProAgencyDto.title)
+    }
+    const temp = {...property, ...editProAgencyDto}
+    return this.propertyRepository.save(temp);
   }
 
   async acceptAgencyPro(proId: number, agencyId: number) {
@@ -96,7 +106,12 @@ export class PropertiesUpdateProvider {
       property["ar_description"] = update.description
       property["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, update.description)
     }
-    return this.propertyRepository.save(property);
+    if (update.title){
+      property["ar_title"] = update.title
+      property["en_title"] = await this.propertiesGetProvider.translate(Language.ENGLISH, update.title)
+    }
+    const temp = {...property, ...update}
+    return this.propertyRepository.save(temp);
   }
 
   async markCommissionPaid(proId: number) {

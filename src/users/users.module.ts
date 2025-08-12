@@ -44,7 +44,7 @@ import { SmsQueClientModule } from '../modules-set/sms-que-client.module';
       Statistics,
       AgencyInfo,
     ]),
-    AuthModule,
+    forwardRef(() =>AuthModule),
     HttpModule,
     GeolocationModule,
     AuditModule,

@@ -9,6 +9,11 @@
         "include": "./mail/templates/",
         "outDir": "dist/",
         "watchAssets": true
+      },
+      {
+        "include": "i18n/**/*",
+        "watchAssets": true,
+        "outDir": "dist/src"
       }
     ]
   }

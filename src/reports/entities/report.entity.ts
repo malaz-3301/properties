@@ -19,7 +19,10 @@ export class Report {
   reason: string; //string
 
   @Column({ length: 100 })
-  description: string;
+  ar_description: string;
+
+  @Column({ length: 100 })
+  en_description: string;
 
   @Column({ length: 32 })
   myEmail: string;

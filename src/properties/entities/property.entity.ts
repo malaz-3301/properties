@@ -25,7 +25,6 @@ import { Contract } from '../../contracts/entities/contract.entity';
 import { Vote } from '../../votes/entities/vote.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { View } from '../../views/entities/view.entity';
-import { Request } from 'src/requests/entities/request.entity';
 import { PriorityRatio } from './priority-ratio.entity';
 
 @Entity('property')
@@ -55,7 +54,10 @@ export abstract class Property extends Estate {
   agency: User;
 
   @Column({ type: 'varchar', length: 20 })
-  title: string;
+  ar_title: string;
+
+  @Column({ type: 'varchar', length: 20 })
+  en_title: string;
 
   @Column({ type: 'varchar', length: 180 })
   ar_description: string;
@@ -141,6 +143,4 @@ export abstract class Property extends Estate {
   @OneToMany(() => Notification, (notifications) => notifications.property)
   notifications: Notification[];
 
-  @OneToMany(() => Request, (requests) => requests.property)
-  requests: Request[];
 }

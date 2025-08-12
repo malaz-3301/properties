@@ -17,6 +17,8 @@ import { IsDate } from 'class-validator';
 import * as admin from 'firebase-admin';
 import { env, title } from 'node:process';
 import { ConfigService } from '@nestjs/config';
+import { I18nService } from 'nestjs-i18n';
+import { Contract } from 'src/contracts/entities/contract.entity';
 
 @Injectable()
 export class NotificationsService {
@@ -37,6 +39,7 @@ export class NotificationsService {
     private readonly userService: UsersService,
     @Inject(forwardRef(() => ContractsService))
     private readonly contractService: ContractsService,
+    private i18nService: I18nService,
   ) {}
 
   private readonly logger = new Logger(NotificationsService.name);
@@ -44,16 +47,12 @@ export class NotificationsService {
   @Cron('0 30 11 * * *')
   async handleCron() {
     const contracts = await this.contractService.expiredAfterWeek();
-    contracts.forEach((contract) => {
-      const notification = this.notificationRepository.create({
-        property: contract.property,
-        user: contract.user,
-        message: `The property lease agreement expires on ${contract.expireIn}`,
-      });
-      this.notificationRepository.save(notification);
-      notification.user = contract.property.owner;
-      this.notificationRepository.save(notification);
-    });
+    for (let index = 0; index < contracts.length; index++) {
+      await this.sendNotificationForAllSidesInProperties(
+        contracts[index],
+        'EndsOn',
+      );
+    }
   }
 
   async create(createNotificationDto: CreateNotificationDto, userId: number) {
@@ -151,5 +150,42 @@ export class NotificationsService {
     } catch (error) {
       throw error;
     }
+  }
+  async sendNotificationForAllSidesInProperties(
+    contract: Contract,
+    message: string,
+  ) {
+    const owner = await this.userService.getUserById(
+      contract.property.owner.id,
+    );
+    const user = await this.userService.getUserById(contract.user.id);
+    const agency = await this.userService.getUserById(contract.agency.id);
+    const ownerMessage = await this.i18nService.t(`transolation.${message}`, {
+      lang: owner.language,
+    });
+    const ownerNotification = this.notificationRepository.create({
+      property: contract.property,
+      user: contract.user,
+      message: `${ownerMessage} ${contract.expireIn}`,
+    });
+    this.notificationRepository.save(ownerNotification);
+    const userMessage = await this.i18nService.t(`transolation.${message}`, {
+      lang: user.language,
+    });
+    const userNotification = this.notificationRepository.create({
+      property: contract.property,
+      user: contract.property.owner,
+      message: `${userMessage} ${contract.expireIn}`,
+    });
+    this.notificationRepository.save(userNotification);
+    const agencyMessage = await this.i18nService.t(`transolation.${message}`, {
+      lang: agency.language,
+    });
+    const agencyNotification = this.notificationRepository.create({
+      property: contract.property,
+      user: contract.agency,
+      message: `${agencyMessage} ${contract.expireIn}`,
+    });
+    this.notificationRepository.save(agencyNotification);
   }
 }

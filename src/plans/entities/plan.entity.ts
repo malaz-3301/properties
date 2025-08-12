@@ -18,7 +18,10 @@ export class Plan {
   planDuration: string;
 
   @Column({ type: 'varchar', length: 140 })
-  description: string;
+  ar_description: string;
+
+  @Column({ type: 'varchar', length: 140 })
+  en_description: string;
 
   @Column({
     type: 'enum',

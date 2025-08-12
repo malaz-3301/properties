@@ -30,7 +30,6 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { rateLimiting } from './utils/constants';
 import { ThrottlerProxyGuard } from './throttler-proxy.guard';
 import { ViewsModule } from './views/views.module';
-import { RequestsModule } from './requests/requests.module';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { GlobalCacheModule } from './modules-set/cache-global.module';
 import { dataSourceOptions } from '../db/data-source';
@@ -45,9 +44,12 @@ import { join } from 'node:path';
 import { UsersProcessor } from './users/processors/users.processor';
 import { BannedModule } from './banned/banned.module';
 import { SmsQueClientModule } from './modules-set/sms-que-client.module';
+import * as path from 'path';
+import { I18nModule, AcceptLanguageResolver, QueryResolver } from 'nestjs-i18n';
 
 @Module({
   imports: [
+    AuthModule,
     UsersModule,
     PropertiesModule,
     AdminModule,
@@ -59,12 +61,21 @@ import { SmsQueClientModule } from './modules-set/sms-que-client.module';
     SmsQueClientModule,
     PlansModule,
     ContractsModule,
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.join(__dirname, '/i18n/'),
+        watch: true,
+      },
+      resolvers : [AcceptLanguageResolver],
+      
+    }),
     TypeOrmModule.forRoot(dataSourceOptions),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
-    AuthModule,
+
     GeolocationModule,
     OrdersModule,
     ScheduleModule.forRoot(),
@@ -77,7 +88,6 @@ import { SmsQueClientModule } from './modules-set/sms-que-client.module';
       throttlers: rateLimiting,
     }),
     ViewsModule,
-    RequestsModule,
     ReportsModule,
     AnalyticsModule,
     CronModule,

@@ -8,7 +8,6 @@ import { Vote } from '../src/votes/entities/vote.entity';
 import { Plan } from '../src/plans/entities/plan.entity';
 import { Order } from '../src/orders/entities/order.entity';
 import { View } from '../src/views/entities/view.entity';
-import { Request } from '../src/requests/entities/request.entity';
 import { Audit } from '../src/audit/entities/audit.entity';
 import { Notification } from '../src/notifications/entities/notification.entity';
 import { config } from 'dotenv';

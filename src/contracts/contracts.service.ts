@@ -42,48 +42,19 @@ export class ContractsService {
 
     validUntil.setMonth(validUntil.getMonth() + createContractDto.time);
 
-
     const newContract = this.contractRepository.create({
       ...createContractDto,
       user: { id: userId },
       expireIn: validUntil,
       property: { id: createContractDto.propertyId },
+      agency: { id: userId },
     });
 
     const SavedContract = this.contractRepository.save(newContract);
 
-    await this.notificationsService.create(
-      {
-        message: 'Create Contract Successfully',
-        propertyId: createContractDto.propertyId,
-        title: 'The contract was successfully concluded',
-      },
-      userId,
-    );
-
-    const property = await this.PropertiesGetProvider.getOwnerAndAgency(
-      createContractDto.propertyId,
-    );
-
-    if (!property) {
-      throw new HttpException('Property Not Found', 404);
-    }
-    await this.notificationsService.create(
-      {
-        message: 'Create Contract Successfully',
-        propertyId: createContractDto.propertyId,
-        title: 'The contract was successfully concluded',
-      },
-      property.owner.id,
-    );
-
-    await this.notificationsService.create(
-      {
-        message: 'Create Contract Successfully',
-        propertyId: createContractDto.propertyId,
-        title: 'The contract was successfully concluded',
-      },
-      property.agency.id,
+    await this.notificationsService.sendNotificationForAllSidesInProperties(
+      newContract,
+      'RentedSuccessfully',
     );
   }
 

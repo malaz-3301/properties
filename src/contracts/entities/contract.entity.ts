@@ -31,4 +31,7 @@ export class Contract {
 
     @CreateDateColumn({ type: 'timestamp', default: () => CURRENT_TIMESTAMP })
   createdAt: Date;
+
+  @ManyToOne(() => User, (user: User) => user.agencyProperties)
+  agency: User;
 }

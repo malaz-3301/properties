@@ -7,6 +7,7 @@ import { DataSource, Repository } from 'typeorm';
 import { GeolocationService } from '../../geolocation/geolocation.service';
 import { UsersOtpProvider } from './users-otp.provider';
 import { ClientProxy, RmqRecordBuilder } from '@nestjs/microservices';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 import { UserType } from '../../utils/enums';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class UsersRegisterProvider {
     private dataSource: DataSource,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly i18n: I18nService,
     private readonly usersOtpProvider: UsersOtpProvider,
     private readonly geolocationService: GeolocationService,
     @Inject('GEO_SERVICE') private readonly client1: ClientProxy,
@@ -57,11 +59,14 @@ export class UsersRegisterProvider {
           .setOptions({ persistent: true })
           .build(),
       );
+      console.log(code);
+
+      const key = await this.i18n.t('transolation.Key', {lang : I18nContext.current()?.lang})
       this.client2.emit(
         'create_user.sms',
         new RmqRecordBuilder({
           phone: user.phone,
-          message: `Your Key is ${code}`,
+          message: `${key}${code}`,
         })
           .setOptions({ persistent: true })
           .build(),

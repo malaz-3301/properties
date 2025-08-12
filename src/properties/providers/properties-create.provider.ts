@@ -70,15 +70,17 @@ export class PropertiesCreateProvider {
     const propertyCommissionRate =
       createPropertyDto.price * (agencyInfo.agencyCommissionRate ?? 1);
 
-    if (createPropertyDto.description) {
-      createPropertyDto['ar_description'] = createPropertyDto.description;
-      console.log('bbbbbbbbbbbbbbbbbbbbbbbbb');
-      createPropertyDto['en_description'] =
-        await this.propertiesGetProvider.translate(
-          Language.ENGLISH,
-          createPropertyDto.description,
-        );
+ if (createPropertyDto.description){
+      createPropertyDto["ar_description"] = createPropertyDto.description
+      createPropertyDto["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, createPropertyDto.description)
     }
+
+    if (createPropertyDto.title){
+      createPropertyDto["ar_title"] = createPropertyDto.title
+      createPropertyDto["en_title"] = await this.propertiesGetProvider.translate(Language.ENGLISH, createPropertyDto.title)
+    }
+
+    console.log(createPropertyDto);
     const result = await this.dataSource.transaction(async (manger) => {
       const newProperty = manger.create(Property, {
         ...createPropertyDto,

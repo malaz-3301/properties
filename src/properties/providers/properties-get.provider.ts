@@ -48,7 +48,7 @@ export class PropertiesGetProvider {
     private readonly configService: ConfigService,
     @Inject('GEO_SERVICE') private readonly client: ClientProxy,
     private usersService: UsersService,
-    private readonly i18n: I18nService
+    private readonly i18n: I18nService,
   ) {}
 
   async getProByUser(proId: number, userId: number, role: UserType) {
@@ -68,9 +68,9 @@ export class PropertiesGetProvider {
       property['title'] = property.ar_title;
     } else {
       property['description'] = property.en_description;
-      property['title'] = property.en_title
+      property['title'] = property.en_title;
     }
-    
+
     return property;
   }
 
@@ -124,12 +124,15 @@ export class PropertiesGetProvider {
       property['title'] = property.ar_title;
     } else {
       property['description'] = property.en_description;
-      property['title'] = property.en_title
+      property['title'] = property.en_title;
     }
 
-    console.log(I18nContext.current()?.lang)
-    property.propertyType = await this.i18n.t(`transolation.${property.propertyType}`, {lang : I18nContext.current()?.lang})
-    console.log(property.propertyType)
+    console.log(I18nContext.current()?.lang);
+    property.propertyType = await this.i18n.t(
+      `transolation.${property.propertyType}`,
+      { lang: I18nContext.current()?.lang },
+    );
+    console.log(property.propertyType);
     const isFavorite = await this.favoriteService.isFavorite(userId, proId);
     const voteValue = await this.votesService.isVote(proId, userId);
     //I don't want fist Image
@@ -271,6 +274,8 @@ export class PropertiesGetProvider {
       isFloor, //هل طابق ارضي
       createdDir, //ترتيب التاريخ تصاعدي او تنازلي
       priceDir, //ترتيب السعر تصاعدي او تنازلي
+      pageNum, //pagination
+      numPerPage,
     } = query;
     const obj = { ...query, ownerId, agencyId };
     const key = await this.shortHash(obj);
@@ -322,6 +327,8 @@ export class PropertiesGetProvider {
 
     const properties: Property[] = await this.propertyRepository.find({
       where,
+      skip: numPerPage * (pageNum - 1), //pagination
+      take: numPerPage,
       relations: { agency: true, favorites: true },
       select: {
         favorites: { id: true },
@@ -419,6 +426,4 @@ export class PropertiesGetProvider {
       });
     return translatedText;
   }
-
-  
 }

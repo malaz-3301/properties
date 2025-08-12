@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsEnum,
   IsBoolean,
+  Min,
 } from 'class-validator';
 
 import {
@@ -95,4 +96,13 @@ export class FilterPropertyDto {
   })
   @IsBoolean()
   isFloor: boolean;
+
+  @IsOptional()
+  @Min(1) // رقم الصفحة علاقل واحد
+  @Type(() => Number)
+  pageNum: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  numPerPage: number;
 }

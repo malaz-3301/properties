@@ -112,4 +112,5 @@ export enum GeoEnum {
 export enum Language {
   ARABIC = 'ar',
   ENGLISH = 'en',
+  Germany = 'de'
 }

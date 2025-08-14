@@ -14,13 +14,14 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
-import { UserType } from '../../utils/enums';
+import { Language, UserType } from '../../utils/enums';
 import { FilterPropertyDto } from '../../properties/dto/filter-property.dto';
 import { Property } from '../../properties/entities/property.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { FilterUserDto } from '../dto/filter-user.dto';
 import { AgencyInfo } from '../entities/agency-info.entity';
 import { createHash } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersGetProvider {
@@ -30,6 +31,7 @@ export class UsersGetProvider {
     @InjectRepository(AgencyInfo)
     private readonly agencyInfoRepository: Repository<AgencyInfo>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly configService: ConfigService,
   ) {}
 
   // لاعد تسجل otp
@@ -143,4 +145,23 @@ export class UsersGetProvider {
     //ينشئ كائن تجزئة باستخدام خوارزمية MD5
     return createHash('md5').update(JSON.stringify(obj)).digest('hex');
   }
+  async translate(targetLang: Language, text: string) {
+    const Url = this.configService.get<string>('TRANSLATE');
+    const sourceLang = Language.ARABIC;
+    const Url1 =
+      Url +
+      `?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+    let translatedText;
+    await fetch(Url1)
+      .then((response) => response.json())
+      .then((data) => {
+        translatedText = data[0][0][0];
+      })
+      .catch((error) => {
+        console.error('حدث خطأ:', error);
+        console.log(Url1);
+      });
+    return translatedText;
+  }
+
 }

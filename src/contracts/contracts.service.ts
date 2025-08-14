@@ -50,7 +50,7 @@ export class ContractsService {
       agency: { id: userId },
     });
 
-    const SavedContract = this.contractRepository.save(newContract);
+    const SavedContract =await this.contractRepository.save(newContract);
 
     await this.notificationsService.sendNotificationForAllSidesInProperties(
       newContract,

@@ -30,15 +30,24 @@ export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
 
   @Get('all')
-  getAllAccepted(@Query() query: FilterPropertyDto) {
+  @UseGuards(AuthGuard)
+  getAllAccepted(
+    @Query() query: FilterPropertyDto,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
     console.log('📍📍📍');
     query.status = PropertyStatus.ACCEPTED;
-    return this.propertiesService.getAll(query);
+    if (user) return this.propertiesService.getAll(query, user.id);
+    else return this.propertiesService.getAll(query);
   }
 
   @Get('geo')
-  getProByGeo(@Query() geoProDto: GeoProDto) {
-    return this.propertiesService.getProByGeo(geoProDto);
+  @UseGuards(AuthGuard)
+  getProByGeo(
+    @Query() geoProDto: GeoProDto,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
+    return this.propertiesService.getProByGeo(geoProDto, user.id);
   }
 
   @Get('near')

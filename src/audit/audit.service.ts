@@ -45,7 +45,7 @@ export class AuditService {
   }
 
   async findOne(id: number) {
-    await this.auditRepository.findOneBy({ id: id });
+    return this.auditRepository.findOneBy({ id: id });
   }
 
   update(id: number, updateAuditDto: UpdateAuditDto) {

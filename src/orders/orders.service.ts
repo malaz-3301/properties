@@ -56,7 +56,7 @@ export class OrdersService {
             currency: 'usd',
             product_data: {
               name: 'EasyRent',
-              description: `${plan.ar_description}`,
+              description: `${plan.multi_description['ar']}`,
               images: [
                 'https://i.postimg.cc/bJ8Sptcm/Chat-GPT-Image-29-2025-10-17-36.png', // ← هنا رابط الصورة
               ],
@@ -96,7 +96,7 @@ export class OrdersService {
             currency: 'usd',
             product_data: {
               name: 'EasyRent',
-              description: `${property.ar_title}\n${property.ar_description}`,
+              description: `${property.multi_title['ar']}\n${property.multi_description['ar']}`,
               images: [
                 'https://i.postimg.cc/bJ8Sptcm/Chat-GPT-Image-29-2025-10-17-36.png', // ← هنا رابط الصورة
               ],

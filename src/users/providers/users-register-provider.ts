@@ -61,7 +61,7 @@ export class UsersRegisterProvider {
       );
       console.log(code);
 
-      const key = await this.i18n.t('transolation.Key', {lang : I18nContext.current()?.lang})
+      const key = await this.i18n.t('transolation.Key')
       this.client2.emit(
         'create_user.sms',
         new RmqRecordBuilder({

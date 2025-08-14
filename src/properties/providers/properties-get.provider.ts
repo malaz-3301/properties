@@ -22,7 +22,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { FilterPropertyDto } from '../dto/filter-property.dto';
 import { FavoriteService } from '../../favorite/favorite.service';
 import { VotesService } from '../../votes/votes.service';
-import { GeoEnum, Language, UserType } from '../../utils/enums';
+import { GeoEnum, Language, PropertyStatus, UserType } from '../../utils/enums';
 import { json } from 'express';
 import { createHash } from 'crypto';
 import { GeoProDto } from '../dto/geo-pro.dto';
@@ -45,7 +45,7 @@ export class PropertiesGetProvider {
     private readonly votesService: VotesService,
     private readonly geolocationService: GeolocationService,
     private dataSource: DataSource,
-    private readonly configService: ConfigService,
+
     @Inject('GEO_SERVICE') private readonly client: ClientProxy,
     private usersService: UsersService,
     private readonly i18n: I18nService,
@@ -64,13 +64,36 @@ export class PropertiesGetProvider {
       throw new NotFoundException();
     }
     if (user.language == Language.ARABIC) {
-      property['description'] = property.ar_description;
-      property['title'] = property.ar_title;
+      property['description'] = property.multi_description['ar'];
+      property['title'] = property.multi_title['ar'];
+    } else if (user.language == Language.ENGLISH) {
+      property['description'] = property.multi_description['en'];
+      property['title'] = property.multi_title['en'];
     } else {
-      property['description'] = property.en_description;
-      property['title'] = property.en_title;
+      property['description'] = property.multi_description['de'];
+      property['title'] = property.multi_title['de'];
     }
-
+    property.status = await this.i18n.t(`transolation.${property.status}`, {
+      lang: user.language,
+    });
+    property.propertyType = await this.i18n.t(
+      `transolation.${property.propertyType}`,
+      {
+        lang: user.language,
+      },
+    );
+    property.heatingType = await this.i18n.t(
+      `transolation.${property.heatingType}`,
+      {
+        lang: user.language,
+      },
+    );
+    property.flooringType = await this.i18n.t(
+      `transolation.${property.flooringType}`,
+      {
+        lang: user.language,
+      },
+    );
     return property;
   }
 
@@ -120,17 +143,32 @@ export class PropertiesGetProvider {
       throw new NotFoundException();
     }
     if (user.language == Language.ARABIC) {
-      property['description'] = property.ar_description;
-      property['title'] = property.ar_title;
+      property['description'] = property.multi_description['ar'];
+      property['title'] = property.multi_title['ar'];
+    } else if (user.language == Language.ENGLISH) {
+      property['description'] = property.multi_description['en'];
+      property['title'] = property.multi_title['en'];
     } else {
-      property['description'] = property.en_description;
-      property['title'] = property.en_title;
+      property['description'] = property.multi_description['de'];
+      property['title'] = property.multi_title['de'];
     }
 
-    console.log(I18nContext.current()?.lang);
+    console.log(user.language);
     property.propertyType = await this.i18n.t(
       `transolation.${property.propertyType}`,
-      { lang: I18nContext.current()?.lang },
+      { lang: user.language },
+    );
+    property.status = await this.i18n.t(
+      `transolation.${property.status}`,
+      { lang: user.language },
+    );
+    property.flooringType = await this.i18n.t(
+      `transolation.${property.flooringType}`,
+      { lang: user.language },
+    );
+    property.heatingType = await this.i18n.t(
+      `transolation.${property.heatingType}`,
+      { lang: user.language },
     );
     console.log(property.propertyType);
     const isFavorite = await this.favoriteService.isFavorite(userId, proId);
@@ -161,7 +199,7 @@ export class PropertiesGetProvider {
     return createHash('md5').update(JSON.stringify(obj)).digest('hex');
   }
 
-  async getProByGeo(geoProDto: GeoProDto) {
+  async getProByGeo(geoProDto: GeoProDto, userId: number) {
     const level = geoProDto.geoLevel;
     /*    const location =
           (await this.geolocationService.reverse_geocoding(
@@ -224,9 +262,55 @@ export class PropertiesGetProvider {
       }
     }
     console.log('last_level is :' + apiGeoLevel + ' : ' + apiGeoValue);
-    return this.propertyRepository.find({
+    const properties = await this.propertyRepository.find({
       where: { location: { [apiGeoLevel]: apiGeoValue } },
     });
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    if (user.language == Language.ARABIC) {
+      properties.forEach(function (property) {
+        property['description'] = property.multi_description['ar'];
+        property['title'] = property.multi_title['ar'];
+      });
+    } else if(user.language == Language.ENGLISH){
+      properties.forEach(function (property) {
+        property['description'] = property.multi_description['en'];
+        property['title'] = property.multi_title['en'];
+      });
+    }
+    else {
+      properties.forEach(function (property) {
+        property['description'] = property.multi_description['de'];
+        property['title'] = property.multi_title['de'];
+      });
+    }
+    for (let i = 0; i < properties.length; i++) {
+      properties[i].status = await this.i18n.t(
+        `transolation.${properties[i].status}`,
+        { lang: user.language },
+      );
+      properties[i].propertyType = await this.i18n.t(
+        `transolation.${properties[i].propertyType}`,
+        {
+          lang: user.language,
+        },
+      );
+      properties[i].heatingType = await this.i18n.t(
+        `transolation.${properties[i].heatingType}`,
+        {
+          lang: user.language,
+        },
+      );
+      properties[i].flooringType = await this.i18n.t(
+        `transolation.${properties[i].flooringType}`,
+        {
+          lang: user.language,
+        },
+      );
+    }
+    return properties;
   }
 
   async getProNearMe(nearProDto: NearProDto) {
@@ -277,13 +361,13 @@ export class PropertiesGetProvider {
       pageNum, //pagination
       numPerPage,
     } = query;
-    const obj = { ...query, ownerId, agencyId };
-    const key = await this.shortHash(obj);
-    const cacheData = await this.cacheManager.get(key);
-    if (cacheData) {
-      console.log('This is Cache data');
-      return cacheData;
-    }
+    // const obj = { ...query, ownerId, agencyId };
+    // const key = await this.shortHash(obj);
+    // const cacheData = await this.cacheManager.get(key);
+    // if (cacheData) {
+    //   console.log('This is Cache data');
+    //   return cacheData;
+    // }
 
     const filter: FindOptionsWhere<Property> | undefined = {};
 
@@ -303,10 +387,8 @@ export class PropertiesGetProvider {
     let where: FindOptionsWhere<Property>[];
     if (word) {
       where = [
-        { ...filter, ar_title: Like(`%${word}%`) },
-        { ...filter, en_title: Like(`%${word}%`) },
-        { ...filter, ar_description: Like(`%${word}%`) },
-        { ...filter, en_description: Like(`%${word}%`) },
+        { ...filter, multi_title: Like(`%${word}%`) },
+        { ...filter, multi_description: Like(`%${word}%`) },
       ];
     } else {
       // إذا ما في كلمة بحث، نستخدم كل الشروط مجتمعة
@@ -314,7 +396,6 @@ export class PropertiesGetProvider {
     }
     //ORDER
     const order: FindOptionsOrder<Property> | undefined = {};
-    //مشان الاولوية تنازلي
     if (createdDir == null && priceDir == null) {
       order.primacy = 'DESC';
     }
@@ -324,7 +405,9 @@ export class PropertiesGetProvider {
     if (priceDir != null) {
       order.price = priceDir;
     }
-
+    console.log(pageNum)
+    console.log(numPerPage)
+    console.log(numPerPage * (pageNum - 1))
     const properties: Property[] = await this.propertyRepository.find({
       where,
       skip: numPerPage * (pageNum - 1), //pagination
@@ -333,10 +416,11 @@ export class PropertiesGetProvider {
       select: {
         favorites: { id: true },
         id: true,
-        ar_title: true,
-        en_title: true,
+        multi_title: true,
         rooms: true,
         bathrooms: true,
+        primacy: true,
+        createdAt: true,
         area: true,
         price: true,
         firstImage: true,
@@ -363,21 +447,33 @@ export class PropertiesGetProvider {
       if (!user) {
         throw new NotFoundException();
       }
-      if (user.language == Language.ARABIC) {
-        properties.forEach(function (property) {
-          property['title'] = property.ar_title;
-        });
-      } else {
-        properties.forEach(function (property) {
-          property['title'] = property.en_title;
-        });
+      for (let i = 0; i < properties.length; i++) {
+        properties[i].status = await this.i18n.t(
+          `transolation.${properties[i].status}`,
+          { lang: user.language },
+        );
+
+        properties[i].propertyType = await this.i18n.t(
+          `transolation.${properties[i].propertyType}`,
+          {
+            lang: user.language,
+          },
+        );
+        if (user.language == Language.ARABIC) {
+          properties[i]['title'] = properties[i].multi_title['ar'];
+        } else if(user.language == Language.ENGLISH){
+          properties[i]['title'] = properties[i].multi_title['en'];
+        }
+        else {
+          properties[i]['title'] = properties[i].multi_title['de'];
+        }
       }
     }
     if (!properties || properties.length === 0) {
       throw new NotFoundException('No estates found');
     }
     //key , value
-    await this.cacheManager.set(key, properties);
+    // await this.cacheManager.set(key, properties);
     return properties;
   }
 
@@ -406,24 +502,5 @@ export class PropertiesGetProvider {
       relations: ['agency', 'owner'],
       select: { owner: { id: true }, agency: { id: true } },
     });
-  }
-
-  async translate(targetLang: Language, text: string) {
-    const Url = this.configService.get<string>('TRANSLATE');
-    const sourceLang = Language.ARABIC;
-    const Url1 =
-      Url +
-      `?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
-    let translatedText;
-    await fetch(Url1)
-      .then((response) => response.json())
-      .then((data) => {
-        translatedText = data[0][0][0];
-      })
-      .catch((error) => {
-        console.error('حدث خطأ:', error);
-        console.log(Url1);
-      });
-    return translatedText;
   }
 }

@@ -19,6 +19,7 @@ import { env, title } from 'node:process';
 import { ConfigService } from '@nestjs/config';
 import { I18nService } from 'nestjs-i18n';
 import { Contract } from 'src/contracts/entities/contract.entity';
+import { UsersGetProvider } from 'src/users/providers/users-get.provider';
 
 @Injectable()
 export class NotificationsService {
@@ -36,7 +37,7 @@ export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
-    private readonly userService: UsersService,
+    private readonly usersGetProvider: UsersGetProvider,
     @Inject(forwardRef(() => ContractsService))
     private readonly contractService: ContractsService,
     private i18nService: I18nService,
@@ -63,8 +64,8 @@ export class NotificationsService {
       property: { id: createNotificationDto.propertyId },
     });
 
-    const user = await this.userService.getUserById(userId);
-
+    const user = await this.usersGetProvider.findById(userId);
+    newNotification.usre_language_message = await this.usersGetProvider.translate(user.language, createNotificationDto.message);
     await this.sendNotificationToDevice(
       user.token,
       createNotificationDto.title,
@@ -155,37 +156,37 @@ export class NotificationsService {
     contract: Contract,
     message: string,
   ) {
-    const owner = await this.userService.getUserById(
+    const owner = await this.usersGetProvider.findById(
       contract.property.owner.id,
     );
-    const user = await this.userService.getUserById(contract.user.id);
-    const agency = await this.userService.getUserById(contract.agency.id);
+    const user = await this.usersGetProvider.findById(contract.user.id);
+    const agency = await this.usersGetProvider.findById(contract.agency.id);
     const ownerMessage = await this.i18nService.t(`transolation.${message}`, {
       lang: owner.language,
     });
     const ownerNotification = this.notificationRepository.create({
       property: contract.property,
       user: contract.user,
-      message: `${ownerMessage} ${contract.expireIn}`,
+      usre_language_message: `${ownerMessage} ${contract.expireIn}`,
     });
-    this.notificationRepository.save(ownerNotification);
+    await this.notificationRepository.save(ownerNotification);
     const userMessage = await this.i18nService.t(`transolation.${message}`, {
       lang: user.language,
     });
     const userNotification = this.notificationRepository.create({
       property: contract.property,
       user: contract.property.owner,
-      message: `${userMessage} ${contract.expireIn}`,
+      usre_language_message: `${userMessage} ${contract.expireIn}`,
     });
-    this.notificationRepository.save(userNotification);
+     await this.notificationRepository.save(userNotification);
     const agencyMessage = await this.i18nService.t(`transolation.${message}`, {
       lang: agency.language,
     });
     const agencyNotification = this.notificationRepository.create({
       property: contract.property,
       user: contract.agency,
-      message: `${agencyMessage} ${contract.expireIn}`,
+      usre_language_message: `${agencyMessage} ${contract.expireIn}`,
     });
-    this.notificationRepository.save(agencyNotification);
+    await this.notificationRepository.save(agencyNotification);
   }
 }

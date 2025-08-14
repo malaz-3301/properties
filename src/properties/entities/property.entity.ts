@@ -53,18 +53,11 @@ export abstract class Property extends Estate {
   })
   agency: User;
 
-  @Column({ type: 'varchar', length: 20 })
-  ar_title: string;
+  @Column({ type: 'jsonb' })
+  multi_title: Record<string, string>;
 
-  @Column({ type: 'varchar', length: 20 })
-  en_title: string;
-
-  @Column({ type: 'varchar', length: 180 })
-  ar_description: string;
-
-  
-  @Column({ type: 'varchar', length: 180 })
-  en_description: string;
+  @Column({ type: 'jsonb' })
+  multi_description: Record<string, string>;
 
   @Column({ type: 'numeric', precision: 8, scale: 2 })
   price: number;
@@ -142,5 +135,4 @@ export abstract class Property extends Estate {
 
   @OneToMany(() => Notification, (notifications) => notifications.property)
   notifications: Notification[];
-
 }

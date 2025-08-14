@@ -32,7 +32,7 @@ export class UsersOtpProvider {
 
   async otpVerify(code: string, id: number) {
     const user = await this.usersGetProvider.findByIdOtp(id);
-    //If Hack delete him
+    //If Hack delete him اذا مو رقم
     if (!/^\d+$/.test(code)) {
       await this.usersRepository.delete({ id: id });
       throw new BadRequestException('(: (: (:(: hhh');
@@ -49,7 +49,7 @@ export class UsersOtpProvider {
     }
     //اذا الكود صحيح
     user.isAccountVerified = true; // الحساب محقق
-    await this.otpEntityRepository.delete(user.id); //حذفه للسطر
+    //await this.otpEntityRepository.delete(user.id); //حذفه للسطر مالها داعي
     user.otpEntity.passChangeAccess = true; //مو دائما بحاجتها resetAccount
 
     await this.usersRepository.save(user);
@@ -74,7 +74,7 @@ export class UsersOtpProvider {
     console.log('Date.now()  : ' + new Date(Date.now()));
     console.log('createdAt : ' + createdAtTimestamp);
     console.log('expireInSec : ' + expireInSec);
-    if (expireInSec > 540) {
+    if (expireInSec > 120) {
       throw new UnauthorizedException({
         message: 'Your code has expired',
         signUpButton: false,
@@ -98,9 +98,10 @@ export class UsersOtpProvider {
   -ولد كود وصفر المحاولات الخاطئة
   createdAt حدث اخر وقت لطلب كود updatedAt وحدث وقت صلاحية الكود-
    */
-  async otpReSend(userId: number, DontSkip: boolean = true) {
+  async otpReSend(userId: number, ResetRequest: boolean = false) {
     const user = await this.usersGetProvider.findByIdOtp(userId); //otp select
-    if (user.isAccountVerified && DontSkip) {
+    //اذا مو عملية استرداد
+    if (user.isAccountVerified && !ResetRequest) {
       throw new BadRequestException('Your account has been verified');
     }
 
@@ -185,6 +186,6 @@ export class UsersOtpProvider {
     await this.otpEntityRepository.save({
       user: { id: userId },
     });
-    return await this.otpReSend(userId, false);
+    return await this.otpReSend(userId, true);
   }
 }

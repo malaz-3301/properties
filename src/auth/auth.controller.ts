@@ -41,12 +41,13 @@ export class AuthController {
     return this.authService.resetAccount(resetAccountDto);
   }
 
-  @Post('reset/:userId') //201
+  @Post('reset_pass') //201
+  @UseGuards(AuthGuard)
   resetPassword(
-    @Param('userId', ParseIntPipe) userId: number,
-    @Body('password') resetPasswordDto: ResetPasswordDto,
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @CurrentUser() payload: JwtPayloadType,
   ) {
-    return this.authService.resetPassword(userId, resetPasswordDto);
+    return this.authService.resetPassword(payload.id, resetPasswordDto);
   }
 
   @Get('tokenTime')
@@ -72,7 +73,10 @@ export class AuthController {
   @Get('changeLanguage/:Language')
   @UseGuards(AuthGuard)
   @Throttle({ default: { ttl: 10000, limit: 8 } }) // منفصل overwrite
-  changeLanguage(@CurrentUser() payload: JwtPayloadType, @Param('Language')Language : Language) {
+  changeLanguage(
+    @CurrentUser() payload: JwtPayloadType,
+    @Param('Language') Language: Language,
+  ) {
     return this.authService.changeLanguage(Language, payload.id);
   }
 }

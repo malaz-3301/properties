@@ -33,7 +33,6 @@ export class PlansService {
     return this.planRepository.save({ ...createPlanDto });
   }
 
-
   async create_back_planes() {
     await this.dataSource.query(`
     TRUNCATE TABLE "plans" RESTART IDENTITY CASCADE;
@@ -41,32 +40,38 @@ export class PlansService {
     const plans = [
       {
         planDuration: 'Other',
-        description: 'Free',
+        ar_description: 'مجانية',
+        en_description: 'Free',
         planType: PlanType.BASIC,
         limit: 0,
         planPrice: 0,
       },
       {
         planDuration: '1_day',
-        description: 'Trial',
+        ar_description: 'تجربة',
+        en_description: 'Trial',
         planType: PlanType.TRIAL,
         limit: 1,
         planPrice: 0,
       },
       {
         planDuration: '3_month',
-        description:
-          'Platinum Plan allows users to publish unlimited properties with priority placement in search results 💎',
+        ar_description:
+          'تتيح الخطة البلاتينية للمشتركين نشر ثلاثين عقار و تمتد ثلاث شهور 💎',
+        en_description:
+          'Platinum plan allows users to post thirty properties and extends for three months 💎',
         planType: PlanType.Platinum,
         limit: 30,
         planPrice: 9,
       },
       {
         planDuration: '10_month',
-        description:
-          'Vip Plan offers premium features for a duration of 10 months, allowing users to list properties with enhanced visibility 🏅',
+        ar_description: 'تقدم لك خطة Vip نشر ثمانين عقار و تمتد لعشر شهور 🏅',
+        en_description:
+          'Vip plan offers you eighty properties for ten months. 🏅',
+
         planType: PlanType.VIP,
-        limit: 80,
+        limit: 0,
         planPrice: 19,
       },
     ];
@@ -76,8 +81,8 @@ export class PlansService {
 
   async update(id: number, updatePlanDto: UpdatePlanDto) {
     const plan = await this.planRepository.findOneBy({ id: id });
-    if(!plan) {
-      throw new NotFoundException()
+    if (!plan) {
+      throw new NotFoundException();
     }
     if (updatePlanDto.description) {
       plan['ar_description'] = updatePlanDto.description;
@@ -87,7 +92,7 @@ export class PlansService {
       );
     }
     const temp = { ...plan, ...updatePlanDto };
-    return this.planRepository.save({...temp});
+    return this.planRepository.save({ ...temp });
   }
 
   async findAll(userId: number) {
@@ -124,7 +129,8 @@ export class PlansService {
     }
     return plans;
   }
-    async translate(targetLang: Language, text: string) {
+
+  async translate(targetLang: Language, text: string) {
     const Url = this.configService.get<string>('TRANSLATE');
     const sourceLang = Language.ARABIC;
     const Url1 =

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -16,6 +17,9 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayloadType } from '../utils/constants';
+import { AuthRolesGuard } from '../auth/guards/auth-roles.guard';
+import { Roles } from '../auth/decorators/user-role.decorator';
+import { UserType } from '../utils/enums';
 
 @Controller('userU')
 export class UsersUpgradeController {
@@ -47,5 +51,12 @@ export class UsersUpgradeController {
       filenames,
       agencyCommissionRate,
     );
+  }
+
+  @Get(':id')
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.AGENCY)
+  getUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getUserById(id);
   }
 }

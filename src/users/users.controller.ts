@@ -137,11 +137,11 @@ export class UsersController {
     return this.usersService.getOneAgency(agencyId);
   }
 
-  @Get(':id')
-  @UseGuards(AuthRolesGuard)
-  getUserById(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.getUserById(id);
-  }
+  /*  @Get(':id') للحذف
+    @UseGuards(AuthRolesGuard)
+    getUserById(@Param('id', ParseIntPipe) id: number) {
+      return this.usersService.getUserById(id);
+    }*/
 
   @Get('pro/:id')
   @UseGuards(AuthGuard)

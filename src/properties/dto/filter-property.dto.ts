@@ -31,7 +31,7 @@ export class FilterPropertyDto {
   @IsString()
   maxPrice?: string;
 
-  @IsOptional()
+  @IsOptional() //هي للادمن
   @IsEnum(PropertyStatus)
   status?: PropertyStatus;
 

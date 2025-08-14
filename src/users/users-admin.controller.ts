@@ -49,6 +49,13 @@ export class UsersAdminController {
     return this.usersService.getAllAdmins(query);
   }
 
+  @Get(':id')
+  @UseGuards(AuthRolesGuard)
+  @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
+  getUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getUserById(id);
+  }
+
   @Patch('upgrade/:userId')
   @Roles(UserType.ADMIN, UserType.SUPER_ADMIN)
   @UseGuards(AuthRolesGuard)

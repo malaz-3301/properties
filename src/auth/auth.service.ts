@@ -72,23 +72,33 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-    /*   حذف const code = Math.floor(10000 + Math.random() * 90000).toString();
-        const otpCode = await this.usersOtpProvider.hashCode(code);*/
-    return await this.usersOtpProvider.otpCreate(user.id); //لأنك حذفته و ارسال
+    return await this.usersOtpProvider.otpCreate(user.id); //لأنك حذفت السطر ممكن و ارسال
 
     //otpVerify
   }
 
   async resetPassword(userId: number, resetPasswordDto: ResetPasswordDto) {
+    // طبعا بعد التحقق من الرمز
     const user = await this.usersGetProvider.findByIdOtp(userId);
     user.password = await this.usersOtpProvider.hashCode(
       resetPasswordDto.password,
     );
+
     if (user.otpEntity.passChangeAccess) {
-      user.otpEntity.passChangeAccess = false;
-      await this.usersRepository.update(userId, {
-        password: user.password,
-        otpEntity: user.otpEntity,
+      //اخر update تمت لما تم التحقق من الرمز (يعني هي فترة بين التحقق و ادخال الجديدة)
+      const createdAtTimestamp = user.otpEntity.createdAt.getTime();
+      const expireInSec = (Date.now() - createdAtTimestamp) / 1000;
+      if (expireInSec > 120) {
+        throw new UnauthorizedException({
+          message: 'Your action has expired 60 s retry',
+        });
+      }
+      user.otpEntity.passChangeAccess = false; //سكرها
+      await this.usersRepository.save(user); // عامل cascade لأن
+      console.log('password reset');
+    } else {
+      throw new UnauthorizedException({
+        message: 'You did not verify code to reset password',
       });
     }
   }
@@ -119,7 +129,7 @@ export class AuthService {
     await this.usersRepository.save(addAdminDto);
   }
 
-    changeLanguage(Language : Language, userId : number) {
-    this.usersRepository.update({id : userId}, {language : Language});
+  async changeLanguage(Language: Language, userId: number) {
+    await this.usersRepository.update({ id: userId }, { language: Language });
   }
 }

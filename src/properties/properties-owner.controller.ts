@@ -52,7 +52,7 @@ export class PropertiesOwnerController {
     @Query() query: FilterPropertyDto,
   ) {
     //لا داع للـ undefines لكن للوضوح
-    return this.propertiesService.getAll(query, owner.id, undefined);
+    return this.propertiesService.getAll(query,owner.id, owner.id, undefined);
   }
 
   @Patch('my/:proId')

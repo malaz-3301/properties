@@ -6,7 +6,6 @@ import { Contract } from './entities/contract.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { UsersModule } from 'src/users/users.module';
-import { NotificationsService } from 'src/notifications/notifications.service';
 import { PropertiesModule } from 'src/properties/properties.module';
 
 @Module({

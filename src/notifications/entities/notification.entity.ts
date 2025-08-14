@@ -9,8 +9,8 @@ export class Notification {
     id :number;
     @ManyToOne(()=>User, (user)=>user.notifications)
     user : User;
-    @Column()
-    message : string;
+    @Column({type : 'jsonb'})
+    usre_language_message : string;
     @CreateDateColumn({ type: 'timestamp', nullable : true, default : null})
     readAt : Date|null;
     @ManyToOne(()=>Property, (property)=>property.notifications)

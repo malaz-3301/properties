@@ -24,6 +24,7 @@ import { FilterUserDto } from './dto/filter-user.dto';
 import { Language, UserType } from '../utils/enums';
 import { UsersRegisterProvider } from './providers/users-register-provider';
 import { ClientProxy } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -144,4 +145,4 @@ export class UsersService {
       ...(planId === 2 ? { hasUsedTrial: true } : {}),
     });
   }
-}
+  }

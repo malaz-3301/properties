@@ -70,20 +70,31 @@ export class PropertiesCreateProvider {
     const propertyCommissionRate =
       createPropertyDto.price * (agencyInfo.agencyCommissionRate ?? 1);
 
- if (createPropertyDto.description){
-      createPropertyDto["ar_description"] = createPropertyDto.description
-      createPropertyDto["en_description"] = await this.propertiesGetProvider.translate(Language.ENGLISH, createPropertyDto.description)
-    }
-
-    if (createPropertyDto.title){
-      createPropertyDto["ar_title"] = createPropertyDto.title
-      createPropertyDto["en_title"] = await this.propertiesGetProvider.translate(Language.ENGLISH, createPropertyDto.title)
-    }
-
-    console.log(createPropertyDto);
+    let multi_description = {ar : createPropertyDto.description};
+    console.log(createPropertyDto.description)
+    multi_description['en'] =  await this.usersGetProvider.translate(
+      Language.ENGLISH,
+      createPropertyDto.description,
+    );
+    multi_description['de'] =  await this.usersGetProvider.translate(
+      Language.Germany,
+      createPropertyDto.description,
+    );
+    
+    let multi_title = {ar : createPropertyDto.title}
+    multi_title['en'] = await this.usersGetProvider.translate(
+      Language.ENGLISH,
+      createPropertyDto.title,
+    );
+    multi_title['de'] = await this.usersGetProvider.translate(
+      Language.Germany,
+      createPropertyDto.title,
+    );
     const result = await this.dataSource.transaction(async (manger) => {
       const newProperty = manger.create(Property, {
         ...createPropertyDto,
+        multi_description,
+        multi_title,
         firstImage: 'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
         owner: { id: user.id },
         location: { lat: pointsDto.lat, lon: pointsDto.lon },

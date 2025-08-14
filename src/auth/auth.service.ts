@@ -120,6 +120,6 @@ export class AuthService {
   }
 
     changeLanguage(Language : Language, userId : number) {
-    this.usersRepository.update({id : userId}, {language : Language});
+    return this.usersRepository.update({id : userId}, {language : Language});
   }
 }

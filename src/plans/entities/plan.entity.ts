@@ -17,11 +17,8 @@ export class Plan {
   @Column({ type: 'varchar', length: 14 })
   planDuration: string;
 
-  @Column({ type: 'varchar', length: 140 })
-  ar_description: string;
-
-  @Column({ type: 'varchar', length: 140 })
-  en_description: string;
+  @Column({ type: 'jsonb' })
+  multi_description: string;
 
   @Column({
     type: 'enum',

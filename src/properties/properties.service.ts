@@ -98,11 +98,12 @@ export class PropertiesService {
 
   getAllPendingAgency(
     query: FilterPropertyDto,
+    userId? : number,
     ownerId?: number,
     agencyId?: number,
   ) {
     query.status = PropertyStatus.PENDING;
-    return this.propertiesGetProvider.getAll(query, ownerId, agencyId);
+    return this.propertiesGetProvider.getAll(query,userId, ownerId, agencyId);
   }
 
   async getOnePro(proId: number, userId: number) {
@@ -113,8 +114,8 @@ export class PropertiesService {
     return this.propertiesGetProvider.getProByUser(proId, userId, role);
   }
 
-  async getProByGeo(geoProDto: GeoProDto) {
-    return this.propertiesGetProvider.getProByGeo(geoProDto);
+  async getProByGeo(geoProDto: GeoProDto, userId : number) {
+    return this.propertiesGetProvider.getProByGeo(geoProDto, userId);
   }
 
   async getProNearMe(nearProDto: NearProDto) {

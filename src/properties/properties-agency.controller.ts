@@ -90,6 +90,7 @@ export class PropertiesAgencyController {
   ) {
     return this.propertiesService.getAllPendingAgency(
       query,
+      agency.id,
       undefined,
       agency.id,
     );

@@ -23,16 +23,18 @@ export class PlansService {
   ) {}
 
   async create(createPlanDto: CreatePlanDto) {
-    if (createPlanDto.description) {
-      createPlanDto['ar_description'] = createPlanDto.description;
-      createPlanDto['en_description'] = await this.translate(
-        Language.ENGLISH,
-        createPlanDto.description,
-      );
-    }
-    return this.planRepository.save({ ...createPlanDto });
+    const plan = this.planRepository.create(createPlanDto);
+    plan.multi_description['ar'] = createPlanDto.description;
+    plan.multi_description['en'] = await this.usersGetProvider.translate(
+      Language.ENGLISH,
+      createPlanDto.description,
+    );
+    plan.multi_description['de'] = await this.usersGetProvider.translate(
+      Language.Germany,
+      createPlanDto.description,
+    );
+    return this.planRepository.save(plan);
   }
-
 
   async create_back_planes() {
     await this.dataSource.query(`
@@ -76,18 +78,21 @@ export class PlansService {
 
   async update(id: number, updatePlanDto: UpdatePlanDto) {
     const plan = await this.planRepository.findOneBy({ id: id });
-    if(!plan) {
-      throw new NotFoundException()
+    if (!plan) {
+      throw new NotFoundException();
     }
     if (updatePlanDto.description) {
-      plan['ar_description'] = updatePlanDto.description;
-      plan['en_description'] = await this.translate(
+      plan.multi_description['ar'] = updatePlanDto.description;
+      plan.multi_description['en'] = await this.usersGetProvider.translate(
         Language.ENGLISH,
         updatePlanDto.description,
       );
+      plan.multi_description['de'] = await this.usersGetProvider.translate(
+        Language.Germany,
+        updatePlanDto.description,
+      );
     }
-    const temp = { ...plan, ...updatePlanDto };
-    return this.planRepository.save({...temp});
+    return this.planRepository.save({ ...plan, ...updatePlanDto });
   }
 
   async findAll(userId: number) {
@@ -115,31 +120,18 @@ export class PlansService {
     });
     if (user.language == Language.ARABIC) {
       plans.forEach(function (plan) {
-        plan['description'] = plan.ar_description;
+        plan['description'] = plan.multi_description['ar'];
       });
-    } else {
+    } else if(user.language == Language.ENGLISH){
       plans.forEach(function (plan) {
-        plan['description'] = plan.en_description;
+        plan['description'] = plan.multi_description['en'];
+      });
+    }
+    else {
+      plans.forEach(function (plan) {
+        plan['description'] = plan.multi_description['de'];
       });
     }
     return plans;
-  }
-    async translate(targetLang: Language, text: string) {
-    const Url = this.configService.get<string>('TRANSLATE');
-    const sourceLang = Language.ARABIC;
-    const Url1 =
-      Url +
-      `?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
-    let translatedText;
-    await fetch(Url1)
-      .then((response) => response.json())
-      .then((data) => {
-        translatedText = data[0][0][0];
-      })
-      .catch((error) => {
-        console.error('حدث خطأ:', error);
-        console.log(Url1);
-      });
-    return translatedText;
   }
 }

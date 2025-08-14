@@ -18,11 +18,8 @@ export class Report {
   @Column({ length: 60, nullable: true })
   reason: string; //string
 
-  @Column({ length: 100 })
-  ar_description: string;
-
-  @Column({ length: 100 })
-  en_description: string;
+  @Column({ type : 'jsonb' })
+  mult_description: Record<string, string>;
 
   @Column({ length: 32 })
   myEmail: string;

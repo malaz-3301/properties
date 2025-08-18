@@ -63,37 +63,7 @@ export class PropertiesGetProvider {
     if (!user) {
       throw new NotFoundException();
     }
-    if (user.language == Language.ARABIC) {
-      property['description'] = property.multi_description['ar'];
-      property['title'] = property.multi_title['ar'];
-    } else if (user.language == Language.ENGLISH) {
-      property['description'] = property.multi_description['en'];
-      property['title'] = property.multi_title['en'];
-    } else {
-      property['description'] = property.multi_description['de'];
-      property['title'] = property.multi_title['de'];
-    }
-    property.status = await this.i18n.t(`transolation.${property.status}`, {
-      lang: user.language,
-    });
-    property.propertyType = await this.i18n.t(
-      `transolation.${property.propertyType}`,
-      {
-        lang: user.language,
-      },
-    );
-    property.heatingType = await this.i18n.t(
-      `transolation.${property.heatingType}`,
-      {
-        lang: user.language,
-      },
-    );
-    property.flooringType = await this.i18n.t(
-      `transolation.${property.flooringType}`,
-      {
-        lang: user.language,
-      },
-    );
+    this.getTranslatedProperty(property, user.language);
     return property;
   }
 
@@ -142,34 +112,7 @@ export class PropertiesGetProvider {
     if (!user) {
       throw new NotFoundException();
     }
-    if (user.language == Language.ARABIC) {
-      property['description'] = property.multi_description['ar'];
-      property['title'] = property.multi_title['ar'];
-    } else if (user.language == Language.ENGLISH) {
-      property['description'] = property.multi_description['en'];
-      property['title'] = property.multi_title['en'];
-    } else {
-      property['description'] = property.multi_description['de'];
-      property['title'] = property.multi_title['de'];
-    }
-
-    console.log(user.language);
-    property.propertyType = await this.i18n.t(
-      `transolation.${property.propertyType}`,
-      { lang: user.language },
-    );
-    property.status = await this.i18n.t(
-      `transolation.${property.status}`,
-      { lang: user.language },
-    );
-    property.flooringType = await this.i18n.t(
-      `transolation.${property.flooringType}`,
-      { lang: user.language },
-    );
-    property.heatingType = await this.i18n.t(
-      `transolation.${property.heatingType}`,
-      { lang: user.language },
-    );
+    this.getTranslatedProperty(property, user.language);
     console.log(property.propertyType);
     const isFavorite = await this.favoriteService.isFavorite(userId, proId);
     const voteValue = await this.votesService.isVote(proId, userId);
@@ -269,51 +212,13 @@ export class PropertiesGetProvider {
     if (!user) {
       throw new NotFoundException();
     }
-    if (user.language == Language.ARABIC) {
-      properties.forEach(function (property) {
-        property['description'] = property.multi_description['ar'];
-        property['title'] = property.multi_title['ar'];
-      });
-    } else if(user.language == Language.ENGLISH){
-      properties.forEach(function (property) {
-        property['description'] = property.multi_description['en'];
-        property['title'] = property.multi_title['en'];
-      });
-    }
-    else {
-      properties.forEach(function (property) {
-        property['description'] = property.multi_description['de'];
-        property['title'] = property.multi_title['de'];
-      });
-    }
     for (let i = 0; i < properties.length; i++) {
-      properties[i].status = await this.i18n.t(
-        `transolation.${properties[i].status}`,
-        { lang: user.language },
-      );
-      properties[i].propertyType = await this.i18n.t(
-        `transolation.${properties[i].propertyType}`,
-        {
-          lang: user.language,
-        },
-      );
-      properties[i].heatingType = await this.i18n.t(
-        `transolation.${properties[i].heatingType}`,
-        {
-          lang: user.language,
-        },
-      );
-      properties[i].flooringType = await this.i18n.t(
-        `transolation.${properties[i].flooringType}`,
-        {
-          lang: user.language,
-        },
-      );
+      this.getTranslatedProperty(properties[i], user.language);
     }
     return properties;
   }
 
-  async getProNearMe(nearProDto: NearProDto) {
+  async getProNearMe(nearProDto: NearProDto, userId: number) {
     const result = await this.dataSource.query(
       `
           SELECT *,
@@ -331,6 +236,11 @@ export class PropertiesGetProvider {
       `,
       [nearProDto.lon, nearProDto.lat, nearProDto.distanceKm],
     );
+    const user = await this.usersService.getUserById(userId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    this.getTranslatedProperty(result, user.language);
     return result;
   }
 
@@ -405,9 +315,9 @@ export class PropertiesGetProvider {
     if (priceDir != null) {
       order.price = priceDir;
     }
-    console.log(pageNum)
-    console.log(numPerPage)
-    console.log(numPerPage * (pageNum - 1))
+    console.log(pageNum);
+    console.log(numPerPage);
+    console.log(numPerPage * (pageNum - 1));
     const properties: Property[] = await this.propertyRepository.find({
       where,
       skip: numPerPage * (pageNum - 1), //pagination
@@ -448,25 +358,7 @@ export class PropertiesGetProvider {
         throw new NotFoundException();
       }
       for (let i = 0; i < properties.length; i++) {
-        properties[i].status = await this.i18n.t(
-          `transolation.${properties[i].status}`,
-          { lang: user.language },
-        );
-
-        properties[i].propertyType = await this.i18n.t(
-          `transolation.${properties[i].propertyType}`,
-          {
-            lang: user.language,
-          },
-        );
-        if (user.language == Language.ARABIC) {
-          properties[i]['title'] = properties[i].multi_title['ar'];
-        } else if(user.language == Language.ENGLISH){
-          properties[i]['title'] = properties[i].multi_title['en'];
-        }
-        else {
-          properties[i]['title'] = properties[i].multi_title['de'];
-        }
+        this.getTranslatedProperty(properties[i], user.language);
       }
     }
     if (!properties || properties.length === 0) {
@@ -502,5 +394,20 @@ export class PropertiesGetProvider {
       relations: ['agency', 'owner'],
       select: { owner: { id: true }, agency: { id: true } },
     });
+  }
+  getTranslatedProperty(property: Property, language: Language) {
+    if (language == Language.ARABIC) {
+      if (property.multi_description)
+        property['description'] = property.multi_description['ar'];
+      property['title'] = property.multi_title['ar'];
+    } else if (language == Language.ENGLISH) {
+      if (property.multi_description)
+        property['description'] = property.multi_description['en'];
+      property['title'] = property.multi_title['en'];
+    } else {
+      if (property.multi_description)
+        property['description'] = property.multi_description['de'];
+      property['title'] = property.multi_title['de'];
+    }
   }
 }

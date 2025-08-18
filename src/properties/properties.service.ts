@@ -118,8 +118,8 @@ export class PropertiesService {
     return this.propertiesGetProvider.getProByGeo(geoProDto, userId);
   }
 
-  async getProNearMe(nearProDto: NearProDto) {
-    return this.propertiesGetProvider.getProNearMe(nearProDto);
+  async getProNearMe(nearProDto: NearProDto, userId : number) {
+    return this.propertiesGetProvider.getProNearMe(nearProDto, userId);
   }
 
   async deleteOwnerPro(proId: number, userId: number, password: string) {

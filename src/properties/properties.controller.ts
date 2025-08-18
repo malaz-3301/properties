@@ -22,7 +22,7 @@ import { PointsDto } from '../geolocation/dto/points.dto';
 import { NearProDto } from './dto/near-pro.dto';
 import { GeoProDto } from './dto/geo-pro.dto';
 
-//@UseInterceptors(CacheInterceptor)
+@UseInterceptors(CacheInterceptor)
 @Controller('property')
 //@Res not work with Cache Interceptor
 export class PropertiesController {
@@ -51,8 +51,12 @@ export class PropertiesController {
   }
 
   @Get('near')
-  getProNearMe(@Query() nearProDto: NearProDto) {
-    return this.propertiesService.getProNearMe(nearProDto);
+  @UseGuards(AuthGuard)
+  getProNearMe(
+    @Query() nearProDto: NearProDto,
+    @CurrentUser() user: JwtPayloadType,
+  ) {
+    return this.propertiesService.getProNearMe(nearProDto, user.id);
   }
 
   @Get('top/:limit')
@@ -63,7 +67,7 @@ export class PropertiesController {
 
   @Get(':proId')
   @UseGuards(AuthGuard)
-  // @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(CacheInterceptor)
   @Throttle({ default: { ttl: 10000, limit: 5 } }) // منفصل overwrite
   getOnePro(
     @Param('proId', ParseIntPipe) proId: number,

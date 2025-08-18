@@ -4,9 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePropertyDto } from '../dto/create-property.dto';
 import { Language, PropertyStatus, UserType } from '../../utils/enums';
-import { PropertiesGetProvider } from './properties-get.provider';
 import { UsersGetProvider } from '../../users/providers/users-get.provider';
-import { GeolocationService } from '../../geolocation/geolocation.service';
 import { PropertiesVoSuViProvider } from './properties-vo-su-vi.provider';
 import { AgenciesVoViProvider } from '../../users/providers/agencies-vo-vi.provider';
 import { ClientProxy, RmqRecordBuilder } from '@nestjs/microservices';
@@ -19,8 +17,6 @@ export class PropertiesCreateProvider {
     @InjectRepository(Property)
     private propertyRepository: Repository<Property>,
     private usersGetProvider: UsersGetProvider,
-    private propertiesGetProvider: PropertiesGetProvider,
-    private geolocationService: GeolocationService,
     private readonly propertiesVoViProvider: PropertiesVoSuViProvider,
     private readonly agenciesVoViProvider: AgenciesVoViProvider,
     private dataSource: DataSource,
@@ -70,31 +66,9 @@ export class PropertiesCreateProvider {
     const propertyCommissionRate =
       createPropertyDto.price * (agencyInfo.agencyCommissionRate ?? 1);
 
-    let multi_description = {ar : createPropertyDto.description};
-    console.log(createPropertyDto.description)
-    multi_description['en'] =  await this.usersGetProvider.translate(
-      Language.ENGLISH,
-      createPropertyDto.description,
-    );
-    multi_description['de'] =  await this.usersGetProvider.translate(
-      Language.Germany,
-      createPropertyDto.description,
-    );
-    
-    let multi_title = {ar : createPropertyDto.title}
-    multi_title['en'] = await this.usersGetProvider.translate(
-      Language.ENGLISH,
-      createPropertyDto.title,
-    );
-    multi_title['de'] = await this.usersGetProvider.translate(
-      Language.Germany,
-      createPropertyDto.title,
-    );
     const result = await this.dataSource.transaction(async (manger) => {
       const newProperty = manger.create(Property, {
         ...createPropertyDto,
-        multi_description,
-        multi_title,
         firstImage: 'https://cdn-icons-png.flaticon.com/512/4757/4757668.png',
         owner: { id: user.id },
         location: { lat: pointsDto.lat, lon: pointsDto.lon },
@@ -105,6 +79,7 @@ export class PropertiesCreateProvider {
       if (user.id === agency.id) {
         newProperty.status = PropertyStatus.ACCEPTED;
       }
+      await this.createTranslatedProperty(newProperty, createPropertyDto);
       await manger.save(Property, newProperty);
       console.log('ddddddddddddddddddddddddddddddd');
 
@@ -128,5 +103,30 @@ export class PropertiesCreateProvider {
     );
 
     return result.id;
+  }
+  async createTranslatedProperty(
+    property: Property,
+    createPropertyDto: CreatePropertyDto,
+  ) {
+    property.multi_description = { ar: createPropertyDto.description };
+    console.log(createPropertyDto.description);
+    property.multi_description['en'] = await this.usersGetProvider.translate(
+      Language.ENGLISH,
+      createPropertyDto.description,
+    );
+    property.multi_description['de'] = await this.usersGetProvider.translate(
+      Language.Germany,
+      createPropertyDto.description,
+    );
+
+    property.multi_title = { ar: createPropertyDto.title };
+    property.multi_title['en'] = await this.usersGetProvider.translate(
+      Language.ENGLISH,
+      createPropertyDto.title,
+    );
+    property.multi_title['de'] = await this.usersGetProvider.translate(
+      Language.Germany,
+      createPropertyDto.title,
+    );
   }
 }

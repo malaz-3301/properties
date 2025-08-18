@@ -18,7 +18,7 @@ export class Plan {
   planDuration: string;
 
   @Column({ type: 'jsonb' })
-  multi_description: string;
+  multi_description: Record<string, string>;
 
   @Column({
     type: 'enum',

@@ -31,6 +31,7 @@ import { PropertiesCreateProvider } from './providers/properties-create.provider
 import { PriorityRatio } from './entities/priority-ratio.entity';
 import { GeoQueClientModule } from '../modules-set/geo-que-client.module';
 import { PropertiesProcessor } from './processors/properties.processor';
+import { SmsQueClientModule } from '../modules-set/sms-que-client.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PropertiesProcessor } from './processors/properties.processor';
     GeoQueClientModule,
     AuditModule,
     FavoriteModule,
+    SmsQueClientModule,
     forwardRef(() => VotesModule),
   ],
   controllers: [
